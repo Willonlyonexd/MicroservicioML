@@ -198,3 +198,4 @@
 2025-05-30 15:44:24.428 | INFO     | __main__:main:352 - Servicio finalizado. Cerrando conexiones...
 2025-05-30 15:44:24.429 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
 2025-05-30 15:44:24.430 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+#---
