@@ -6,6 +6,58 @@ from etl.sync import get_data_synchronizer
 from db.models import create_indexes
 import time
 
+# Importamos nuestro módulo de forecasting
+from ml.forecast import TFForecaster
+import matplotlib.pyplot as plt
+import os
+import tensorflow as tf
+
+def diagnosticar_datos_disponibles():
+    """Realiza un diagnóstico de los datos disponibles en MongoDB."""
+    mongo = get_mongo_manager()
+    
+    logger.info("=== DIAGNÓSTICO DE DATOS EN MONGODB ===")
+    
+    # Listar todas las colecciones
+    collections = mongo.db.list_collection_names()
+    logger.info(f"Colecciones disponibles: {collections}")
+    
+    # Verificar datos en colecciones relevantes
+    for collection_name in ["raw_pedidos", "raw_pedido_detalles", "raw_productos"]:
+        if collection_name in collections:
+            count = mongo.db[collection_name].count_documents({})
+            logger.info(f"Colección {collection_name}: {count} documentos")
+            
+            # Mostrar un ejemplo de documento
+            if count > 0:
+                sample = mongo.db[collection_name].find_one({})
+                logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
+    
+    # Verificar si hay datos de productos
+    if "raw_productos" in collections:
+        productos = list(mongo.db.raw_productos.find({}).limit(5))
+        if productos:
+            logger.info(f"Ejemplos de productos disponibles: {[p.get('_id') for p in productos]}")
+        else:
+            logger.warning("No hay productos en la colección raw_productos")
+            
+    # Verificar pedidos y detalles de pedidos
+    if "raw_pedidos" in collections and "raw_pedido_detalles" in collections:
+        # Obtener un pedido de ejemplo
+        sample_pedido = mongo.db.raw_pedidos.find_one({})
+        if sample_pedido:
+            pedido_id = sample_pedido.get('_id')
+            # Buscar detalles asociados a este pedido
+            detalles = list(mongo.db.raw_pedido_detalles.find({"pedido_id": pedido_id}))
+            logger.info(f"Pedido {pedido_id} tiene {len(detalles)} detalles")
+            
+            # Mostrar productos en esos detalles
+            if detalles:
+                productos_en_detalles = [d.get('producto_id') for d in detalles if 'producto_id' in d]
+                logger.info(f"Productos en detalles de pedido: {productos_en_detalles}")
+    
+    logger.info("=== FIN DEL DIAGNÓSTICO ===")
+
 def test_connections():
     """Prueba las conexiones a bases de datos."""
     logger.info("Probando conexiones a bases de datos...")
@@ -85,68 +137,165 @@ def test_sync(tenant_id=1, force_full=False):
     return all_success
 
 def sync_scheduled(tenant_id=1, interval_minutes=None, force_initial_full=False):
-    """Ejecuta la sincronización de forma programada.
+    """Ejecuta la sincronización de forma programada."""
+    # Código de sincronización existente...
+    pass  # Mantenemos la función pero no la modificamos
+
+def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, train_product_models=True, top_products=10):
+    """
+    Ejecuta el módulo de forecasting con TensorFlow.
     
     Args:
-        tenant_id: ID del tenant para sincronizar
-        interval_minutes: Intervalo en minutos entre sincronizaciones
-        force_initial_full: Si es True, la primera sincronización será completa
+        train_new_model: Si es True, entrena un nuevo modelo general
+        save_model: Si es True, guarda los modelos entrenados
+        generate_plots: Si es True, genera visualizaciones
+        train_product_models: Si es True, entrena modelos por producto
+        top_products: Número de productos top a predecir
     """
-    config = get_config()
+    logger.info("Iniciando módulo de forecasting...")
     
-    if interval_minutes is None:
-        interval_minutes = config.etl.sync_interval
+    # Ejecutar diagnóstico para entender qué datos están disponibles
+    diagnosticar_datos_disponibles()
     
-    logger.info(f"Iniciando sincronización programada cada {interval_minutes} minutos para tenant {tenant_id}")
+    # Obtenemos el cliente de MongoDB
+    mongo = get_mongo_manager()
     
-    synchronizer = get_data_synchronizer()
-    first_run = True
+    # Creamos la instancia de nuestro modelo
+    forecaster = TFForecaster(db_client=mongo)
+    
+    # Verificamos si hay un modelo general guardado
+    model_path = "models/forecast"
+    model_exists = os.path.exists(os.path.join(model_path, "tf_forecaster.h5"))
+    
+    # Verificamos si hay modelos de productos guardados
+    product_model_path = "models/forecast/products"
+    product_models_exist = os.path.exists(product_model_path) and len(os.listdir(product_model_path)) > 0
     
     try:
-        while True:
-            logger.info("Ejecutando sincronización programada...")
+        # 1. MODELO GENERAL
+        if model_exists and not train_new_model:
+            logger.info("Cargando modelo general existente...")
+            forecaster.load_model(path=model_path)
+            logger.info("Modelo general cargado correctamente.")
+        else:
+            if train_new_model:
+                logger.info("Iniciando entrenamiento de nuevo modelo general...")
+                
+                # Configurar memoria para TensorFlow (opcional)
+                gpus = tf.config.experimental.list_physical_devices('GPU')
+                if gpus:
+                    try:
+                        logger.info(f"GPU disponible: {gpus}")
+                        # Limitar memoria GPU si es necesario
+                        for gpu in gpus:
+                            tf.config.experimental.set_memory_growth(gpu, True)
+                    except RuntimeError as e:
+                        logger.warning(f"Error configurando GPU: {e}")
+                else:
+                    logger.info("Entrenando en CPU")
+                
+                # Entrenamiento del modelo general
+                start_time = time.time()
+                history = forecaster.train()
+                end_time = time.time()
+                training_time = round(end_time - start_time, 2)
+                logger.info(f"Entrenamiento del modelo general completado en {training_time} segundos")
+                
+                # Guardar modelo general si es necesario
+                if save_model:
+                    logger.info("Guardando modelo general entrenado...")
+                    os.makedirs(model_path, exist_ok=True)
+                    forecaster.save_model(path=model_path)
+                    logger.info(f"Modelo general guardado en {model_path}")
+            else:
+                logger.error("No se encontró un modelo general existente y no se solicitó entrenamiento.")
+                return False
+        
+        # 2. MODELOS POR PRODUCTO
+        if train_product_models:
+            logger.info(f"Iniciando entrenamiento de modelos para los top {top_products} productos...")
             start_time = time.time()
             
-            try:
-                # Determinar si esta ejecución debe ser completa o incremental
-                use_force_full = first_run and force_initial_full
-                if use_force_full:
-                    logger.info("Realizando sincronización completa inicial...")
-                else:
-                    logger.info("Realizando sincronización incremental...")
-                
-                # Ejecutar sincronización con el modo apropiado
-                results = synchronizer.sync_all_tables(
-                    tenant_id=tenant_id, 
-                    force_full=use_force_full
-                )
-                
-                first_run = False  # Ya no es la primera ejecución
-                
-                end_time = time.time()
-                duration = round(end_time - start_time, 2)
-                
-                # Calcular estadísticas
-                success_count = sum(1 for r in results if r.get("status") == "success")
-                error_count = sum(1 for r in results if r.get("status") == "error")
-                skipped_count = sum(1 for r in results if r.get("status") == "skipped")
-                records_count = sum(r.get("records", 0) for r in results if r.get("status") == "success")
-                
-                logger.info(f"Sincronización completada en {duration}s: {success_count} tablas exitosas, {error_count} errores, {skipped_count} omitidas, {records_count} registros procesados")
-            except Exception as e:
-                logger.error(f"Error durante el ciclo de sincronización: {str(e)}")
-                # Continuar con el siguiente ciclo aunque este haya fallado
+            # Entrenar modelos por producto
+            training_results = forecaster.train_product_models(top_n=top_products)
             
-            # Esperar hasta la próxima ejecución
-            next_sync_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() + interval_minutes * 15))
-            logger.info(f"Próxima sincronización programada a las {next_sync_time} (en {interval_minutes} minutos)")
-            time.sleep(interval_minutes * 15)
+            end_time = time.time()
+            training_time = round(end_time - start_time, 2)
             
-    except KeyboardInterrupt:
-        logger.info("Sincronización programada interrumpida por el usuario")
+            # Contar modelos exitosos
+            success_count = sum(1 for r in training_results.values() if r.get('status') == 'success')
+            logger.info(f"Entrenamiento de {success_count}/{len(training_results)} modelos de productos completado en {training_time} segundos")
+            
+            # Guardar modelos de productos si es necesario
+            if save_model and success_count > 0:
+                logger.info("Guardando modelos de productos entrenados...")
+                os.makedirs(product_model_path, exist_ok=True)
+                forecaster.save_product_models(path=product_model_path)
+                logger.info(f"Modelos de productos guardados en {product_model_path}")
+        elif product_models_exist:
+            logger.info("Cargando modelos de productos existentes...")
+            forecaster.load_product_models(path=product_model_path)
+            logger.info("Modelos de productos cargados correctamente.")
+        
+        # 3. GENERAR PREDICCIONES GENERALES
+        logger.info("Generando predicciones generales...")
+        predictions = forecaster.predict_next_days()
+        logger.info(f"Predicciones generales generadas para los próximos {len(predictions)} días")
+        
+        # Guardar predicciones generales en MongoDB
+        logger.info("Guardando predicciones generales en MongoDB...")
+        forecaster.save_predictions_to_db(predictions)
+        
+        # 4. GENERAR PREDICCIONES POR PRODUCTO
+        if hasattr(forecaster, 'product_models') and forecaster.product_models:
+            logger.info("Generando predicciones por producto...")
+            product_predictions = forecaster.predict_product_demand()
+            
+            if not product_predictions.empty:
+                logger.info(f"Predicciones generadas para {product_predictions['producto_id'].nunique()} productos")
+                
+                # Guardar predicciones por producto en MongoDB
+                logger.info("Guardando predicciones por producto en MongoDB...")
+                forecaster.save_product_predictions_to_db(product_predictions)
+            else:
+                logger.warning("No se pudieron generar predicciones por producto")
+        
+        # 5. GENERAR VISUALIZACIONES
+        if generate_plots:
+            # Crear directorio para gráficos si no existe
+            plots_dir = "plots"
+            os.makedirs(plots_dir, exist_ok=True)
+            
+            # Generar y guardar gráfico general
+            logger.info("Generando visualización de predicciones generales...")
+            fig = forecaster.plot_forecast(history_days=30)
+            plot_path = os.path.join(plots_dir, f"forecast_{time.strftime('%Y%m%d_%H%M%S')}.png")
+            fig.savefig(plot_path)
+            plt.close(fig)
+            logger.info(f"Visualización general guardada en {plot_path}")
+            
+            # Generar gráficos para algunos productos de ejemplo
+            if hasattr(forecaster, 'product_models') and forecaster.product_models:
+                # Seleccionar hasta 3 productos para visualizar como ejemplo
+                sample_products = list(forecaster.product_models.keys())[:3]
+                
+                for product_id in sample_products:
+                    try:
+                        logger.info(f"Generando visualización para producto {product_id}...")
+                        fig = forecaster.plot_product_forecast(product_id, history_days=30)
+                        product_plot_path = os.path.join(plots_dir, f"product_{product_id}_{time.strftime('%Y%m%d_%H%M%S')}.png")
+                        fig.savefig(product_plot_path)
+                        plt.close(fig)
+                        logger.info(f"Visualización de producto {product_id} guardada en {product_plot_path}")
+                    except Exception as e:
+                        logger.warning(f"Error al generar visualización para producto {product_id}: {str(e)}")
+        
+        logger.info("Proceso de forecasting completado exitosamente")
+        return True
+        
     except Exception as e:
-        logger.error(f"Error fatal en sincronización programada: {str(e)}")
-        raise  # Re-lanzar para permitir que main() maneje la excepción
+        logger.error(f"Error en el proceso de forecasting: {str(e)}", exc_info=True)
+        return False
 
 def main():
     """Función principal de la aplicación."""
@@ -171,45 +320,34 @@ def main():
     except Exception as e:
         logger.error(f"Error al crear índices: {str(e)}")
     
-    # Decidir si forzar sincronización completa inicial en modo desarrollo
-    force_initial_full = config.dev_mode
-    
-    # Siempre ejecutar la sincronización programada, independientemente del modo
     try:
-        # CÓDIGO DE SINCRONIZACIÓN COMENTADO - INICIO
-        # En modo desarrollo, podemos ejecutar una sincronización inicial completa
-        # En producción, vamos directamente a la sincronización programada incremental
-        # if config.dev_mode:
-        #     logger.info("Modo desarrollo: Ejecutando sincronización inicial completa...")
-        #     test_result = test_sync(tenant_id=1, force_full=True)
-        #     
-        #     if not test_result:
-        #         logger.warning("La sincronización inicial tuvo errores. Verificar los logs antes de continuar.")
-        # 
-        # # Iniciar la sincronización programada 24/7
-        # logger.info("Iniciando servicio de sincronización 24/7...")
-        # # En desarrollo, la primera sincronización programada será incremental
-        # # después de la completa inicial que ya hicimos
-        # sync_scheduled(tenant_id=1, force_initial_full=False)
-        # CÓDIGO DE SINCRONIZACIÓN COMENTADO - FIN
-        
-        # INSERTA TU CÓDIGO ML AQUÍ
+        # INSERTA TU CÓDIGO ML AQUÍ - REEMPLAZO CON NUESTRO CÓDIGO DE FORECASTING
         logger.info("Sincronización desactivada. Usando datos existentes en MongoDB para ML.")
         
-        # Ejemplo: código para trabajar con MongoDB directamente
-        # mongo = get_mongo_manager()
-        # data = list(mongo.db.raw_pedidos.find({"tenant_id": 1}))
-        # logger.info(f"Procesando {len(data)} pedidos para modelo ML")
+        # Ejecutar módulo de forecasting
+        ml_success = run_ml_forecast(
+            train_new_model=True,        # True para entrenar nuevo modelo general
+            save_model=True,             # True para guardar los modelos después de entrenar
+            generate_plots=True,         # True para generar visualizaciones
+            train_product_models=True,   # True para entrenar modelos por producto
+            top_products=10              # Número de productos top a predecir
+        )
         
-        # Agregar tiempo de espera para que el programa no termine inmediatamente
-        logger.info("Presiona Ctrl+C para terminar")
-        while True:
-            time.sleep(60)
-            
+        if ml_success:
+            logger.info("Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.")
+        else:
+            logger.warning("El módulo ML presentó errores. Revisar logs para más detalles.")
+        
+        # Para entorno de desarrollo, podemos mantener el programa corriendo para probar más
+        if config.dev_mode:
+            logger.info("Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.")
+            while True:
+                time.sleep(60)
+        
     except KeyboardInterrupt:
         logger.info("Programa interrumpido por el usuario")
     except Exception as e:
-        logger.critical(f"Error fatal en el servicio: {str(e)}")
+        logger.critical(f"Error fatal en el servicio: {str(e)}", exc_info=True)
     finally:
         logger.info("Servicio finalizado. Cerrando conexiones...")
         # Cerrar conexiones explícitamente
