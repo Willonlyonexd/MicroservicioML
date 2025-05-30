@@ -1,3 +1,5 @@
+import pandas as pd
+from datetime import datetime
 from config import get_config
 from utils import logger, setup_logging
 from db.mongo_client import get_mongo_manager
@@ -8,9 +10,17 @@ import time
 
 # Importamos nuestro módulo de forecasting
 from ml.forecast import TFForecaster
+from ml.forecast.model import TFForecaster
+from ml.forecast.config import MONGO_PARAMS, AGGREGATION_PARAMS
 import matplotlib.pyplot as plt
 import os
 import tensorflow as tf
+import logging
+logging.getLogger("pymongo").setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
+logging.getLogger("PIL.PngImagePlugin").setLevel(logging.WARNING)
+
+
 
 def diagnosticar_datos_disponibles():
     """Realiza un diagnóstico de los datos disponibles en MongoDB."""
@@ -237,14 +247,64 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
             forecaster.load_product_models(path=product_model_path)
             logger.info("Modelos de productos cargados correctamente.")
         
-        # 3. GENERAR PREDICCIONES GENERALES
+        # 3. GENERAR PREDICCIONES GENERALES (DIARIAS, SEMANALES Y MENSUALES)
         logger.info("Generando predicciones generales...")
-        predictions = forecaster.predict_next_days()
-        logger.info(f"Predicciones generales generadas para los próximos {len(predictions)} días")
+        
+        # Predicciones diarias
+        daily_predictions = forecaster.predict_next_days()
+        logger.info(f"Predicciones diarias generadas para los próximos {len(daily_predictions)} días")
+        
+        # NUEVO: Predicciones semanales
+        logger.info("Generando predicciones semanales...")
+        weekly_predictions = forecaster.predict_aggregated(period='week', horizon=8)
+        logger.info(f"Predicciones semanales generadas para las próximas {len(weekly_predictions)} semanas")
+        
+        # NUEVO: Predicciones mensuales
+        logger.info("Generando predicciones mensuales...")
+        monthly_predictions = forecaster.predict_aggregated(period='month', horizon=3)
+        logger.info(f"Predicciones mensuales generadas para los próximos {len(monthly_predictions)} meses")
         
         # Guardar predicciones generales en MongoDB
-        logger.info("Guardando predicciones generales en MongoDB...")
-        forecaster.save_predictions_to_db(predictions)
+        logger.info("Guardando predicciones diarias en MongoDB...")
+        forecaster.save_predictions_to_db(daily_predictions)
+        
+        # NUEVO: Guardar predicciones semanales y mensuales en MongoDB
+        try:
+            # Formato para guardar datos de semanas y meses
+            weekly_docs = [{
+                "tipo": "semanal",
+                "periodo": w["periodo"],
+                "fecha_inicio": w["fecha_inicio"],
+                "fecha_fin": w["fecha_fin"],
+                "prediccion": w["prediccion"],
+                "confianza": w["confianza"],
+                "timestamp": datetime.now()
+            } for w in weekly_predictions]
+            
+            monthly_docs = [{
+                "tipo": "mensual",
+                "periodo": m["periodo"],
+                "fecha_inicio": m["fecha_inicio"],
+                "fecha_fin": m["fecha_fin"],
+                "prediccion": m["prediccion"],
+                "confianza": m["confianza"],
+                "timestamp": datetime.now()
+            } for m in monthly_predictions]
+            
+            # Eliminar predicciones anteriores
+            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "semanal"})
+            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "mensual"})
+            
+            # Insertar nuevas predicciones
+            if weekly_docs:
+                mongo.db[MONGO_PARAMS["collection_forecasts"]].insert_many(weekly_docs)
+                logger.info(f"Guardadas {len(weekly_docs)} predicciones semanales en MongoDB")
+            
+            if monthly_docs:
+                mongo.db[MONGO_PARAMS["collection_forecasts"]].insert_many(monthly_docs)
+                logger.info(f"Guardadas {len(monthly_docs)} predicciones mensuales en MongoDB")
+        except Exception as e:
+            logger.error(f"Error guardando predicciones agregadas: {str(e)}")
         
         # 4. GENERAR PREDICCIONES POR PRODUCTO
         if hasattr(forecaster, 'product_models') and forecaster.product_models:
@@ -257,6 +317,43 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                 # Guardar predicciones por producto en MongoDB
                 logger.info("Guardando predicciones por producto en MongoDB...")
                 forecaster.save_product_predictions_to_db(product_predictions)
+                
+                # NUEVO: Generar predicciones por categoría
+                logger.info("Generando predicciones por categoría...")
+                category_predictions = forecaster.predict_category_demand()
+                
+                if category_predictions:
+                    unique_categories = set(item['categoria_id'] for item in category_predictions)
+                    logger.info(f"Predicciones generadas para {len(unique_categories)} categorías")
+                    
+                    # Guardar predicciones por categoría en MongoDB
+                    try:
+                        # Preparar documentos
+                        category_docs = []
+                        for pred in category_predictions:
+                            doc = {
+                                "fecha": datetime.strptime(pred["fecha"], '%Y-%m-%d') if isinstance(pred["fecha"], str) else pred["fecha"],
+                                "dia": pred["dia"],
+                                "categoria_id": pred["categoria_id"],
+                                "nombre_categoria": pred["nombre_categoria"],
+                                "prediccion": pred["prediccion"],
+                                "confianza": pred["confianza"],
+                                "productos": pred["productos"],
+                                "timestamp": datetime.now()
+                            }
+                            category_docs.append(doc)
+                        
+                        # Eliminar predicciones anteriores
+                        mongo.db[MONGO_PARAMS["collection_category_predictions"]].delete_many({})
+                        
+                        # Insertar nuevas predicciones
+                        if category_docs:
+                            mongo.db[MONGO_PARAMS["collection_category_predictions"]].insert_many(category_docs)
+                            logger.info(f"Guardadas {len(category_docs)} predicciones por categoría en MongoDB")
+                    except Exception as e:
+                        logger.error(f"Error guardando predicciones por categoría: {str(e)}")
+                else:
+                    logger.warning("No se pudieron generar predicciones por categoría")
             else:
                 logger.warning("No se pudieron generar predicciones por producto")
         
@@ -274,12 +371,13 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
             plt.close(fig)
             logger.info(f"Visualización general guardada en {plot_path}")
             
-            # Generar gráficos para algunos productos de ejemplo
+            # MODIFICADO: Generar gráficos para TODOS los productos disponibles
             if hasattr(forecaster, 'product_models') and forecaster.product_models:
-                # Seleccionar hasta 3 productos para visualizar como ejemplo
-                sample_products = list(forecaster.product_models.keys())[:3]
+                # Usar todos los productos con modelos entrenados
+                all_product_ids = list(forecaster.product_models.keys())
+                logger.info(f"Generando visualizaciones para {len(all_product_ids)} productos...")
                 
-                for product_id in sample_products:
+                for product_id in all_product_ids:
                     try:
                         logger.info(f"Generando visualización para producto {product_id}...")
                         fig = forecaster.plot_product_forecast(product_id, history_days=30)
@@ -289,6 +387,30 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                         logger.info(f"Visualización de producto {product_id} guardada en {product_plot_path}")
                     except Exception as e:
                         logger.warning(f"Error al generar visualización para producto {product_id}: {str(e)}")
+                
+                # NUEVO: Generar visualizaciones por categoría
+                logger.info("Generando visualizaciones por categoría...")
+                
+                # Obtener categorías únicas de los productos modelados
+                unique_categories = set()
+                for product_id in forecaster.product_models:
+                    product_info = forecaster.data_processor.get_product_info(product_id)
+                    if 'categoria_id' in product_info and product_info['categoria_id'] is not None:
+                        unique_categories.add(product_info['categoria_id'])
+                
+                logger.info(f"Generando visualizaciones para {len(unique_categories)} categorías...")
+                
+                # Generar gráfico para cada categoría
+                for category_id in unique_categories:
+                    try:
+                        logger.info(f"Generando visualización para categoría {category_id}...")
+                        fig = forecaster.plot_category_forecast(category_id, history_days=30)
+                        category_plot_path = os.path.join(plots_dir, f"category_{category_id}_{time.strftime('%Y%m%d_%H%M%S')}.png")
+                        fig.savefig(category_plot_path)
+                        plt.close(fig)
+                        logger.info(f"Visualización de categoría {category_id} guardada en {category_plot_path}")
+                    except Exception as e:
+                        logger.warning(f"Error al generar visualización para categoría {category_id}: {str(e)}")
         
         logger.info("Proceso de forecasting completado exitosamente")
         return True

@@ -11,7 +11,7 @@ import os
 import json
 
 from .data_fixed import TimeSeriesDataProcessor
-from .config import MODEL_PARAMS, DATA_PARAMS, MONGO_PARAMS
+from .config import MODEL_PARAMS, DATA_PARAMS, MONGO_PARAMS, AGGREGATION_PARAMS
 
 class TFForecaster:
     """
@@ -82,6 +82,9 @@ class TFForecaster:
         # Crear secuencias
         X_train, y_train, X_val, y_val = self.data_processor.create_sequences(data_with_features)
         
+        if len(X_train) == 0:
+            raise ValueError("No hay suficientes datos para entrenar el modelo. Se requieren al menos 14 días de datos históricos.")
+        
         # Construir modelo
         self.model = self.build_model(input_shape=(X_train.shape[1], X_train.shape[2]))
         
@@ -92,15 +95,28 @@ class TFForecaster:
             restore_best_weights=True
         )
         
+        # Configurar callbacks
+        callbacks = [early_stopping]
+        
         # Entrenar modelo
-        history = self.model.fit(
-            X_train, y_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            validation_data=(X_val, y_val),
-            callbacks=[early_stopping],
-            verbose=1
-        )
+        if len(X_val) > 0:
+            history = self.model.fit(
+                X_train, y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                validation_data=(X_val, y_val),
+                callbacks=callbacks,
+                verbose=1
+            )
+        else:
+            # Si no hay datos de validación, entrenar sin ellos
+            history = self.model.fit(
+                X_train, y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                callbacks=callbacks,
+                verbose=1
+            )
         
         return history
     
@@ -175,14 +191,24 @@ class TFForecaster:
                 )
                 
                 # Entrenar modelo
-                history = product_model.fit(
-                    X_train, y_train,
-                    epochs=epochs,
-                    batch_size=min(32, len(X_train)),  # Ajustar batch_size según datos disponibles
-                    validation_data=(X_val, y_val) if len(X_val) > 0 else None,
-                    callbacks=[early_stopping],
-                    verbose=0
-                )
+                if len(X_val) > 0:
+                    history = product_model.fit(
+                        X_train, y_train,
+                        epochs=epochs,
+                        batch_size=min(32, len(X_train)),  # Ajustar batch_size según datos disponibles
+                        validation_data=(X_val, y_val),
+                        callbacks=[early_stopping],
+                        verbose=0
+                    )
+                else:
+                    # Entrenar sin validación si no hay datos suficientes
+                    history = product_model.fit(
+                        X_train, y_train,
+                        epochs=epochs,
+                        batch_size=min(32, len(X_train)),
+                        callbacks=[early_stopping],
+                        verbose=0
+                    )
                 
                 # Guardar modelo en memoria
                 self.product_models[product_id] = product_model
@@ -253,6 +279,119 @@ class TFForecaster:
         
         return result
     
+    def predict_aggregated(self, period='day', horizon=None):
+        """
+        Predice ventas agregadas por día, semana o mes.
+        
+        Args:
+            period: 'day', 'week' o 'month'
+            horizon: Número de períodos a predecir (si es None, usar configuración por defecto)
+        
+        Returns:
+            list: Predicciones para los períodos solicitados
+        """
+        # Determinar número de días base a predecir
+        days_needed = {
+            'day': DATA_PARAMS['horizon'],
+            'week': AGGREGATION_PARAMS.get('max_forecast_weeks', 8) * 7,
+            'month': AGGREGATION_PARAMS.get('max_forecast_months', 3) * 30
+        }.get(period, DATA_PARAMS['horizon'])
+        
+        if horizon:
+            if period == 'week':
+                days_needed = horizon * 7
+            elif period == 'month':
+                days_needed = horizon * 30
+            else:
+                days_needed = horizon
+        
+        # Asegurar que no excedemos el límite del modelo
+        max_forecast = AGGREGATION_PARAMS.get('max_forecast_days', 60)
+        days_needed = min(days_needed, max_forecast)
+        
+        # Obtener predicciones diarias
+        daily_predictions = self.predict_next_days(days=days_needed)
+        
+        if period == 'day':
+            return daily_predictions
+        
+        # Para agregaciones semanales o mensuales
+        result = []
+        
+        if period == 'week':
+            # Agrupar por semanas
+            week_data = {}
+            current_week = 1
+            days_in_week = 0
+            week_total = 0
+            week_start = None
+            
+            for pred in daily_predictions:
+                date = datetime.strptime(pred['fecha'], '%Y-%m-%d')
+                
+                if week_start is None:
+                    week_start = date
+                
+                week_total += pred['prediccion']
+                days_in_week += 1
+                
+                if days_in_week == 7:
+                    # Completamos una semana
+                    result.append({
+                        'periodo': current_week,
+                        'fecha_inicio': week_start.strftime('%Y-%m-%d'),
+                        'fecha_fin': pred['fecha'],
+                        'prediccion': week_total,
+                        'confianza': 0.85 - (current_week * 0.05)  # Reducir confianza con el tiempo
+                    })
+                    
+                    current_week += 1
+                    days_in_week = 0
+                    week_total = 0
+                    week_start = None
+            
+            # Añadir última semana parcial si existe
+            if days_in_week > 0:
+                result.append({
+                    'periodo': current_week,
+                    'fecha_inicio': week_start.strftime('%Y-%m-%d'),
+                    'fecha_fin': daily_predictions[-1]['fecha'],
+                    'prediccion': week_total,
+                    'confianza': 0.85 - (current_week * 0.05)
+                })
+        
+        elif period == 'month':
+            # Agrupar por meses
+            month_data = {}
+            
+            for pred in daily_predictions:
+                date = datetime.strptime(pred['fecha'], '%Y-%m-%d')
+                month_key = f"{date.year}-{date.month:02d}"
+                
+                if month_key not in month_data:
+                    month_data[month_key] = {
+                        'total': 0,
+                        'days': 0,
+                        'start_date': date,
+                        'end_date': date
+                    }
+                
+                month_data[month_key]['total'] += pred['prediccion']
+                month_data[month_key]['days'] += 1
+                month_data[month_key]['end_date'] = date
+            
+            # Convertir a formato de resultado
+            for i, (month_key, data) in enumerate(month_data.items()):
+                result.append({
+                    'periodo': i + 1,
+                    'fecha_inicio': data['start_date'].strftime('%Y-%m-%d'),
+                    'fecha_fin': data['end_date'].strftime('%Y-%m-%d'),
+                    'prediccion': data['total'],
+                    'confianza': 0.8 - (i * 0.1)  # Reducir confianza con el tiempo
+                })
+        
+        return result
+    
     def predict_product_demand(self, product_id=None, days=DATA_PARAMS['horizon']):
         """
         Predice demanda por producto para los próximos días.
@@ -315,6 +454,7 @@ class TFForecaster:
                                 'dia': i + 1,
                                 'producto_id': prod_id,
                                 'nombre_producto': product_info.get('nombre', f'Producto {prod_id}'),
+                                'categoria_id': product_info.get('categoria_id', None),
                                 'prediccion': float(max(0, pred)),  # Asegurar valores no negativos
                                 'confianza': 0.9 - (i * 0.05)  # La confianza disminuye con días más lejanos
                             })
@@ -371,11 +511,87 @@ class TFForecaster:
                     'dia': i + 1,
                     'producto_id': product_id,
                     'nombre_producto': product_info.get('nombre', f'Producto {product_id}'),
+                    'categoria_id': product_info.get('categoria_id', None),
                     'prediccion': float(max(0, pred)),  # Asegurar valores no negativos
                     'confianza': 0.9 - (i * 0.05)  # La confianza disminuye con días más lejanos
                 })
             
             return pd.DataFrame(results)
+    
+    def predict_category_demand(self, category_id=None, days=DATA_PARAMS['horizon']):
+        """
+        Predice demanda por categoría para los próximos días.
+        
+        Args:
+            category_id: ID de la categoría específica (opcional)
+            days: Número de días a predecir
+            
+        Returns:
+            list: Predicciones por categoría para los próximos días
+        """
+        # Obtener predicciones por producto
+        product_predictions = self.predict_product_demand(days=days)
+        
+        if product_predictions.empty:
+            logging.warning("No hay predicciones por producto disponibles para agregar por categoría.")
+            return []
+        
+        # Verificar si tenemos categoría_id en las predicciones
+        if 'categoria_id' not in product_predictions.columns:
+            logging.warning("Las predicciones de productos no contienen información de categoría.")
+            return []
+        
+        # Si se especificó una categoría, filtrar predicciones
+        if category_id is not None:
+            product_predictions = product_predictions[product_predictions['categoria_id'] == category_id]
+            
+            if product_predictions.empty:
+                logging.warning(f"No hay productos de la categoría {category_id} con predicciones disponibles.")
+                return []
+        
+        # Agrupar predicciones por fecha y categoría
+        result = []
+        
+        # Convertir DataFrame a diccionario para facilitar manipulación
+        pred_dict = {}
+        for _, row in product_predictions.iterrows():
+            date_str = row['fecha'].strftime('%Y-%m-%d') if isinstance(row['fecha'], datetime) else row['fecha']
+            category = row['categoria_id']
+            
+            # Omitir productos sin categoría
+            if pd.isna(category):
+                continue
+            
+            key = (date_str, category)
+            if key not in pred_dict:
+                # Obtener información de la categoría
+                category_info = self.data_processor.get_category_info(category)
+                category_name = category_info.get('nombre', f'Categoría {category}')
+                
+                pred_dict[key] = {
+                    'fecha': date_str,
+                    'dia': row['dia'],
+                    'categoria_id': category,
+                    'nombre_categoria': category_name,
+                    'prediccion': 0,
+                    'productos': 0,
+                    'confianza': 0
+                }
+            
+            pred_dict[key]['prediccion'] += row['prediccion']
+            pred_dict[key]['productos'] += 1
+            pred_dict[key]['confianza'] += row['confianza']
+        
+        # Promediar confianza y formatear resultados
+        for key, data in pred_dict.items():
+            if data['productos'] > 0:
+                data['confianza'] /= data['productos']  # Promedio de confianzas
+            result.append(data)
+        
+        # Ordenar por fecha y categoría
+        result.sort(key=lambda x: (x['dia'], x['categoria_id']))
+        
+        return result
     
     def save_model(self, path="models/forecast"):
         """
@@ -634,6 +850,89 @@ class TFForecaster:
         
         return fig
     
+    def plot_category_forecast(self, category_id, history_days=30):
+        """
+        Genera visualización de predicciones para una categoría específica.
+        
+        Args:
+            category_id: ID de la categoría
+            history_days: Días de historia a mostrar
+            
+        Returns:
+            matplotlib.figure.Figure: Figura con el gráfico
+        """
+        # Obtener predicciones por categoría
+        category_predictions = self.predict_category_demand(category_id=category_id)
+        
+        if not category_predictions:
+            raise ValueError(f"No hay predicciones disponibles para la categoría {category_id}")
+            
+        # Obtener información de la categoría
+        category_info = self.data_processor.get_category_info(category_id)
+        category_name = category_info.get('nombre', f'Categoría {category_id}')
+        
+        # Obtener datos históricos por producto y filtrar por esta categoría
+        product_data = self.data_processor.fetch_product_historical_data()
+        
+        if 'categoria_id' in product_data.columns:
+            # Filtrar por categoría
+            category_data = product_data[product_data['categoria_id'] == category_id]
+            
+            # Agrupar por fecha para obtener el total diario de la categoría
+            if not category_data.empty:
+                historical_category = category_data.groupby('fecha')['total'].sum().reset_index()
+            else:
+                historical_category = pd.DataFrame(columns=['fecha', 'total'])
+        else:
+            # Si no tenemos categoría en los datos, crear dataframe vacío
+            historical_category = pd.DataFrame(columns=['fecha', 'total'])
+        
+        # Crear figura
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        # Extraer últimos días de historia si hay datos
+        if not historical_category.empty:
+            if len(historical_category) > history_days:
+                historical = historical_category.iloc[-history_days:]
+            else:
+                historical = historical_category
+                
+            # Graficar datos históricos
+            ax.plot(historical['fecha'], historical['total'], 
+                    label='Datos históricos', color='blue', marker='o')
+        
+        # Preparar datos de predicciones
+        future_dates = [datetime.strptime(p['fecha'], '%Y-%m-%d') if isinstance(p['fecha'], str) else p['fecha'] 
+                        for p in category_predictions]
+        future_values = [p['prediccion'] for p in category_predictions]
+        
+        # Graficar predicciones
+        ax.plot(future_dates, future_values, 
+                label='Predicciones', color='red', linestyle='--', marker='x')
+        
+        # Añadir banda de confianza (simplificada)
+        confidence = 0.20  # 20% de error
+        upper_bound = [val * (1 + confidence) for val in future_values]
+        lower_bound = [max(0, val * (1 - confidence)) for val in future_values]
+        
+        ax.fill_between(future_dates, lower_bound, upper_bound, 
+                       color='red', alpha=0.2, label='Intervalo de confianza')
+        
+        # Configurar gráfico
+        ax.set_title(f'Predicción de Ventas - {category_name}', fontsize=15)
+        ax.set_xlabel('Fecha', fontsize=12)
+        ax.set_ylabel('Ventas totales', fontsize=12)
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.legend()
+        
+        # Rotar etiquetas del eje x
+        plt.xticks(rotation=45)
+        
+        # Ajustar diseño
+        plt.tight_layout()
+        
+        return fig
+    
     def save_predictions_to_db(self, predictions, collection_name="predicciones_ventas"):
         """
         Guarda las predicciones en MongoDB.
@@ -666,6 +965,48 @@ class TFForecaster:
         if documents:
             self.db_client.db[collection_name].insert_many(documents)
             logging.info(f"Guardadas {len(documents)} predicciones generales en MongoDB")
+    
+    def save_aggregated_predictions_to_db(self, predictions, period, collection_name="predicciones_ventas"):
+        """
+        Guarda las predicciones agregadas (semanales/mensuales) en MongoDB.
+        
+        Args:
+            predictions: Lista de predicciones agregadas
+            period: 'week' o 'month'
+            collection_name: Nombre de la colección donde guardar
+        """
+        if not self.db_client:
+            raise ValueError("No hay conexión a base de datos.")
+            
+        if not predictions:
+            logging.warning(f"No hay predicciones {period} para guardar.")
+            return
+            
+        # Determinar tipo según período
+        tipo = "semanal" if period == "week" else "mensual"
+        
+        # Preparar datos para inserción
+        documents = []
+        
+        for pred in predictions:
+            doc = {
+                "periodo": pred['periodo'],
+                "fecha_inicio": datetime.strptime(pred['fecha_inicio'], '%Y-%m-%d'),
+                "fecha_fin": datetime.strptime(pred['fecha_fin'], '%Y-%m-%d'),
+                "prediccion": pred['prediccion'],
+                "confianza": pred['confianza'],
+                "timestamp": datetime.now(),
+                "tipo": tipo
+            }
+            documents.append(doc)
+            
+        # Eliminar predicciones anteriores del mismo tipo
+        self.db_client.db[collection_name].delete_many({"tipo": tipo})
+        
+        # Insertar nuevas predicciones
+        if documents:
+            self.db_client.db[collection_name].insert_many(documents)
+            logging.info(f"Guardadas {len(documents)} predicciones {tipo}s en MongoDB")
             
     def save_product_predictions_to_db(self, predictions, collection_name="predicciones_productos"):
         """
@@ -695,6 +1036,11 @@ class TFForecaster:
                 "confianza": float(row['confianza']),
                 "timestamp": datetime.now()
             }
+            
+            # Agregar categoría si está disponible
+            if 'categoria_id' in row and not pd.isna(row['categoria_id']):
+                doc["categoria_id"] = row['categoria_id']
+                
             documents.append(doc)
             
         # Eliminar predicciones anteriores
@@ -704,3 +1050,42 @@ class TFForecaster:
         if documents:
             self.db_client.db[collection_name].insert_many(documents)
             logging.info(f"Guardadas {len(documents)} predicciones por producto en MongoDB")
+    
+    def save_category_predictions_to_db(self, predictions, collection_name="predicciones_categoria"):
+        """
+        Guarda las predicciones por categoría en MongoDB.
+        
+        Args:
+            predictions: Lista con predicciones por categoría
+            collection_name: Nombre de la colección donde guardar
+        """
+        if not self.db_client:
+            raise ValueError("No hay conexión a base de datos.")
+            
+        if not predictions:
+            logging.warning("No hay predicciones por categoría para guardar.")
+            return
+            
+        # Preparar datos para inserción
+        documents = []
+        
+        for pred in predictions:
+            doc = {
+                "fecha": datetime.strptime(pred['fecha'], '%Y-%m-%d') if isinstance(pred['fecha'], str) else pred['fecha'],
+                "dia": pred['dia'],
+                "categoria_id": pred['categoria_id'],
+                "nombre_categoria": pred['nombre_categoria'],
+                "prediccion": float(pred['prediccion']),
+                "confianza": float(pred['confianza']),
+                "productos": int(pred['productos']),
+                "timestamp": datetime.now()
+            }
+            documents.append(doc)
+            
+        # Eliminar predicciones anteriores
+        self.db_client.db[collection_name].delete_many({})
+        
+        # Insertar nuevas predicciones
+        if documents:
+            self.db_client.db[collection_name].insert_many(documents)
+            logging.info(f"Guardadas {len(documents)} predicciones por categoría en MongoDB")

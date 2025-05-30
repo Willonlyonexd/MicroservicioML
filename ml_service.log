@@ -198,4 +198,566 @@
 2025-05-30 15:44:24.428 | INFO     | __main__:main:352 - Servicio finalizado. Cerrando conexiones...
 2025-05-30 15:44:24.429 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
 2025-05-30 15:44:24.430 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
-#---
+#---2025-05-30 16:54:43.808 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 16:54:43.808 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 16:56:04.030 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 16:56:04.031 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-05-30 16:57:01.871 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 16:57:01.871 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 16:57:02.641 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 16:57:02.642 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.15 segundos
+2025-05-30 16:57:44.932 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 16:57:44.932 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 16:57:45.194 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 16:57:45.195 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 16:57:49.421 | INFO     | __main__:main:309 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 16:57:49.421 | INFO     | __main__:main:310 - Modo desarrollo: True
+2025-05-30 16:57:49.422 | INFO     | __main__:test_connections:63 - Probando conexiones a bases de datos...
+2025-05-30 16:57:49.426 | INFO     | __main__:test_connections:70 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 16:57:49.427 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 16:57:49.427 | INFO     | __main__:test_connections:79 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 16:57:49.432 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 16:57:49.437 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 16:57:49.441 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 16:57:49.445 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 16:57:49.448 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 16:57:49.451 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 16:57:49.454 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 16:57:49.459 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 16:57:49.462 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 16:57:49.466 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 16:57:49.469 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 16:57:49.470 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 16:57:49.470 | INFO     | __main__:main:325 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 16:57:49.471 | INFO     | __main__:run_ml_forecast:155 - Iniciando módulo de forecasting...
+2025-05-30 16:57:49.471 | INFO     | __main__:diagnosticar_datos_disponibles:19 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 16:57:49.476 | INFO     | __main__:diagnosticar_datos_disponibles:23 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 16:57:49.485 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_pedidos: 7449 documentos
+2025-05-30 16:57:49.489 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 16:57:49.503 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 16:57:49.509 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 16:57:49.515 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_productos: 31 documentos
+2025-05-30 16:57:49.518 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 16:57:49.523 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 16:57:49.540 | INFO     | __main__:diagnosticar_datos_disponibles:52 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 16:57:49.542 | INFO     | __main__:diagnosticar_datos_disponibles:59 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 16:57:49.542 | INFO     | __main__:run_ml_forecast:182 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 16:57:49.543 | INFO     | __main__:run_ml_forecast:195 - Entrenando en CPU
+2025-05-30 16:57:55.237 | INFO     | __main__:run_ml_forecast:202 - Entrenamiento del modelo general completado en 5.69 segundos
+2025-05-30 16:57:55.237 | INFO     | __main__:run_ml_forecast:206 - Guardando modelo general entrenado...
+2025-05-30 16:57:55.267 | INFO     | __main__:run_ml_forecast:209 - Modelo general guardado en models/forecast
+2025-05-30 16:57:55.267 | INFO     | __main__:run_ml_forecast:216 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 16:57:55.354 | INFO     | __main__:run_ml_forecast:227 - Entrenamiento de 0/10 modelos de productos completado en 0.09 segundos
+2025-05-30 16:57:55.355 | INFO     | __main__:run_ml_forecast:241 - Generando predicciones generales...
+2025-05-30 16:57:55.779 | INFO     | __main__:run_ml_forecast:243 - Predicciones generales generadas para los próximos 7 días
+2025-05-30 16:57:55.779 | INFO     | __main__:run_ml_forecast:246 - Guardando predicciones generales en MongoDB...
+2025-05-30 16:57:55.789 | INFO     | __main__:run_ml_forecast:270 - Generando visualización de predicciones generales...
+2025-05-30 16:57:57.629 | INFO     | __main__:run_ml_forecast:275 - Visualización general guardada en plots\forecast_20250530_165757.png
+2025-05-30 16:57:57.630 | INFO     | __main__:run_ml_forecast:293 - Proceso de forecasting completado exitosamente
+2025-05-30 16:57:57.631 | INFO     | __main__:main:337 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 16:57:57.632 | INFO     | __main__:main:343 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 16:58:50.830 | INFO     | __main__:main:348 - Programa interrumpido por el usuario
+2025-05-30 16:58:50.832 | INFO     | __main__:main:352 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 16:58:50.834 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 16:58:50.841 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 16:59:19.980 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 16:59:19.981 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 16:59:20.274 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 16:59:20.275 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 16:59:24.227 | INFO     | __main__:main:309 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 16:59:24.228 | INFO     | __main__:main:310 - Modo desarrollo: True
+2025-05-30 16:59:24.228 | INFO     | __main__:test_connections:63 - Probando conexiones a bases de datos...
+2025-05-30 16:59:24.233 | INFO     | __main__:test_connections:70 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 16:59:24.235 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 16:59:24.235 | INFO     | __main__:test_connections:79 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 16:59:24.239 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 16:59:24.243 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 16:59:24.246 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 16:59:24.251 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 16:59:24.254 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 16:59:24.257 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 16:59:24.260 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 16:59:24.263 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 16:59:24.266 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 16:59:24.269 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 16:59:24.272 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 16:59:24.272 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 16:59:24.273 | INFO     | __main__:main:325 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 16:59:24.273 | INFO     | __main__:run_ml_forecast:155 - Iniciando módulo de forecasting...
+2025-05-30 16:59:24.273 | INFO     | __main__:diagnosticar_datos_disponibles:19 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 16:59:24.277 | INFO     | __main__:diagnosticar_datos_disponibles:23 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 16:59:24.283 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_pedidos: 7449 documentos
+2025-05-30 16:59:24.286 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 16:59:24.296 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 16:59:24.300 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 16:59:24.304 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colección raw_productos: 31 documentos
+2025-05-30 16:59:24.307 | INFO     | __main__:diagnosticar_datos_disponibles:34 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 16:59:24.311 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 16:59:24.328 | INFO     | __main__:diagnosticar_datos_disponibles:52 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 16:59:24.328 | INFO     | __main__:diagnosticar_datos_disponibles:59 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 16:59:24.329 | INFO     | __main__:run_ml_forecast:182 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 16:59:24.330 | INFO     | __main__:run_ml_forecast:195 - Entrenando en CPU
+2025-05-30 16:59:33.054 | INFO     | __main__:run_ml_forecast:202 - Entrenamiento del modelo general completado en 8.72 segundos
+2025-05-30 16:59:33.055 | INFO     | __main__:run_ml_forecast:206 - Guardando modelo general entrenado...
+2025-05-30 16:59:33.084 | INFO     | __main__:run_ml_forecast:209 - Modelo general guardado en models/forecast
+2025-05-30 16:59:33.084 | INFO     | __main__:run_ml_forecast:216 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 16:59:33.168 | INFO     | __main__:run_ml_forecast:227 - Entrenamiento de 0/10 modelos de productos completado en 0.08 segundos
+2025-05-30 16:59:33.169 | INFO     | __main__:run_ml_forecast:241 - Generando predicciones generales...
+2025-05-30 16:59:33.605 | INFO     | __main__:run_ml_forecast:243 - Predicciones generales generadas para los próximos 7 días
+2025-05-30 16:59:33.606 | INFO     | __main__:run_ml_forecast:246 - Guardando predicciones generales en MongoDB...
+2025-05-30 16:59:33.615 | INFO     | __main__:run_ml_forecast:270 - Generando visualización de predicciones generales...
+2025-05-30 16:59:34.516 | INFO     | __main__:run_ml_forecast:275 - Visualización general guardada en plots\forecast_20250530_165934.png
+2025-05-30 16:59:34.516 | INFO     | __main__:run_ml_forecast:293 - Proceso de forecasting completado exitosamente
+2025-05-30 16:59:34.517 | INFO     | __main__:main:337 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 16:59:34.517 | INFO     | __main__:main:343 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 17:02:47.599 | INFO     | __main__:main:348 - Programa interrumpido por el usuario
+2025-05-30 17:02:47.600 | INFO     | __main__:main:352 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 17:02:47.601 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 17:02:47.608 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 17:02:50.903 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 17:02:50.903 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 17:02:51.163 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 17:02:51.163 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 17:02:55.076 | INFO     | __main__:main:312 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 17:02:55.077 | INFO     | __main__:main:313 - Modo desarrollo: True
+2025-05-30 17:02:55.078 | INFO     | __main__:test_connections:66 - Probando conexiones a bases de datos...
+2025-05-30 17:02:55.079 | INFO     | __main__:test_connections:73 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 17:02:55.081 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 17:02:55.082 | INFO     | __main__:test_connections:82 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 17:02:55.083 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 17:02:55.084 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 17:02:55.086 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 17:02:55.087 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 17:02:55.089 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 17:02:55.090 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 17:02:55.091 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 17:02:55.091 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:02:55.093 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:02:55.094 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 17:02:55.095 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 17:02:55.095 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 17:02:55.095 | INFO     | __main__:main:328 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 17:02:55.096 | INFO     | __main__:run_ml_forecast:158 - Iniciando módulo de forecasting...
+2025-05-30 17:02:55.096 | INFO     | __main__:diagnosticar_datos_disponibles:22 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 17:02:55.097 | INFO     | __main__:diagnosticar_datos_disponibles:26 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 17:02:55.100 | INFO     | __main__:diagnosticar_datos_disponibles:32 - Colección raw_pedidos: 7449 documentos
+2025-05-30 17:02:55.101 | INFO     | __main__:diagnosticar_datos_disponibles:37 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 17:02:55.108 | INFO     | __main__:diagnosticar_datos_disponibles:32 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 17:02:55.109 | INFO     | __main__:diagnosticar_datos_disponibles:37 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 17:02:55.111 | INFO     | __main__:diagnosticar_datos_disponibles:32 - Colección raw_productos: 31 documentos
+2025-05-30 17:02:55.112 | INFO     | __main__:diagnosticar_datos_disponibles:37 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 17:02:55.113 | INFO     | __main__:diagnosticar_datos_disponibles:43 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 17:02:55.125 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 17:02:55.125 | INFO     | __main__:diagnosticar_datos_disponibles:62 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 17:02:55.126 | INFO     | __main__:run_ml_forecast:185 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 17:02:55.127 | INFO     | __main__:run_ml_forecast:198 - Entrenando en CPU
+2025-05-30 17:03:02.238 | INFO     | __main__:run_ml_forecast:205 - Entrenamiento del modelo general completado en 7.11 segundos
+2025-05-30 17:03:02.239 | INFO     | __main__:run_ml_forecast:209 - Guardando modelo general entrenado...
+2025-05-30 17:03:02.268 | INFO     | __main__:run_ml_forecast:212 - Modelo general guardado en models/forecast
+2025-05-30 17:03:02.269 | INFO     | __main__:run_ml_forecast:219 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 17:03:02.344 | INFO     | __main__:run_ml_forecast:230 - Entrenamiento de 0/10 modelos de productos completado en 0.07 segundos
+2025-05-30 17:03:02.344 | INFO     | __main__:run_ml_forecast:244 - Generando predicciones generales...
+2025-05-30 17:03:02.797 | INFO     | __main__:run_ml_forecast:246 - Predicciones generales generadas para los próximos 7 días
+2025-05-30 17:03:02.797 | INFO     | __main__:run_ml_forecast:249 - Guardando predicciones generales en MongoDB...
+2025-05-30 17:03:02.801 | INFO     | __main__:run_ml_forecast:273 - Generando visualización de predicciones generales...
+2025-05-30 17:03:03.666 | INFO     | __main__:run_ml_forecast:278 - Visualización general guardada en plots\forecast_20250530_170303.png
+2025-05-30 17:03:03.667 | INFO     | __main__:run_ml_forecast:296 - Proceso de forecasting completado exitosamente
+2025-05-30 17:03:03.667 | INFO     | __main__:main:340 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 17:03:03.668 | INFO     | __main__:main:346 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 17:04:43.414 | INFO     | __main__:main:351 - Programa interrumpido por el usuario
+2025-05-30 17:04:43.415 | INFO     | __main__:main:355 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 17:04:43.418 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 17:04:43.420 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 17:04:47.275 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 17:04:47.275 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 17:04:47.534 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 17:04:47.535 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 17:04:51.474 | INFO     | __main__:main:313 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 17:04:51.474 | INFO     | __main__:main:314 - Modo desarrollo: True
+2025-05-30 17:04:51.475 | INFO     | __main__:test_connections:67 - Probando conexiones a bases de datos...
+2025-05-30 17:04:51.476 | INFO     | __main__:test_connections:74 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 17:04:51.478 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 17:04:51.479 | INFO     | __main__:test_connections:83 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 17:04:51.481 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 17:04:51.483 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 17:04:51.484 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 17:04:51.484 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 17:04:51.486 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 17:04:51.487 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 17:04:51.489 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 17:04:51.489 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:04:51.491 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:04:51.491 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 17:04:51.493 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 17:04:51.493 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 17:04:51.493 | INFO     | __main__:main:329 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 17:04:51.494 | INFO     | __main__:run_ml_forecast:159 - Iniciando módulo de forecasting...
+2025-05-30 17:04:51.494 | INFO     | __main__:diagnosticar_datos_disponibles:23 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 17:04:51.495 | INFO     | __main__:diagnosticar_datos_disponibles:27 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 17:04:51.499 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colección raw_pedidos: 7449 documentos
+2025-05-30 17:04:51.500 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 17:04:51.508 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 17:04:51.509 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 17:04:51.512 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colección raw_productos: 31 documentos
+2025-05-30 17:04:51.514 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 17:04:51.515 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 17:04:51.528 | INFO     | __main__:diagnosticar_datos_disponibles:56 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 17:04:51.529 | INFO     | __main__:diagnosticar_datos_disponibles:63 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 17:04:51.530 | INFO     | __main__:run_ml_forecast:186 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 17:04:51.531 | INFO     | __main__:run_ml_forecast:199 - Entrenando en CPU
+2025-05-30 17:04:56.804 | INFO     | __main__:run_ml_forecast:206 - Entrenamiento del modelo general completado en 5.27 segundos
+2025-05-30 17:04:56.804 | INFO     | __main__:run_ml_forecast:210 - Guardando modelo general entrenado...
+2025-05-30 17:04:56.831 | INFO     | __main__:run_ml_forecast:213 - Modelo general guardado en models/forecast
+2025-05-30 17:04:56.832 | INFO     | __main__:run_ml_forecast:220 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 17:04:56.902 | INFO     | __main__:run_ml_forecast:231 - Entrenamiento de 0/10 modelos de productos completado en 0.07 segundos
+2025-05-30 17:04:56.902 | INFO     | __main__:run_ml_forecast:245 - Generando predicciones generales...
+2025-05-30 17:04:57.324 | INFO     | __main__:run_ml_forecast:247 - Predicciones generales generadas para los próximos 7 días
+2025-05-30 17:04:57.325 | INFO     | __main__:run_ml_forecast:250 - Guardando predicciones generales en MongoDB...
+2025-05-30 17:04:57.328 | INFO     | __main__:run_ml_forecast:274 - Generando visualización de predicciones generales...
+2025-05-30 17:04:57.888 | INFO     | __main__:run_ml_forecast:279 - Visualización general guardada en plots\forecast_20250530_170457.png
+2025-05-30 17:04:57.890 | INFO     | __main__:run_ml_forecast:297 - Proceso de forecasting completado exitosamente
+2025-05-30 17:04:57.891 | INFO     | __main__:main:341 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 17:04:57.892 | INFO     | __main__:main:347 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 17:06:36.951 | INFO     | __main__:main:352 - Programa interrumpido por el usuario
+2025-05-30 17:06:36.952 | INFO     | __main__:main:356 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 17:06:36.954 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 17:06:36.956 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 17:06:43.262 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 17:06:43.262 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 17:06:43.513 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 17:06:43.514 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 17:06:47.521 | INFO     | __main__:main:315 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 17:06:47.522 | INFO     | __main__:main:316 - Modo desarrollo: True
+2025-05-30 17:06:47.523 | INFO     | __main__:test_connections:69 - Probando conexiones a bases de datos...
+2025-05-30 17:06:47.524 | INFO     | __main__:test_connections:76 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 17:06:47.526 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 17:06:47.527 | INFO     | __main__:test_connections:85 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 17:06:47.528 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 17:06:47.530 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 17:06:47.531 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 17:06:47.533 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 17:06:47.534 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 17:06:47.535 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 17:06:47.536 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 17:06:47.537 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:06:47.538 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:06:47.538 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 17:06:47.539 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 17:06:47.540 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 17:06:47.540 | INFO     | __main__:main:331 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 17:06:47.540 | INFO     | __main__:run_ml_forecast:161 - Iniciando módulo de forecasting...
+2025-05-30 17:06:47.541 | INFO     | __main__:diagnosticar_datos_disponibles:25 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 17:06:47.542 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 17:06:47.545 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_pedidos: 7449 documentos
+2025-05-30 17:06:47.547 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 17:06:47.554 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 17:06:47.555 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 17:06:47.557 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_productos: 31 documentos
+2025-05-30 17:06:47.558 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 17:06:47.559 | INFO     | __main__:diagnosticar_datos_disponibles:46 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 17:06:47.573 | INFO     | __main__:diagnosticar_datos_disponibles:58 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 17:06:47.574 | INFO     | __main__:diagnosticar_datos_disponibles:65 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 17:06:47.574 | INFO     | __main__:run_ml_forecast:188 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 17:06:47.575 | INFO     | __main__:run_ml_forecast:201 - Entrenando en CPU
+2025-05-30 17:06:53.186 | INFO     | __main__:run_ml_forecast:208 - Entrenamiento del modelo general completado en 5.61 segundos
+2025-05-30 17:06:53.186 | INFO     | __main__:run_ml_forecast:212 - Guardando modelo general entrenado...
+2025-05-30 17:06:53.212 | INFO     | __main__:run_ml_forecast:215 - Modelo general guardado en models/forecast
+2025-05-30 17:06:53.212 | INFO     | __main__:run_ml_forecast:222 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 17:06:53.281 | INFO     | __main__:run_ml_forecast:233 - Entrenamiento de 0/10 modelos de productos completado en 0.07 segundos
+2025-05-30 17:06:53.282 | INFO     | __main__:run_ml_forecast:247 - Generando predicciones generales...
+2025-05-30 17:06:53.729 | INFO     | __main__:run_ml_forecast:249 - Predicciones generales generadas para los próximos 7 días
+2025-05-30 17:06:53.730 | INFO     | __main__:run_ml_forecast:252 - Guardando predicciones generales en MongoDB...
+2025-05-30 17:06:53.733 | INFO     | __main__:run_ml_forecast:276 - Generando visualización de predicciones generales...
+2025-05-30 17:06:54.233 | INFO     | __main__:run_ml_forecast:281 - Visualización general guardada en plots\forecast_20250530_170654.png
+2025-05-30 17:06:54.234 | INFO     | __main__:run_ml_forecast:299 - Proceso de forecasting completado exitosamente
+2025-05-30 17:06:54.234 | INFO     | __main__:main:343 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 17:06:54.235 | INFO     | __main__:main:349 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 17:24:48.250 | INFO     | __main__:main:354 - Programa interrumpido por el usuario
+2025-05-30 17:24:48.250 | INFO     | __main__:main:358 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 17:24:48.251 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 17:24:48.254 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 17:25:09.545 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 17:25:09.546 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-05-30 17:25:09.798 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 17:25:09.799 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 17:28:43.388 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 17:28:43.388 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-05-30 17:28:43.640 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 17:28:43.640 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 17:28:47.331 | INFO     | __main__:main:315 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 17:28:47.332 | INFO     | __main__:main:316 - Modo desarrollo: True
+2025-05-30 17:28:47.333 | INFO     | __main__:test_connections:69 - Probando conexiones a bases de datos...
+2025-05-30 17:28:47.334 | INFO     | __main__:test_connections:76 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 17:28:47.336 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 17:28:47.337 | INFO     | __main__:test_connections:85 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 17:28:47.338 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 17:28:47.339 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 17:28:47.340 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 17:28:47.342 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 17:28:47.343 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 17:28:47.344 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 17:28:47.344 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 17:28:47.345 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:28:47.346 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 17:28:47.348 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 17:28:47.348 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 17:28:47.348 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 17:28:47.349 | INFO     | __main__:main:331 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 17:28:47.349 | INFO     | __main__:run_ml_forecast:161 - Iniciando módulo de forecasting...
+2025-05-30 17:28:47.349 | INFO     | __main__:diagnosticar_datos_disponibles:25 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 17:28:47.350 | INFO     | __main__:diagnosticar_datos_disponibles:29 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 17:28:47.354 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_pedidos: 7449 documentos
+2025-05-30 17:28:47.355 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 17:28:47.362 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 17:28:47.363 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 17:28:47.365 | INFO     | __main__:diagnosticar_datos_disponibles:35 - Colección raw_productos: 31 documentos
+2025-05-30 17:28:47.366 | INFO     | __main__:diagnosticar_datos_disponibles:40 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 17:28:47.367 | INFO     | __main__:diagnosticar_datos_disponibles:46 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 17:28:47.379 | INFO     | __main__:diagnosticar_datos_disponibles:58 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 17:28:47.380 | INFO     | __main__:diagnosticar_datos_disponibles:65 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 17:28:47.380 | INFO     | __main__:run_ml_forecast:188 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 17:28:47.381 | INFO     | __main__:run_ml_forecast:201 - Entrenando en CPU
+2025-05-30 17:28:47.424 | ERROR    | __main__:run_ml_forecast:303 - Error en el proceso de forecasting: tuple index out of range
+2025-05-30 17:28:47.425 | WARNING  | __main__:main:345 - El módulo ML presentó errores. Revisar logs para más detalles.
+2025-05-30 17:28:47.425 | INFO     | __main__:main:349 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 17:29:10.076 | INFO     | __main__:main:354 - Programa interrumpido por el usuario
+2025-05-30 17:29:10.078 | INFO     | __main__:main:358 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 17:29:10.079 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 17:29:10.081 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 18:14:33.451 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 18:14:33.451 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 18:14:33.729 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 18:14:33.730 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 18:19:03.671 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 18:19:03.671 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 18:19:03.937 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 18:19:03.938 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 18:19:07.061 | INFO     | __main__:main:406 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 18:19:07.061 | INFO     | __main__:main:407 - Modo desarrollo: True
+2025-05-30 18:19:07.062 | INFO     | __main__:test_connections:73 - Probando conexiones a bases de datos...
+2025-05-30 18:19:07.063 | INFO     | __main__:test_connections:80 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 18:19:07.065 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 18:19:07.066 | INFO     | __main__:test_connections:89 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 18:19:07.068 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 18:19:07.069 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 18:19:07.070 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 18:19:07.071 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 18:19:07.072 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 18:19:07.073 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 18:19:07.075 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 18:19:07.075 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:19:07.076 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:19:07.077 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 18:19:07.078 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 18:19:07.078 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 18:19:07.078 | INFO     | __main__:main:422 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 18:19:07.079 | INFO     | __main__:run_ml_forecast:165 - Iniciando módulo de forecasting...
+2025-05-30 18:19:07.079 | INFO     | __main__:diagnosticar_datos_disponibles:29 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 18:19:07.080 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 18:19:07.084 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedidos: 7449 documentos
+2025-05-30 18:19:07.085 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 18:19:07.097 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 18:19:07.099 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 18:19:07.101 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_productos: 31 documentos
+2025-05-30 18:19:07.102 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 18:19:07.105 | INFO     | __main__:diagnosticar_datos_disponibles:50 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 18:19:07.288 | INFO     | __main__:diagnosticar_datos_disponibles:62 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 18:19:07.289 | INFO     | __main__:diagnosticar_datos_disponibles:69 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 18:19:07.289 | INFO     | __main__:run_ml_forecast:192 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 18:19:07.290 | INFO     | __main__:run_ml_forecast:205 - Entrenando en CPU
+2025-05-30 18:19:13.141 | INFO     | __main__:run_ml_forecast:212 - Entrenamiento del modelo general completado en 5.85 segundos
+2025-05-30 18:19:13.142 | INFO     | __main__:run_ml_forecast:216 - Guardando modelo general entrenado...
+2025-05-30 18:19:13.172 | INFO     | __main__:run_ml_forecast:219 - Modelo general guardado en models/forecast
+2025-05-30 18:19:13.173 | INFO     | __main__:run_ml_forecast:226 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 18:19:13.366 | INFO     | __main__:run_ml_forecast:237 - Entrenamiento de 0/10 modelos de productos completado en 0.19 segundos
+2025-05-30 18:19:13.367 | INFO     | __main__:run_ml_forecast:251 - Generando predicciones generales...
+2025-05-30 18:19:13.683 | INFO     | __main__:run_ml_forecast:255 - Predicciones diarias generadas para los próximos 7 días
+2025-05-30 18:19:13.684 | INFO     | __main__:run_ml_forecast:258 - Generando predicciones semanales...
+2025-05-30 18:19:13.832 | INFO     | __main__:run_ml_forecast:260 - Predicciones semanales generadas para las próximas 1 semanas
+2025-05-30 18:19:13.833 | INFO     | __main__:run_ml_forecast:263 - Generando predicciones mensuales...
+2025-05-30 18:19:13.974 | INFO     | __main__:run_ml_forecast:265 - Predicciones mensuales generadas para los próximos 1 meses
+2025-05-30 18:19:13.975 | INFO     | __main__:run_ml_forecast:268 - Guardando predicciones diarias en MongoDB...
+2025-05-30 18:19:13.984 | INFO     | __main__:run_ml_forecast:301 - Guardadas 1 predicciones semanales en MongoDB
+2025-05-30 18:19:13.985 | INFO     | __main__:run_ml_forecast:305 - Guardadas 1 predicciones mensuales en MongoDB
+2025-05-30 18:19:13.986 | INFO     | __main__:run_ml_forecast:367 - Generando visualización de predicciones generales...
+2025-05-30 18:19:14.553 | INFO     | __main__:run_ml_forecast:372 - Visualización general guardada en plots\forecast_20250530_181914.png
+2025-05-30 18:19:14.554 | INFO     | __main__:run_ml_forecast:390 - Proceso de forecasting completado exitosamente
+2025-05-30 18:19:14.556 | INFO     | __main__:main:434 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 18:19:14.556 | INFO     | __main__:main:440 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 18:36:39.567 | INFO     | __main__:main:445 - Programa interrumpido por el usuario
+2025-05-30 18:36:39.568 | INFO     | __main__:main:449 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 18:36:39.568 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 18:36:39.570 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 18:37:04.904 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 18:37:04.905 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-05-30 18:37:05.173 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 18:37:05.174 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-05-30 18:37:08.384 | INFO     | __main__:main:406 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 18:37:08.385 | INFO     | __main__:main:407 - Modo desarrollo: True
+2025-05-30 18:37:08.385 | INFO     | __main__:test_connections:73 - Probando conexiones a bases de datos...
+2025-05-30 18:37:08.387 | INFO     | __main__:test_connections:80 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 18:37:08.389 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 18:37:08.389 | INFO     | __main__:test_connections:89 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 18:37:08.391 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 18:37:08.392 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 18:37:08.394 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 18:37:08.395 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 18:37:08.396 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 18:37:08.398 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 18:37:08.399 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 18:37:08.400 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:37:08.401 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:37:08.401 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 18:37:08.402 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 18:37:08.403 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 18:37:08.403 | INFO     | __main__:main:422 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 18:37:08.403 | INFO     | __main__:run_ml_forecast:165 - Iniciando módulo de forecasting...
+2025-05-30 18:37:08.403 | INFO     | __main__:diagnosticar_datos_disponibles:29 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 18:37:08.404 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colecciones disponibles: ['sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 18:37:08.408 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedidos: 7449 documentos
+2025-05-30 18:37:08.409 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 18:37:08.418 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 18:37:08.419 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 18:37:08.421 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_productos: 31 documentos
+2025-05-30 18:37:08.422 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 18:37:08.422 | INFO     | __main__:diagnosticar_datos_disponibles:50 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 18:37:08.435 | INFO     | __main__:diagnosticar_datos_disponibles:62 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 18:37:08.435 | INFO     | __main__:diagnosticar_datos_disponibles:69 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 18:37:08.436 | INFO     | __main__:run_ml_forecast:192 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 18:37:08.437 | INFO     | __main__:run_ml_forecast:205 - Entrenando en CPU
+2025-05-30 18:37:14.331 | INFO     | __main__:run_ml_forecast:212 - Entrenamiento del modelo general completado en 5.89 segundos
+2025-05-30 18:37:14.332 | INFO     | __main__:run_ml_forecast:216 - Guardando modelo general entrenado...
+2025-05-30 18:37:14.359 | INFO     | __main__:run_ml_forecast:219 - Modelo general guardado en models/forecast
+2025-05-30 18:37:14.359 | INFO     | __main__:run_ml_forecast:226 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 18:37:55.801 | INFO     | __main__:run_ml_forecast:237 - Entrenamiento de 9/10 modelos de productos completado en 41.44 segundos
+2025-05-30 18:37:55.801 | INFO     | __main__:run_ml_forecast:241 - Guardando modelos de productos entrenados...
+2025-05-30 18:37:55.966 | INFO     | __main__:run_ml_forecast:244 - Modelos de productos guardados en models/forecast/products
+2025-05-30 18:37:55.968 | INFO     | __main__:run_ml_forecast:251 - Generando predicciones generales...
+2025-05-30 18:37:56.313 | INFO     | __main__:run_ml_forecast:255 - Predicciones diarias generadas para los próximos 7 días
+2025-05-30 18:37:56.314 | INFO     | __main__:run_ml_forecast:258 - Generando predicciones semanales...
+2025-05-30 18:37:56.682 | INFO     | __main__:run_ml_forecast:260 - Predicciones semanales generadas para las próximas 1 semanas
+2025-05-30 18:37:56.683 | INFO     | __main__:run_ml_forecast:263 - Generando predicciones mensuales...
+2025-05-30 18:37:56.822 | INFO     | __main__:run_ml_forecast:265 - Predicciones mensuales generadas para los próximos 1 meses
+2025-05-30 18:37:56.823 | INFO     | __main__:run_ml_forecast:268 - Guardando predicciones diarias en MongoDB...
+2025-05-30 18:37:56.827 | INFO     | __main__:run_ml_forecast:301 - Guardadas 1 predicciones semanales en MongoDB
+2025-05-30 18:37:56.829 | INFO     | __main__:run_ml_forecast:305 - Guardadas 1 predicciones mensuales en MongoDB
+2025-05-30 18:37:56.830 | INFO     | __main__:run_ml_forecast:311 - Generando predicciones por producto...
+2025-05-30 18:37:59.347 | INFO     | __main__:run_ml_forecast:315 - Predicciones generadas para 9 productos
+2025-05-30 18:37:59.348 | INFO     | __main__:run_ml_forecast:318 - Guardando predicciones por producto en MongoDB...
+2025-05-30 18:37:59.368 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones por categoría...
+2025-05-30 18:38:00.234 | INFO     | __main__:run_ml_forecast:327 - Predicciones generadas para 5 categorías
+2025-05-30 18:38:00.250 | INFO     | __main__:run_ml_forecast:352 - Guardadas 35 predicciones por categoría en MongoDB
+2025-05-30 18:38:00.250 | INFO     | __main__:run_ml_forecast:367 - Generando visualización de predicciones generales...
+2025-05-30 18:38:00.956 | INFO     | __main__:run_ml_forecast:372 - Visualización general guardada en plots\forecast_20250530_183800.png
+2025-05-30 18:38:00.957 | INFO     | __main__:run_ml_forecast:381 - Generando visualización para producto 16...
+2025-05-30 18:38:01.426 | INFO     | __main__:run_ml_forecast:386 - Visualización de producto 16 guardada en plots\product_16_20250530_183801.png
+2025-05-30 18:38:01.427 | INFO     | __main__:run_ml_forecast:381 - Generando visualización para producto 25...
+2025-05-30 18:38:01.875 | INFO     | __main__:run_ml_forecast:386 - Visualización de producto 25 guardada en plots\product_25_20250530_183801.png
+2025-05-30 18:38:01.875 | INFO     | __main__:run_ml_forecast:381 - Generando visualización para producto 11...
+2025-05-30 18:38:02.315 | INFO     | __main__:run_ml_forecast:386 - Visualización de producto 11 guardada en plots\product_11_20250530_183802.png
+2025-05-30 18:38:02.316 | INFO     | __main__:run_ml_forecast:390 - Proceso de forecasting completado exitosamente
+2025-05-30 18:38:02.316 | INFO     | __main__:main:434 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 18:38:02.317 | INFO     | __main__:main:440 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 18:47:38.475 | INFO     | __main__:main:445 - Programa interrumpido por el usuario
+2025-05-30 18:47:38.475 | INFO     | __main__:main:449 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 18:47:38.477 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 18:47:38.478 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-05-30 18:47:58.228 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-05-30 18:47:58.228 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-05-30 18:47:58.491 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-05-30 18:47:58.492 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.06 segundos
+2025-05-30 18:48:01.440 | INFO     | __main__:main:431 - Iniciando Restaurant ML Microservice v0.1.0
+2025-05-30 18:48:01.441 | INFO     | __main__:main:432 - Modo desarrollo: True
+2025-05-30 18:48:01.441 | INFO     | __main__:test_connections:73 - Probando conexiones a bases de datos...
+2025-05-30 18:48:01.443 | INFO     | __main__:test_connections:80 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-05-30 18:48:01.445 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-05-30 18:48:01.445 | INFO     | __main__:test_connections:89 - Conexión a PostgreSQL funciona correctamente
+2025-05-30 18:48:01.447 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-05-30 18:48:01.448 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-05-30 18:48:01.449 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-05-30 18:48:01.451 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-05-30 18:48:01.453 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-05-30 18:48:01.454 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-05-30 18:48:01.455 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-05-30 18:48:01.456 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:48:01.457 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-05-30 18:48:01.458 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-05-30 18:48:01.459 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-05-30 18:48:01.459 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-05-30 18:48:01.459 | INFO     | __main__:main:447 - Sincronización desactivada. Usando datos existentes en MongoDB para ML.
+2025-05-30 18:48:01.460 | INFO     | __main__:run_ml_forecast:165 - Iniciando módulo de forecasting...
+2025-05-30 18:48:01.460 | INFO     | __main__:diagnosticar_datos_disponibles:29 - === DIAGNÓSTICO DE DATOS EN MONGODB ===
+2025-05-30 18:48:01.461 | INFO     | __main__:diagnosticar_datos_disponibles:33 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-05-30 18:48:01.464 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedidos: 7449 documentos
+2025-05-30 18:48:01.465 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-05-30 18:48:01.473 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_pedido_detalles: 25943 documentos
+2025-05-30 18:48:01.474 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-05-30 18:48:01.476 | INFO     | __main__:diagnosticar_datos_disponibles:39 - Colección raw_productos: 31 documentos
+2025-05-30 18:48:01.477 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-05-30 18:48:01.478 | INFO     | __main__:diagnosticar_datos_disponibles:50 - Ejemplos de productos disponibles: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-05-30 18:48:01.490 | INFO     | __main__:diagnosticar_datos_disponibles:62 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-05-30 18:48:01.492 | INFO     | __main__:diagnosticar_datos_disponibles:69 - === FIN DEL DIAGNÓSTICO ===
+2025-05-30 18:48:01.492 | INFO     | __main__:run_ml_forecast:192 - Iniciando entrenamiento de nuevo modelo general...
+2025-05-30 18:48:01.493 | INFO     | __main__:run_ml_forecast:205 - Entrenando en CPU
+2025-05-30 18:48:06.926 | INFO     | __main__:run_ml_forecast:212 - Entrenamiento del modelo general completado en 5.43 segundos
+2025-05-30 18:48:06.927 | INFO     | __main__:run_ml_forecast:216 - Guardando modelo general entrenado...
+2025-05-30 18:48:06.956 | INFO     | __main__:run_ml_forecast:219 - Modelo general guardado en models/forecast
+2025-05-30 18:48:06.957 | INFO     | __main__:run_ml_forecast:226 - Iniciando entrenamiento de modelos para los top 10 productos...
+2025-05-30 18:48:52.333 | INFO     | __main__:run_ml_forecast:237 - Entrenamiento de 9/10 modelos de productos completado en 45.38 segundos
+2025-05-30 18:48:52.333 | INFO     | __main__:run_ml_forecast:241 - Guardando modelos de productos entrenados...
+2025-05-30 18:48:52.491 | INFO     | __main__:run_ml_forecast:244 - Modelos de productos guardados en models/forecast/products
+2025-05-30 18:48:52.491 | INFO     | __main__:run_ml_forecast:251 - Generando predicciones generales...
+2025-05-30 18:48:53.054 | INFO     | __main__:run_ml_forecast:255 - Predicciones diarias generadas para los próximos 7 días
+2025-05-30 18:48:53.054 | INFO     | __main__:run_ml_forecast:258 - Generando predicciones semanales...
+2025-05-30 18:48:53.194 | INFO     | __main__:run_ml_forecast:260 - Predicciones semanales generadas para las próximas 1 semanas
+2025-05-30 18:48:53.194 | INFO     | __main__:run_ml_forecast:263 - Generando predicciones mensuales...
+2025-05-30 18:48:53.344 | INFO     | __main__:run_ml_forecast:265 - Predicciones mensuales generadas para los próximos 1 meses
+2025-05-30 18:48:53.344 | INFO     | __main__:run_ml_forecast:268 - Guardando predicciones diarias en MongoDB...
+2025-05-30 18:48:53.349 | INFO     | __main__:run_ml_forecast:301 - Guardadas 1 predicciones semanales en MongoDB
+2025-05-30 18:48:53.351 | INFO     | __main__:run_ml_forecast:305 - Guardadas 1 predicciones mensuales en MongoDB
+2025-05-30 18:48:53.351 | INFO     | __main__:run_ml_forecast:311 - Generando predicciones por producto...
+2025-05-30 18:48:55.928 | INFO     | __main__:run_ml_forecast:315 - Predicciones generadas para 9 productos
+2025-05-30 18:48:55.929 | INFO     | __main__:run_ml_forecast:318 - Guardando predicciones por producto en MongoDB...
+2025-05-30 18:48:55.937 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones por categoría...
+2025-05-30 18:48:56.814 | INFO     | __main__:run_ml_forecast:327 - Predicciones generadas para 5 categorías
+2025-05-30 18:48:56.817 | INFO     | __main__:run_ml_forecast:352 - Guardadas 35 predicciones por categoría en MongoDB
+2025-05-30 18:48:56.819 | INFO     | __main__:run_ml_forecast:367 - Generando visualización de predicciones generales...
+2025-05-30 18:48:57.547 | INFO     | __main__:run_ml_forecast:372 - Visualización general guardada en plots\forecast_20250530_184857.png
+2025-05-30 18:48:57.548 | INFO     | __main__:run_ml_forecast:378 - Generando visualizaciones para 9 productos...
+2025-05-30 18:48:57.548 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 16...
+2025-05-30 18:48:57.966 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 16 guardada en plots\product_16_20250530_184857.png
+2025-05-30 18:48:57.967 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 25...
+2025-05-30 18:48:58.409 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 25 guardada en plots\product_25_20250530_184858.png
+2025-05-30 18:48:58.410 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 11...
+2025-05-30 18:48:58.870 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 11 guardada en plots\product_11_20250530_184858.png
+2025-05-30 18:48:58.871 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 9...
+2025-05-30 18:48:59.390 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 9 guardada en plots\product_9_20250530_184859.png
+2025-05-30 18:48:59.391 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 12...
+2025-05-30 18:48:59.852 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 12 guardada en plots\product_12_20250530_184859.png
+2025-05-30 18:48:59.853 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 30...
+2025-05-30 18:49:00.316 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 30 guardada en plots\product_30_20250530_184900.png
+2025-05-30 18:49:00.317 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 29...
+2025-05-30 18:49:01.003 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 29 guardada en plots\product_29_20250530_184900.png
+2025-05-30 18:49:01.003 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 1...
+2025-05-30 18:49:01.438 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 1 guardada en plots\product_1_20250530_184901.png
+2025-05-30 18:49:01.439 | INFO     | __main__:run_ml_forecast:382 - Generando visualización para producto 2...
+2025-05-30 18:49:01.907 | INFO     | __main__:run_ml_forecast:387 - Visualización de producto 2 guardada en plots\product_2_20250530_184901.png
+2025-05-30 18:49:01.907 | INFO     | __main__:run_ml_forecast:392 - Generando visualizaciones por categoría...
+2025-05-30 18:49:01.911 | INFO     | __main__:run_ml_forecast:401 - Generando visualizaciones para 5 categorías...
+2025-05-30 18:49:01.912 | INFO     | __main__:run_ml_forecast:406 - Generando visualización para categoría 1...
+2025-05-30 18:49:03.426 | INFO     | __main__:run_ml_forecast:411 - Visualización de categoría 1 guardada en plots\category_1_20250530_184903.png
+2025-05-30 18:49:03.427 | INFO     | __main__:run_ml_forecast:406 - Generando visualización para categoría 2...
+2025-05-30 18:49:05.152 | INFO     | __main__:run_ml_forecast:411 - Visualización de categoría 2 guardada en plots\category_2_20250530_184905.png
+2025-05-30 18:49:05.153 | INFO     | __main__:run_ml_forecast:406 - Generando visualización para categoría 3...
+2025-05-30 18:49:06.833 | INFO     | __main__:run_ml_forecast:411 - Visualización de categoría 3 guardada en plots\category_3_20250530_184906.png
+2025-05-30 18:49:06.834 | INFO     | __main__:run_ml_forecast:406 - Generando visualización para categoría 6...
+2025-05-30 18:49:08.284 | INFO     | __main__:run_ml_forecast:411 - Visualización de categoría 6 guardada en plots\category_6_20250530_184908.png
+2025-05-30 18:49:08.284 | INFO     | __main__:run_ml_forecast:406 - Generando visualización para categoría 8...
+2025-05-30 18:49:10.019 | INFO     | __main__:run_ml_forecast:411 - Visualización de categoría 8 guardada en plots\category_8_20250530_184909.png
+2025-05-30 18:49:10.019 | INFO     | __main__:run_ml_forecast:415 - Proceso de forecasting completado exitosamente
+2025-05-30 18:49:10.020 | INFO     | __main__:main:459 - Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.
+2025-05-30 18:49:10.020 | INFO     | __main__:main:465 - Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.
+2025-05-30 18:50:31.301 | INFO     | __main__:main:470 - Programa interrumpido por el usuario
+2025-05-30 18:50:31.302 | INFO     | __main__:main:474 - Servicio finalizado. Cerrando conexiones...
+2025-05-30 18:50:31.302 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-05-30 18:50:31.303 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada

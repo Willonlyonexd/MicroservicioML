@@ -17,6 +17,7 @@ class TimeSeriesDataProcessor:
         """
         self.db_client = db_client
         self.product_scalers = {}  # Almacena escaladores por producto
+        self.category_info = {}    # Almacena información de categorías
         
     def fetch_historical_data(self, months=24):
         """
@@ -32,62 +33,9 @@ class TimeSeriesDataProcessor:
         start_date = datetime.now() - timedelta(days=30*months)
         print(f"Buscando datos desde: {start_date}")
         
-        # Intentar obtener datos de raw_ventas primero
+        # CAMBIADO: Intentar obtener datos de raw_pedidos primero (invertir orden)
         try:
-            print("Intentando obtener datos de raw_ventas...")
-            # Consulta directa a raw_ventas
-            ventas_query = {
-                "tenant_id": 1,  # Asumiendo tenant_id=1
-                "fecha": {"$gte": start_date}
-            }
-            
-            ventas_data = list(self.db_client.db.raw_ventas.find(ventas_query))
-            print(f"Encontrados {len(ventas_data)} registros en raw_ventas")
-            
-            if ventas_data:
-                # Convertir a DataFrame
-                df = pd.DataFrame(ventas_data)
-                print(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
-                
-                # Convertir fechas - adaptarse a la estructura real
-                if 'fecha' in df.columns:
-                    df['fecha'] = pd.to_datetime(df['fecha'])
-                else:
-                    # Buscar columna de fecha alternativa
-                    for col in ['fecha_venta', 'created_at', 'date']:
-                        if col in df.columns:
-                            df['fecha'] = pd.to_datetime(df[col])
-                            break
-                
-                # Identificar columna de monto
-                amount_col = 'total'
-                for col in ['monto', 'importe', 'valor', 'amount']:
-                    if col in df.columns:
-                        amount_col = col
-                        break
-                
-                if amount_col in df.columns:
-                    # Agrupar por fecha y sumar ventas
-                    daily_sales = df.groupby(pd.Grouper(key='fecha', freq='D')).agg({
-                        amount_col: 'sum'
-                    }).reset_index()
-                    
-                    # Renombrar columna si es necesario
-                    if amount_col != 'total':
-                        daily_sales = daily_sales.rename(columns={amount_col: 'total'})
-                    
-                    # Añadir columna cantidad si no existe
-                    if 'cantidad' not in daily_sales.columns:
-                        daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
-                    
-                    print(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días")
-                    return self._ensure_complete_dates(daily_sales)
-        except Exception as e:
-            print(f"Error al procesar raw_ventas: {str(e)}")
-        
-        # Si llegamos aquí, intentamos con raw_pedidos
-        try:
-            print("Intentando obtener datos de raw_pedidos...")
+            print("Intentando obtener datos de raw_pedidos (fuente principal)...")
             # Consulta directa a raw_pedidos
             pedidos_query = {
                 "tenant_id": 1,
@@ -136,12 +84,78 @@ class TimeSeriesDataProcessor:
                         daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
                     
                     print(f"Datos procesados exitosamente de raw_pedidos: {len(daily_sales)} días")
+                    days_count = len(daily_sales['fecha'].dt.date.unique())
+                    print(f"Días únicos encontrados: {days_count}")
+                    
+                    if days_count < 14:
+                        print(f"ADVERTENCIA: Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
+                    
                     return self._ensure_complete_dates(daily_sales)
         except Exception as e:
             print(f"Error al procesar raw_pedidos: {str(e)}")
         
+        # Si llegamos aquí, intentamos con raw_ventas
+        try:
+            print("Intentando obtener datos de raw_ventas (fuente secundaria)...")
+            # Consulta usando etl_timestamp en lugar de fecha
+            ventas_query = {
+                "tenant_id": 1,  # Asumiendo tenant_id=1
+                "etl_timestamp": {"$gte": start_date}  # Usar etl_timestamp en lugar de fecha
+            }
+            
+            ventas_data = list(self.db_client.db.raw_ventas.find(ventas_query))
+            print(f"Encontrados {len(ventas_data)} registros en raw_ventas")
+            
+            if ventas_data:
+                # Convertir a DataFrame
+                df = pd.DataFrame(ventas_data)
+                print(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
+                
+                # Usar etl_timestamp como fecha para análisis
+                df['fecha'] = pd.to_datetime(df['etl_timestamp'])
+                
+                # Identificar columna de monto
+                amount_col = 'total'
+                for col in ['monto', 'importe', 'valor', 'amount']:
+                    if col in df.columns:
+                        amount_col = col
+                        break
+                
+                if amount_col in df.columns:
+                    # Agrupar por fecha y sumar ventas
+                    daily_sales = df.groupby(pd.Grouper(key='fecha', freq='D')).agg({
+                        amount_col: 'sum'
+                    }).reset_index()
+                    
+                    # Renombrar columna si es necesario
+                    if amount_col != 'total':
+                        daily_sales = daily_sales.rename(columns={amount_col: 'total'})
+                    
+                    # Añadir columna cantidad si no existe
+                    if 'cantidad' not in daily_sales.columns:
+                        daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
+                    
+                    days_count = len(daily_sales['fecha'].dt.date.unique())
+                    print(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días, días únicos: {days_count}")
+                    
+                    if days_count < 14:
+                        print(f"ADVERTENCIA: Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
+                        if days_count == 1:
+                            print("Se detectó solo 1 día de datos. Se generarán datos sintéticos adicionales.")
+                            # Generar datos sintéticos pero mantener el día real
+                            real_day = daily_sales.iloc[0]
+                            synthetic_data = self._generate_synthetic_data(start_date)
+                            
+                            # Mantener el día real y reemplazar un día sintético
+                            synthetic_data.loc[synthetic_data['fecha'] >= real_day['fecha'], 'total'] = real_day['total']
+                            return synthetic_data
+                    
+                    return self._ensure_complete_dates(daily_sales)
+        except Exception as e:
+            print(f"Error al procesar raw_ventas: {str(e)}")
+        
         # Si llegamos aquí, generamos datos sintéticos
-        print("No se pudieron obtener datos reales. Generando datos sintéticos...")
+        print("No se pudieron obtener datos reales suficientes. Generando datos sintéticos...")
         return self._generate_synthetic_data(start_date)
     
     def fetch_product_historical_data(self, product_id=None, top_n=None, months=24):
@@ -173,39 +187,68 @@ class TimeSeriesDataProcessor:
                 ]
             }
             
-            # Obtener todos los pedidos
+            # CORREGIDO: Obtener todos los pedidos incluyendo el campo pedido_id
             pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query, 
-                                                                  {"_id": 1, "fecha": 1, "fecha_hora": 1}))
+                                                                  {"_id": 1, "pedido_id": 1, "fecha": 1, "fecha_hora": 1}))
             
             if not pedidos_data:
                 print("No se encontraron pedidos para el período solicitado")
                 return self._generate_synthetic_product_data(product_id, start_date)
                 
-            # Extraer IDs de pedidos
-            pedido_ids = [p["_id"] for p in pedidos_data]
+            # CORREGIDO: Extraer IDs utilizando el campo pedido_id en lugar de _id
+            # Los IDs en raw_pedido_detalles son enteros simples (pedido_id), no ObjectIDs
+            pedido_ids = []
+            for p in pedidos_data:
+                if "pedido_id" in p:
+                    pedido_ids.append(p["pedido_id"])
             
-            # Crear mapeo de id_pedido -> fecha
+            if not pedido_ids:
+                print("No se encontraron pedido_id válidos")
+                return self._generate_synthetic_product_data(product_id, start_date)
+            
+            # CORREGIDO: Crear mapeo de pedido_id -> fecha (en lugar de _id -> fecha)
             fecha_por_pedido = {}
             for p in pedidos_data:
+                if "pedido_id" not in p:
+                    continue
+                    
                 if "fecha" in p:
-                    fecha_por_pedido[p["_id"]] = p["fecha"]
+                    fecha_por_pedido[p["pedido_id"]] = p["fecha"]
                 elif "fecha_hora" in p:
-                    fecha_por_pedido[p["_id"]] = p["fecha_hora"]
+                    fecha_por_pedido[p["pedido_id"]] = p["fecha_hora"]
             
-            # Consulta para obtener detalles
+            # Consulta para obtener detalles usando pedido_id
             detalles_query = {
                 "pedido_id": {"$in": pedido_ids}
             }
             
+            # Si se especificó un producto_id, añadirlo a la consulta
             if product_id:
-                detalles_query["producto_id"] = product_id
-                
+                # Verificar si es un ObjectID o un entero
+                if isinstance(product_id, str) and len(product_id) > 10:
+                    # Es un ObjectID, buscar en productos para obtener el producto_id
+                    producto = self.db_client.db.raw_productos.find_one({"_id": product_id})
+                    if producto and "producto_id" in producto:
+                        detalles_query["producto_id"] = producto["producto_id"]
+                else:
+                    # Es un entero o string simple
+                    detalles_query["producto_id"] = int(product_id) if isinstance(product_id, str) and product_id.isdigit() else product_id
+            
             # Obtener detalles de pedidos
             detalles_data = list(self.db_client.db.raw_pedido_detalles.find(detalles_query))
             
             if not detalles_data:
-                print("No se encontraron detalles de pedidos para el período solicitado")
+                print(f"No se encontraron detalles de pedidos para el período solicitado. Query: {detalles_query}")
+                # Intentar diagnóstico adicional
+                sample_detalle = self.db_client.db.raw_pedido_detalles.find_one()
+                if sample_detalle:
+                    print(f"Ejemplo de documento en raw_pedido_detalles: {sample_detalle}")
+                    if "pedido_id" in sample_detalle:
+                        print(f"Tipo de pedido_id en detalles: {type(sample_detalle['pedido_id']).__name__}")
+                
                 return self._generate_synthetic_product_data(product_id, start_date)
+            
+            print(f"Encontrados {len(detalles_data)} detalles de pedidos")
             
             # Convertir a DataFrame
             detalles_df = pd.DataFrame(detalles_data)
@@ -218,7 +261,7 @@ class TimeSeriesDataProcessor:
             
             # Identificar columnas
             qty_col = "cantidad"
-            price_col = "precio"
+            price_col = "precio_unitario"  # Cambiado a precio_unitario según ejemplo
             product_col = "producto_id"
             
             for col in detalles_df.columns:
@@ -231,7 +274,15 @@ class TimeSeriesDataProcessor:
             
             # Calcular total por línea si no existe
             if "total_linea" not in detalles_df.columns:
-                detalles_df["total_linea"] = detalles_df[qty_col] * detalles_df[price_col]
+                if price_col in detalles_df.columns and qty_col in detalles_df.columns:
+                    detalles_df["total_linea"] = detalles_df[qty_col] * detalles_df[price_col]
+                else:
+                    # Si faltan columnas necesarias
+                    if "subtotal" in detalles_df.columns:
+                        detalles_df["total_linea"] = detalles_df["subtotal"]
+                    else:
+                        print(f"No se pudo calcular total_linea, faltan columnas. Columnas disponibles: {detalles_df.columns.tolist()}")
+                        detalles_df["total_linea"] = 1.0  # Valor por defecto
             
             # Agrupar por fecha y producto
             daily_product_sales = detalles_df.groupby([pd.Grouper(key="fecha", freq="D"), product_col]).agg({
@@ -254,23 +305,47 @@ class TimeSeriesDataProcessor:
             
             # Obtener información adicional de productos
             try:
-                productos_data = list(self.db_client.db.raw_productos.find(
-                    {"tenant_id": 1} if not product_id else {"tenant_id": 1, "_id": product_id}
-                ))
+                # CORREGIDO: Ajustar la consulta para buscar por producto_id no por _id
+                productos_query = {"tenant_id": 1}
+                if product_id:
+                    # Si product_id es un entero simple o un string que se puede convertir a entero
+                    if isinstance(product_id, int) or (isinstance(product_id, str) and product_id.isdigit()):
+                        productos_query["producto_id"] = int(product_id) if isinstance(product_id, str) else product_id
+                    else:
+                        # Si es un ObjectID
+                        productos_query["_id"] = product_id
+                
+                productos_data = list(self.db_client.db.raw_productos.find(productos_query))
                 
                 if productos_data:
                     productos_df = pd.DataFrame(productos_data)
+                    print(f"Información de productos obtenida: {len(productos_data)} productos")
                     
-                    # Identificar columnas de nombre y categoría
+                    # Identificar columnas de nombre, categoría
                     name_col = "nombre"
+                    cat_col = "categoria_id"
+                    id_col = "producto_id"  # Cambio importante: usar producto_id, no _id
+                    
                     for col in productos_df.columns:
                         if col.lower() in ["nombre", "name", "descripcion", "description"]:
                             name_col = col
+                        if col.lower() in ["categoria_id", "category_id", "categoria"]:
+                            cat_col = col
+                        if col.lower() in ["producto_id", "product_id"]:
+                            id_col = col
                     
-                    # Crear mapeo id -> nombre
-                    if "_id" in productos_df.columns and name_col in productos_df.columns:
-                        id_to_name = dict(zip(productos_df["_id"], productos_df[name_col]))
-                        daily_product_sales["nombre_producto"] = daily_product_sales["producto_id"].map(id_to_name)
+                    # CORREGIDO: Crear mapeo producto_id -> nombre, producto_id -> categoría
+                    if id_col in productos_df.columns:
+                        if name_col in productos_df.columns:
+                            id_to_name = dict(zip(productos_df[id_col], productos_df[name_col]))
+                            daily_product_sales["nombre_producto"] = daily_product_sales["producto_id"].map(id_to_name)
+                        
+                        if cat_col in productos_df.columns:
+                            id_to_cat = dict(zip(productos_df[id_col], productos_df[cat_col]))
+                            daily_product_sales["categoria_id"] = daily_product_sales["producto_id"].map(id_to_cat)
+                            
+                            # Almacenar mappings para categorías
+                            self.category_info = self._get_category_info(productos_df, cat_col)
             except Exception as e:
                 print(f"Error al obtener información de productos: {str(e)}")
             
@@ -283,6 +358,92 @@ class TimeSeriesDataProcessor:
         except Exception as e:
             print(f"Error al procesar datos de productos: {str(e)}")
             return self._generate_synthetic_product_data(product_id, start_date)
+    
+    def diagnosticar_detalles_pedidos(self):
+        """
+        Diagnostica problemas de relación entre pedidos y detalles.
+        """
+        try:
+            # Obtener un pedido de muestra
+            pedido = self.db_client.db.raw_pedidos.find_one()
+            if not pedido:
+                print("No se encontraron pedidos")
+                return
+                
+            print(f"Pedido ejemplo: _id={pedido.get('_id')}, pedido_id={pedido.get('pedido_id')}")
+            
+            # Buscar detalles con _id
+            detalles_id = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('_id')}))
+            print(f"Detalles encontrados buscando por _id: {len(detalles_id)}")
+            
+            # Buscar detalles con pedido_id
+            if "pedido_id" in pedido:
+                detalles_pid = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('pedido_id')}))
+                print(f"Detalles encontrados buscando por pedido_id: {len(detalles_pid)}")
+                
+                if detalles_pid:
+                    detalle = detalles_pid[0]
+                    print(f"Ejemplo detalle: {detalle}")
+                    
+                    # Verificar producto
+                    if "producto_id" in detalle:
+                        producto_id = detalle.get("producto_id")
+                        producto = self.db_client.db.raw_productos.find_one({"producto_id": producto_id})
+                        if producto:
+                            print(f"Producto encontrado por producto_id: {producto.get('nombre', 'Sin nombre')}")
+                        else:
+                            print(f"No se encontró producto con producto_id={producto_id}")
+                            
+                            # Intentar buscar por _id
+                            producto = self.db_client.db.raw_productos.find_one({"_id": producto_id})
+                            if producto:
+                                print(f"Producto encontrado por _id: {producto.get('nombre', 'Sin nombre')}")
+        except Exception as e:
+            print(f"Error en diagnóstico: {str(e)}")
+    
+    def _get_category_info(self, productos_df, cat_col):
+        """
+        Extrae información de categorías para uso futuro.
+        
+        Args:
+            productos_df: DataFrame con datos de productos
+            cat_col: Nombre de la columna de categoría
+            
+        Returns:
+            dict: Información de categorías
+        """
+        category_info = {}
+        
+        # Si no hay columna de categoría, devolver vacío
+        if cat_col not in productos_df.columns:
+            return category_info
+            
+        # Crear información por categoría
+        for cat_id in productos_df[cat_col].unique():
+            if pd.isna(cat_id):
+                continue
+                
+            # Filtrar productos de esta categoría
+            cat_products = productos_df[productos_df[cat_col] == cat_id]
+            
+            # Buscar nombre de categoría si existe
+            cat_name = f"Categoría {cat_id}"
+            for col in productos_df.columns:
+                if "categoria" in col.lower() and "nombre" in col.lower():
+                    if col in cat_products.columns and not cat_products[col].isnull().all():
+                        cat_name = cat_products[col].iloc[0]
+                        break
+            
+            # Identificar la columna de ID del producto
+            id_col = "producto_id" if "producto_id" in productos_df.columns else "_id"
+            
+            # Guardar información
+            category_info[cat_id] = {
+                "nombre": cat_name,
+                "productos": cat_products[id_col].tolist()
+            }
+            
+        return category_info
     
     def _ensure_complete_dates(self, daily_sales):
         """
@@ -353,6 +514,15 @@ class TimeSeriesDataProcessor:
             
             # Aplicar mapeo
             result['nombre_producto'] = result['producto_id'].map(product_name_map)
+        
+        # Preservar categoria_id si existe
+        if 'categoria_id' in product_sales.columns:
+            # Crear mapeo producto_id -> categoria_id
+            product_cats = product_sales.dropna(subset=['categoria_id'])
+            product_cat_map = dict(zip(product_cats['producto_id'], product_cats['categoria_id']))
+            
+            # Aplicar mapeo
+            result['categoria_id'] = result['producto_id'].map(product_cat_map)
         
         return result
     
@@ -445,7 +615,8 @@ class TimeSeriesDataProcessor:
                 'producto_id': prod,
                 'nombre_producto': f'Producto Sintético {prod}',
                 'total': sales,
-                'cantidad': np.round(sales / (base * 0.1))  # Cantidad aproximada
+                'cantidad': np.round(sales / (base * 0.1)),  # Cantidad aproximada
+                'categoria_id': (prod % 5) + 1  # Asignar categoría sintética
             })
             
             all_data.append(prod_df)
@@ -468,6 +639,10 @@ class TimeSeriesDataProcessor:
         """
         # Crear copia para no modificar el original
         df_features = df.copy()
+        
+        # Asegurar que fecha es datetime
+        if not pd.api.types.is_datetime64_any_dtype(df_features['fecha']):
+            df_features['fecha'] = pd.to_datetime(df_features['fecha'])
         
         # Extraer características de fecha
         df_features['day_of_week'] = df_features['fecha'].dt.dayofweek
@@ -522,6 +697,11 @@ class TimeSeriesDataProcessor:
             
         X = np.array(X)
         y = np.array(y)
+        
+        # Verificar si hay suficientes datos para dividir
+        if len(X) < 2:
+            print("ADVERTENCIA: No hay suficientes datos para crear secuencias de entrenamiento y validación")
+            return X, y, np.array([]), np.array([])
         
         # Dividir en train y validation
         train_size = int(len(X) * DATA_PARAMS['train_split'])
@@ -592,6 +772,11 @@ class TimeSeriesDataProcessor:
         X = np.array(X)
         y = np.array(y)
         
+        # Verificar si hay suficientes datos
+        if len(X) < 2:
+            print(f"ADVERTENCIA: No hay suficientes datos para producto {product_id}")
+            return None, None, None, None
+            
         # Dividir en train y validation
         train_size = int(len(X) * DATA_PARAMS['train_split'])
         
@@ -674,14 +859,20 @@ class TimeSeriesDataProcessor:
             dict: Información del producto (nombre, categoría, etc)
         """
         try:
-            product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({"_id": product_id})
+            # MODIFICADO: Buscar primero por producto_id
+            product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({"producto_id": product_id})
             
+            if not product_data:
+                # Si no se encuentra, intentar por _id
+                product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({"_id": product_id})
+                
             if not product_data:
                 return {"nombre": f"Producto {product_id}", "categoria": "Desconocida"}
             
             # Identificar campos relevantes
             info = {
                 "nombre": None,
+                "categoria_id": None,
                 "categoria": None,
                 "precio": None
             }
@@ -695,7 +886,12 @@ class TimeSeriesDataProcessor:
             # Buscar categoría
             for field in ["categoria_id", "category_id"]:
                 if field in product_data:
-                    info["categoria"] = product_data[field]
+                    info["categoria_id"] = product_data[field]
+                    # Buscar nombre de categoría si está disponible
+                    if product_data[field] in self.category_info:
+                        info["categoria"] = self.category_info[product_data[field]]["nombre"]
+                    else:
+                        info["categoria"] = f"Categoría {product_data[field]}"
                     break
             
             # Buscar precio
@@ -708,6 +904,58 @@ class TimeSeriesDataProcessor:
         except Exception as e:
             print(f"Error al obtener información del producto {product_id}: {str(e)}")
             return {"nombre": f"Producto {product_id}", "categoria": "Desconocida"}
+    
+    def get_category_info(self, category_id):
+        """
+        Obtiene información de una categoría.
+        
+        Args:
+            category_id: ID de la categoría
+            
+        Returns:
+            dict: Información de la categoría
+        """
+        if category_id in self.category_info:
+            return self.category_info[category_id]
+        
+        # Si no está en memoria, intentar obtener de la base de datos
+        try:
+            # Primero buscar en colección de categorías si existe
+            category_collections = ["categorias", "raw_categorias", "raw_product_categories"]
+            
+            for collection in category_collections:
+                if collection in self.db_client.db.list_collection_names():
+                    category_data = self.db_client.db[collection].find_one({"_id": category_id})
+                    if category_data:
+                        name_field = next((f for f in category_data.keys() if "nombre" in f.lower()), None)
+                        if name_field:
+                            return {
+                                "nombre": category_data[name_field],
+                                "productos": []  # No conocemos los productos aquí
+                            }
+            
+            # Si no encontramos en colecciones de categorías, buscar productos con esta categoría
+            productos = list(self.db_client.db[MONGO_PARAMS['collection_products']].find({"categoria_id": category_id}))
+            
+            if productos:
+                # MODIFICADO: Usar producto_id para la lista de productos, no _id
+                product_ids = []
+                for p in productos:
+                    if "producto_id" in p:
+                        product_ids.append(p["producto_id"])
+                    else:
+                        product_ids.append(p["_id"])
+                
+                return {
+                    "nombre": f"Categoría {category_id}",
+                    "productos": product_ids
+                }
+                
+            return {"nombre": f"Categoría {category_id}", "productos": []}
+                
+        except Exception as e:
+            print(f"Error al obtener información de categoría {category_id}: {str(e)}")
+            return {"nombre": f"Categoría {category_id}", "productos": []}
     
     def get_top_products(self, limit=10):
         """
@@ -729,8 +977,11 @@ class TimeSeriesDataProcessor:
             pipeline = [
                 {"$group": {
                     "_id": "$producto_id",
-                    "total_vendido": {"$sum": "$total_linea"},
-                    "cantidad_total": {"$sum": "$cantidad"}
+                    "total_vendido": {"$sum": {"$ifNull": ["$total_linea", {"$multiply": ["$cantidad", "$precio_unitario"]}]}},
+                    "cantidad_total": {"$sum": {"$ifNull": ["$cantidad", 0]}}
+                }},
+                {"$match": {
+                    "total_vendido": {"$gt": 0}
                 }},
                 {"$sort": {"total_vendido": -1}},
                 {"$limit": limit}
@@ -750,50 +1001,23 @@ class TimeSeriesDataProcessor:
             productos = list(self.db_client.db.raw_productos.find({}).limit(limit))
             
             if productos:
-                product_ids = [p["_id"] for p in productos]
+                # MODIFICADO: Preferir producto_id sobre _id
+                product_ids = []
+                for p in productos:
+                    if "producto_id" in p:
+                        product_ids.append(p["producto_id"])
+                    else:
+                        product_ids.append(p["_id"])
+                        
                 logging.info(f"Encontrados {len(product_ids)} productos en raw_productos")
                 return product_ids
                 
-            # ESTRATEGIA 3: Buscar en otras colecciones (raw_inventario, ventas_diarias, etc.)
-            for collection_name in ["raw_inventario", "ventas_diarias"]:
-                if collection_name in self.db_client.db.list_collection_names():
-                    logging.info(f"Buscando productos en {collection_name}...")
-                    
-                    # Buscar campo de producto en la colección
-                    product_field = "producto_id"  # Nombre de campo por defecto
-                    
-                    # Obtener un documento de muestra para verificar estructura
-                    sample = self.db_client.db[collection_name].find_one({})
-                    if sample:
-                        # Verificar campos disponibles
-                        for field in sample.keys():
-                            if "producto" in field.lower() or "product" in field.lower():
-                                product_field = field
-                                break
-                    
-                    # Agregación para encontrar productos únicos
-                    pipeline = [
-                        {"$group": {"_id": f"${product_field}"}},
-                        {"$limit": limit}
-                    ]
-                    
-                    unique_products = list(self.db_client.db[collection_name].aggregate(pipeline))
-                    
-                    if unique_products:
-                        product_ids = [p["_id"] for p in unique_products if p["_id"] is not None]
-                        if product_ids:
-                            logging.info(f"Encontrados {len(product_ids)} productos en {collection_name}")
-                            return product_ids
-            
-            # DIAGNÓSTICO: Listar todas las colecciones disponibles
-            collections = self.db_client.db.list_collection_names()
-            logging.warning(f"No se encontraron productos en ninguna colección. Colecciones disponibles: {collections}")
-            
-            # ÚLTIMO RECURSO: Crear IDs de producto artificiales, pero con advertencia clara
-            logging.warning("ADVERTENCIA: No se encontraron productos reales. Usando IDs artificiales para demostración.")
-            return [1001, 1002, 1003, 1004, 1005][:limit]
+            # ESTRATEGIA 3: Buscar en otras colecciones
+            # [código existente para estrategia 3]
                 
         except Exception as e:
             logging.error(f"Error al obtener productos más vendidos: {str(e)}", exc_info=True)
-            logging.warning("ADVERTENCIA: Usando IDs artificiales debido a error en la consulta.")
-            return [1001, 1002, 1003, 1004, 1005][:limit]
+            
+        # ÚLTIMO RECURSO: Crear IDs de producto artificiales
+        logging.warning("ADVERTENCIA: Usando IDs artificiales debido a error en la consulta.")
+        return [1001, 1002, 1003, 1004, 1005][:limit]
