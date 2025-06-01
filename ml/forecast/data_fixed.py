@@ -3,6 +3,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import tensorflow as tf
 import logging
+import random
 
 from .config import DATA_PARAMS, MONGO_PARAMS, PRODUCT_PARAMS
 
@@ -18,40 +19,49 @@ class TimeSeriesDataProcessor:
         self.db_client = db_client
         self.product_scalers = {}  # Almacena escaladores por producto
         self.category_info = {}    # Almacena información de categorías
+        self.logger = logging.getLogger(__name__)
         
-    def fetch_historical_data(self, months=24):
+    def fetch_historical_data(self, tenant_id=1, months=24, start_date=None, end_date=None):
         """
         Obtiene datos históricos de ventas agregadas desde MongoDB.
         
         Args:
+            tenant_id (int): ID del tenant para filtrar datos
             months (int): Cantidad de meses a extraer
+            start_date (datetime, optional): Fecha de inicio para filtrar datos
+            end_date (datetime, optional): Fecha de fin para filtrar datos
             
         Returns:
             pd.DataFrame: DataFrame con datos de ventas diarias
         """
-        # Calcular fecha de inicio (hace X meses)
-        start_date = datetime.now() - timedelta(days=30*months)
-        print(f"Buscando datos desde: {start_date}")
+        # Usar fechas proporcionadas o calcular basado en la fecha actual
+        if end_date is None:
+            end_date = datetime.now()
+            
+        if start_date is None:
+            start_date = end_date - timedelta(days=30*months)
+            
+        self.logger.info(f"Buscando datos desde: {start_date} hasta: {end_date} para tenant {tenant_id}")
         
         # CAMBIADO: Intentar obtener datos de raw_pedidos primero (invertir orden)
         try:
-            print("Intentando obtener datos de raw_pedidos (fuente principal)...")
+            self.logger.info(f"Intentando obtener datos de raw_pedidos (fuente principal) para tenant {tenant_id}...")
             # Consulta directa a raw_pedidos
             pedidos_query = {
-                "tenant_id": 1,
+                "tenant_id": tenant_id,  # Usar tenant_id como parámetro
                 "$or": [
-                    {"fecha_hora": {"$gte": start_date}},
-                    {"fecha": {"$gte": start_date}}
+                    {"fecha_hora": {"$gte": start_date, "$lte": end_date}},
+                    {"fecha": {"$gte": start_date, "$lte": end_date}}
                 ]
             }
             
             pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query))
-            print(f"Encontrados {len(pedidos_data)} registros en raw_pedidos")
+            self.logger.info(f"Encontrados {len(pedidos_data)} registros en raw_pedidos para tenant {tenant_id}")
             
             if pedidos_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(pedidos_data)
-                print(f"Columnas disponibles en raw_pedidos: {df.columns.tolist()}")
+                self.logger.debug(f"Columnas disponibles en raw_pedidos: {df.columns.tolist()}")
                 
                 # Convertir fechas - adaptarse a la estructura real
                 if 'fecha_hora' in df.columns:
@@ -83,33 +93,36 @@ class TimeSeriesDataProcessor:
                     if 'cantidad' not in daily_sales.columns:
                         daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
                     
-                    print(f"Datos procesados exitosamente de raw_pedidos: {len(daily_sales)} días")
+                    # Añadir tenant_id para garantizar que se propague
+                    daily_sales['tenant_id'] = tenant_id
+                    
+                    self.logger.info(f"Datos procesados exitosamente de raw_pedidos: {len(daily_sales)} días")
                     days_count = len(daily_sales['fecha'].dt.date.unique())
-                    print(f"Días únicos encontrados: {days_count}")
+                    self.logger.info(f"Días únicos encontrados: {days_count}")
                     
                     if days_count < 14:
-                        print(f"ADVERTENCIA: Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
+                        self.logger.warning(f"Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
                     
-                    return self._ensure_complete_dates(daily_sales)
+                    return self._ensure_complete_dates(daily_sales, start_date, end_date)
         except Exception as e:
-            print(f"Error al procesar raw_pedidos: {str(e)}")
+            self.logger.error(f"Error al procesar raw_pedidos para tenant {tenant_id}: {str(e)}")
         
         # Si llegamos aquí, intentamos con raw_ventas
         try:
-            print("Intentando obtener datos de raw_ventas (fuente secundaria)...")
+            self.logger.info(f"Intentando obtener datos de raw_ventas (fuente secundaria) para tenant {tenant_id}...")
             # Consulta usando etl_timestamp en lugar de fecha
             ventas_query = {
-                "tenant_id": 1,  # Asumiendo tenant_id=1
-                "etl_timestamp": {"$gte": start_date}  # Usar etl_timestamp en lugar de fecha
+                "tenant_id": tenant_id,  # Usar tenant_id como parámetro
+                "etl_timestamp": {"$gte": start_date, "$lte": end_date}  # Usar etl_timestamp en lugar de fecha
             }
             
             ventas_data = list(self.db_client.db.raw_ventas.find(ventas_query))
-            print(f"Encontrados {len(ventas_data)} registros en raw_ventas")
+            self.logger.info(f"Encontrados {len(ventas_data)} registros en raw_ventas para tenant {tenant_id}")
             
             if ventas_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(ventas_data)
-                print(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
+                self.logger.debug(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
                 
                 # Usar etl_timestamp como fecha para análisis
                 df['fecha'] = pd.to_datetime(df['etl_timestamp'])
@@ -135,55 +148,66 @@ class TimeSeriesDataProcessor:
                     if 'cantidad' not in daily_sales.columns:
                         daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
                     
+                    # Añadir tenant_id para garantizar que se propague
+                    daily_sales['tenant_id'] = tenant_id
+                    
                     days_count = len(daily_sales['fecha'].dt.date.unique())
-                    print(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días, días únicos: {days_count}")
+                    self.logger.info(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días, días únicos: {days_count}")
                     
                     if days_count < 14:
-                        print(f"ADVERTENCIA: Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
+                        self.logger.warning(f"Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
                         if days_count == 1:
-                            print("Se detectó solo 1 día de datos. Se generarán datos sintéticos adicionales.")
+                            self.logger.warning("Se detectó solo 1 día de datos. Se generarán datos sintéticos adicionales.")
                             # Generar datos sintéticos pero mantener el día real
                             real_day = daily_sales.iloc[0]
-                            synthetic_data = self._generate_synthetic_data(start_date)
+                            synthetic_data = self._generate_synthetic_data(start_date, end_date, tenant_id)
                             
                             # Mantener el día real y reemplazar un día sintético
                             synthetic_data.loc[synthetic_data['fecha'] >= real_day['fecha'], 'total'] = real_day['total']
                             return synthetic_data
                     
-                    return self._ensure_complete_dates(daily_sales)
+                    return self._ensure_complete_dates(daily_sales, start_date, end_date)
         except Exception as e:
-            print(f"Error al procesar raw_ventas: {str(e)}")
+            self.logger.error(f"Error al procesar raw_ventas para tenant {tenant_id}: {str(e)}")
         
         # Si llegamos aquí, generamos datos sintéticos
-        print("No se pudieron obtener datos reales suficientes. Generando datos sintéticos...")
-        return self._generate_synthetic_data(start_date)
+        self.logger.warning(f"No se pudieron obtener datos reales suficientes para tenant {tenant_id}. Generando datos sintéticos...")
+        return self._generate_synthetic_data(start_date, end_date, tenant_id)
     
-    def fetch_product_historical_data(self, product_id=None, top_n=None, months=24):
+    def fetch_product_historical_data(self, tenant_id=1, product_id=None, top_n=None, months=24, start_date=None, end_date=None):
         """
         Obtiene datos históricos de ventas por producto desde MongoDB.
         
         Args:
+            tenant_id (int): ID del tenant para filtrar datos
             product_id (int, optional): ID del producto específico a obtener
             top_n (int, optional): Número de productos más vendidos a incluir
             months (int): Cantidad de meses a extraer
+            start_date (datetime, optional): Fecha de inicio para filtrar datos
+            end_date (datetime, optional): Fecha de fin para filtrar datos
             
         Returns:
             pd.DataFrame: DataFrame con datos de ventas diarias por producto
         """
-        # Calcular fecha de inicio
-        start_date = datetime.now() - timedelta(days=30*months)
-        print(f"Buscando datos de productos desde: {start_date}")
+        # Usar fechas proporcionadas o calcular basado en la fecha actual
+        if end_date is None:
+            end_date = datetime.now()
+            
+        if start_date is None:
+            start_date = end_date - timedelta(days=30*months)
+            
+        self.logger.info(f"Buscando datos de productos desde: {start_date} hasta: {end_date} para tenant {tenant_id}")
         
         # Primero intentamos obtener detalles de pedidos (raw_pedido_detalles)
         try:
-            print("Intentando obtener datos de pedidos con detalles...")
+            self.logger.info(f"Intentando obtener datos de pedidos con detalles para tenant {tenant_id}...")
             
             # Consulta para obtener pedidos
             pedidos_query = {
-                "tenant_id": 1,
+                "tenant_id": tenant_id,  # Usar tenant_id como parámetro
                 "$or": [
-                    {"fecha_hora": {"$gte": start_date}},
-                    {"fecha": {"$gte": start_date}}
+                    {"fecha_hora": {"$gte": start_date, "$lte": end_date}},
+                    {"fecha": {"$gte": start_date, "$lte": end_date}}
                 ]
             }
             
@@ -192,8 +216,8 @@ class TimeSeriesDataProcessor:
                                                                   {"_id": 1, "pedido_id": 1, "fecha": 1, "fecha_hora": 1}))
             
             if not pedidos_data:
-                print("No se encontraron pedidos para el período solicitado")
-                return self._generate_synthetic_product_data(product_id, start_date)
+                self.logger.warning(f"No se encontraron pedidos para el período solicitado para tenant {tenant_id}")
+                return self._generate_synthetic_product_data(product_id, start_date, end_date, tenant_id)
                 
             # CORREGIDO: Extraer IDs utilizando el campo pedido_id en lugar de _id
             # Los IDs en raw_pedido_detalles son enteros simples (pedido_id), no ObjectIDs
@@ -203,8 +227,8 @@ class TimeSeriesDataProcessor:
                     pedido_ids.append(p["pedido_id"])
             
             if not pedido_ids:
-                print("No se encontraron pedido_id válidos")
-                return self._generate_synthetic_product_data(product_id, start_date)
+                self.logger.warning("No se encontraron pedido_id válidos")
+                return self._generate_synthetic_product_data(product_id, start_date, end_date, tenant_id)
             
             # CORREGIDO: Crear mapeo de pedido_id -> fecha (en lugar de _id -> fecha)
             fecha_por_pedido = {}
@@ -238,17 +262,17 @@ class TimeSeriesDataProcessor:
             detalles_data = list(self.db_client.db.raw_pedido_detalles.find(detalles_query))
             
             if not detalles_data:
-                print(f"No se encontraron detalles de pedidos para el período solicitado. Query: {detalles_query}")
+                self.logger.warning(f"No se encontraron detalles de pedidos para el período solicitado para tenant {tenant_id}. Query: {detalles_query}")
                 # Intentar diagnóstico adicional
                 sample_detalle = self.db_client.db.raw_pedido_detalles.find_one()
                 if sample_detalle:
-                    print(f"Ejemplo de documento en raw_pedido_detalles: {sample_detalle}")
+                    self.logger.debug(f"Ejemplo de documento en raw_pedido_detalles: {sample_detalle}")
                     if "pedido_id" in sample_detalle:
-                        print(f"Tipo de pedido_id en detalles: {type(sample_detalle['pedido_id']).__name__}")
+                        self.logger.debug(f"Tipo de pedido_id en detalles: {type(sample_detalle['pedido_id']).__name__}")
                 
-                return self._generate_synthetic_product_data(product_id, start_date)
+                return self._generate_synthetic_product_data(product_id, start_date, end_date, tenant_id)
             
-            print(f"Encontrados {len(detalles_data)} detalles de pedidos")
+            self.logger.info(f"Encontrados {len(detalles_data)} detalles de pedidos para tenant {tenant_id}")
             
             # Convertir a DataFrame
             detalles_df = pd.DataFrame(detalles_data)
@@ -281,7 +305,7 @@ class TimeSeriesDataProcessor:
                     if "subtotal" in detalles_df.columns:
                         detalles_df["total_linea"] = detalles_df["subtotal"]
                     else:
-                        print(f"No se pudo calcular total_linea, faltan columnas. Columnas disponibles: {detalles_df.columns.tolist()}")
+                        self.logger.warning(f"No se pudo calcular total_linea, faltan columnas. Columnas disponibles: {detalles_df.columns.tolist()}")
                         detalles_df["total_linea"] = 1.0  # Valor por defecto
             
             # Agrupar por fecha y producto
@@ -303,10 +327,13 @@ class TimeSeriesDataProcessor:
                 top_products = daily_product_sales.groupby("producto_id")["total"].sum().nlargest(top_n).index.tolist()
                 daily_product_sales = daily_product_sales[daily_product_sales["producto_id"].isin(top_products)]
             
+            # Añadir tenant_id para garantizar que se propague
+            daily_product_sales['tenant_id'] = tenant_id
+            
             # Obtener información adicional de productos
             try:
                 # CORREGIDO: Ajustar la consulta para buscar por producto_id no por _id
-                productos_query = {"tenant_id": 1}
+                productos_query = {"tenant_id": tenant_id}  # Añadir tenant_id
                 if product_id:
                     # Si product_id es un entero simple o un string que se puede convertir a entero
                     if isinstance(product_id, int) or (isinstance(product_id, str) and product_id.isdigit()):
@@ -319,7 +346,7 @@ class TimeSeriesDataProcessor:
                 
                 if productos_data:
                     productos_df = pd.DataFrame(productos_data)
-                    print(f"Información de productos obtenida: {len(productos_data)} productos")
+                    self.logger.info(f"Información de productos obtenida: {len(productos_data)} productos para tenant {tenant_id}")
                     
                     # Identificar columnas de nombre, categoría
                     name_col = "nombre"
@@ -347,59 +374,62 @@ class TimeSeriesDataProcessor:
                             # Almacenar mappings para categorías
                             self.category_info = self._get_category_info(productos_df, cat_col)
             except Exception as e:
-                print(f"Error al obtener información de productos: {str(e)}")
+                self.logger.error(f"Error al obtener información de productos para tenant {tenant_id}: {str(e)}")
             
             # Asegurar que existan todas las combinaciones fecha-producto
-            complete_product_data = self._ensure_complete_product_dates(daily_product_sales)
+            complete_product_data = self._ensure_complete_product_dates(daily_product_sales, start_date, end_date)
             
-            print(f"Datos de productos procesados exitosamente: {len(complete_product_data)} registros")
+            self.logger.info(f"Datos de productos procesados exitosamente: {len(complete_product_data)} registros para tenant {tenant_id}")
             return complete_product_data
             
         except Exception as e:
-            print(f"Error al procesar datos de productos: {str(e)}")
-            return self._generate_synthetic_product_data(product_id, start_date)
+            self.logger.error(f"Error al procesar datos de productos para tenant {tenant_id}: {str(e)}")
+            return self._generate_synthetic_product_data(product_id, start_date, end_date, tenant_id)
     
-    def diagnosticar_detalles_pedidos(self):
+    def diagnosticar_detalles_pedidos(self, tenant_id=1):
         """
         Diagnostica problemas de relación entre pedidos y detalles.
+        
+        Args:
+            tenant_id (int): ID del tenant para diagnosticar
         """
         try:
             # Obtener un pedido de muestra
-            pedido = self.db_client.db.raw_pedidos.find_one()
+            pedido = self.db_client.db.raw_pedidos.find_one({"tenant_id": tenant_id})  # Añadir tenant_id
             if not pedido:
-                print("No se encontraron pedidos")
+                self.logger.warning(f"No se encontraron pedidos para tenant {tenant_id}")
                 return
                 
-            print(f"Pedido ejemplo: _id={pedido.get('_id')}, pedido_id={pedido.get('pedido_id')}")
+            self.logger.info(f"Pedido ejemplo: _id={pedido.get('_id')}, pedido_id={pedido.get('pedido_id')}")
             
             # Buscar detalles con _id
             detalles_id = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('_id')}))
-            print(f"Detalles encontrados buscando por _id: {len(detalles_id)}")
+            self.logger.info(f"Detalles encontrados buscando por _id: {len(detalles_id)}")
             
             # Buscar detalles con pedido_id
             if "pedido_id" in pedido:
                 detalles_pid = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('pedido_id')}))
-                print(f"Detalles encontrados buscando por pedido_id: {len(detalles_pid)}")
+                self.logger.info(f"Detalles encontrados buscando por pedido_id: {len(detalles_pid)}")
                 
                 if detalles_pid:
                     detalle = detalles_pid[0]
-                    print(f"Ejemplo detalle: {detalle}")
+                    self.logger.debug(f"Ejemplo detalle: {detalle}")
                     
                     # Verificar producto
                     if "producto_id" in detalle:
                         producto_id = detalle.get("producto_id")
-                        producto = self.db_client.db.raw_productos.find_one({"producto_id": producto_id})
+                        producto = self.db_client.db.raw_productos.find_one({"producto_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
                         if producto:
-                            print(f"Producto encontrado por producto_id: {producto.get('nombre', 'Sin nombre')}")
+                            self.logger.info(f"Producto encontrado por producto_id: {producto.get('nombre', 'Sin nombre')}")
                         else:
-                            print(f"No se encontró producto con producto_id={producto_id}")
+                            self.logger.warning(f"No se encontró producto con producto_id={producto_id} para tenant {tenant_id}")
                             
                             # Intentar buscar por _id
-                            producto = self.db_client.db.raw_productos.find_one({"_id": producto_id})
+                            producto = self.db_client.db.raw_productos.find_one({"_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
                             if producto:
-                                print(f"Producto encontrado por _id: {producto.get('nombre', 'Sin nombre')}")
+                                self.logger.info(f"Producto encontrado por _id: {producto.get('nombre', 'Sin nombre')}")
         except Exception as e:
-            print(f"Error en diagnóstico: {str(e)}")
+            self.logger.error(f"Error en diagnóstico para tenant {tenant_id}: {str(e)}")
     
     def _get_category_info(self, productos_df, cat_col):
         """
@@ -445,43 +475,91 @@ class TimeSeriesDataProcessor:
             
         return category_info
     
-    def _ensure_complete_dates(self, daily_sales):
+    def _ensure_complete_dates(self, daily_sales, start_date=None, end_date=None):
         """
         Asegura que no haya días faltantes en el DataFrame.
         
         Args:
             daily_sales (pd.DataFrame): DataFrame con datos diarios
+            start_date (datetime, optional): Fecha de inicio
+            end_date (datetime, optional): Fecha de fin
             
         Returns:
             pd.DataFrame: DataFrame con fechas completas
         """
-        # Asegurar que no haya días faltantes
-        date_range = pd.date_range(start=daily_sales['fecha'].min(), 
-                                  end=daily_sales['fecha'].max(), 
-                                  freq='D')
+        # Preservar tenant_id
+        tenant_id = daily_sales['tenant_id'].iloc[0] if 'tenant_id' in daily_sales.columns else 1
         
-        daily_sales = daily_sales.set_index('fecha').reindex(date_range).fillna(0).reset_index()
+        # Determinar rango de fechas
+        if start_date is None:
+            start_date = daily_sales['fecha'].min()
+            
+        if end_date is None:
+            end_date = daily_sales['fecha'].max()
+            
+        # Asegurar que start_date y end_date sean datetime
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        
+        # Crear rango de fechas completo
+        date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+        
+        # Asegurar que daily_sales tiene fecha como datetime
+        daily_sales['fecha'] = pd.to_datetime(daily_sales['fecha'])
+        
+        # Reindexar para incluir todas las fechas
+        daily_sales = daily_sales.set_index('fecha').reindex(date_range).reset_index()
         daily_sales = daily_sales.rename(columns={'index': 'fecha'})
+        
+        # Llenar valores nulos
+        for col in daily_sales.columns:
+            if col != 'fecha':
+                if col in ['total', 'cantidad']:
+                    daily_sales[col] = daily_sales[col].fillna(0)
+                else:
+                    # Otros campos (como tenant_id)
+                    if col == 'tenant_id':
+                        daily_sales[col] = daily_sales[col].fillna(tenant_id)
+                    else:
+                        daily_sales[col] = daily_sales[col].fillna(daily_sales[col].iloc[0] if len(daily_sales) > 0 else None)
+        
+        # Asegurar que tenant_id exista y tenga el valor correcto
+        if 'tenant_id' not in daily_sales.columns:
+            daily_sales['tenant_id'] = tenant_id
         
         return daily_sales
     
-    def _ensure_complete_product_dates(self, product_sales):
+    def _ensure_complete_product_dates(self, product_sales, start_date=None, end_date=None):
         """
         Asegura que no haya combinaciones fecha-producto faltantes.
         
         Args:
             product_sales (pd.DataFrame): DataFrame con datos por producto
+            start_date (datetime, optional): Fecha de inicio
+            end_date (datetime, optional): Fecha de fin
             
         Returns:
             pd.DataFrame: DataFrame completo con todas las combinaciones
         """
+        # Preservar tenant_id
+        tenant_id = product_sales['tenant_id'].iloc[0] if 'tenant_id' in product_sales.columns else 1
+        
         # Obtener lista única de productos
         products = product_sales['producto_id'].unique()
         
+        # Determinar rango de fechas
+        if start_date is None:
+            start_date = product_sales['fecha'].min()
+            
+        if end_date is None:
+            end_date = product_sales['fecha'].max()
+            
+        # Asegurar que start_date y end_date sean datetime
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        
         # Crear rango de fechas completo
-        date_range = pd.date_range(start=product_sales['fecha'].min(), 
-                                 end=product_sales['fecha'].max(), 
-                                 freq='D')
+        date_range = pd.date_range(start=start_date, end=end_date, freq='D')
         
         # Crear todas las combinaciones producto-fecha
         product_date_combinations = pd.MultiIndex.from_product(
@@ -491,6 +569,9 @@ class TimeSeriesDataProcessor:
         
         # Crear DataFrame con índice MultiIndex
         complete_df = pd.DataFrame(index=product_date_combinations).reset_index()
+        
+        # Asegurar que product_sales tiene fecha como datetime
+        product_sales['fecha'] = pd.to_datetime(product_sales['fecha'])
         
         # Fusionar con datos originales
         result = pd.merge(
@@ -524,25 +605,41 @@ class TimeSeriesDataProcessor:
             # Aplicar mapeo
             result['categoria_id'] = result['producto_id'].map(product_cat_map)
         
+        # Asegurar que tenant_id exista y tenga el valor correcto
+        if 'tenant_id' not in result.columns:
+            result['tenant_id'] = tenant_id
+        
         return result
     
-    def _generate_synthetic_data(self, start_date):
+    def _generate_synthetic_data(self, start_date, end_date=None, tenant_id=1):
         """
         Genera datos sintéticos para desarrollo cuando no hay datos reales.
         
         Args:
             start_date (datetime): Fecha de inicio para los datos sintéticos
+            end_date (datetime, optional): Fecha de fin para los datos sintéticos
+            tenant_id (int): ID del tenant para el que generar datos
             
         Returns:
             pd.DataFrame: DataFrame con datos sintéticos
         """
-        # Crear rango de fechas desde start_date hasta hoy
-        end_date = datetime.now()
+        # Determinar fecha de fin si no se proporciona
+        if end_date is None:
+            end_date = datetime.now()
+            
+        # Convertir a datetime si son strings
+        if isinstance(start_date, str):
+            start_date = pd.to_datetime(start_date)
+        if isinstance(end_date, str):
+            end_date = pd.to_datetime(end_date)
+            
+        # Crear rango de fechas
         date_range = pd.date_range(start=start_date, end=end_date, freq='D')
         
-        # Crear tendencia base
+        # Crear tendencia base (diferente por tenant)
         n_days = len(date_range)
-        trend = np.linspace(100, 300, n_days) + np.random.normal(0, 10, n_days)
+        base_value = 100 + (tenant_id * 20)  # Diferentes valores base por tenant
+        trend = np.linspace(base_value, base_value * 3, n_days) + np.random.normal(0, base_value * 0.1, n_days)
         
         # Añadir estacionalidad semanal
         weekday_effect = np.array([0.8, 0.9, 1.0, 1.0, 1.2, 1.5, 1.3])
@@ -555,33 +652,47 @@ class TimeSeriesDataProcessor:
         df = pd.DataFrame({
             'fecha': date_range,
             'total': sales,
-            'cantidad': sales / 100  # Cantidad aproximada
+            'cantidad': sales / 100,  # Cantidad aproximada
+            'tenant_id': tenant_id  # Añadir tenant_id
         })
         
-        print(f"Datos sintéticos generados: {len(df)} días")
+        self.logger.info(f"Datos sintéticos generados: {len(df)} días para tenant {tenant_id}")
         return df
     
-    def _generate_synthetic_product_data(self, product_id=None, start_date=None):
+    def _generate_synthetic_product_data(self, product_id=None, start_date=None, end_date=None, tenant_id=1):
         """
         Genera datos sintéticos por producto para desarrollo.
         
         Args:
             product_id (int, optional): ID de producto específico
-            start_date (datetime): Fecha de inicio
+            start_date (datetime, optional): Fecha de inicio
+            end_date (datetime, optional): Fecha de fin
+            tenant_id (int): ID del tenant para el que generar datos
             
         Returns:
             pd.DataFrame: DataFrame con datos sintéticos por producto
         """
+        # Determinar fechas de inicio y fin
         if start_date is None:
             start_date = datetime.now() - timedelta(days=365)
             
-        end_date = datetime.now()
+        if end_date is None:
+            end_date = datetime.now()
+            
+        # Convertir a datetime si son strings
+        if isinstance(start_date, str):
+            start_date = pd.to_datetime(start_date)
+        if isinstance(end_date, str):
+            end_date = pd.to_datetime(end_date)
+            
         date_range = pd.date_range(start=start_date, end=end_date, freq='D')
         n_days = len(date_range)
         
         # Si no se especificó producto, generar datos para 5 productos
         if product_id is None:
-            products = [101, 102, 103, 104, 105]
+            # Usar diferentes productos para diferentes tenants
+            base_id = 100 + (tenant_id * 10)
+            products = [base_id + 1, base_id + 2, base_id + 3, base_id + 4, base_id + 5]
         else:
             products = [product_id]
             
@@ -616,14 +727,15 @@ class TimeSeriesDataProcessor:
                 'nombre_producto': f'Producto Sintético {prod}',
                 'total': sales,
                 'cantidad': np.round(sales / (base * 0.1)),  # Cantidad aproximada
-                'categoria_id': (prod % 5) + 1  # Asignar categoría sintética
+                'categoria_id': (prod % 5) + 1,  # Asignar categoría sintética
+                'tenant_id': tenant_id  # Añadir tenant_id
             })
             
             all_data.append(prod_df)
         
         # Combinar todos los productos
         result = pd.concat(all_data, ignore_index=True)
-        print(f"Datos sintéticos de productos generados: {len(result)} registros para {len(products)} productos")
+        self.logger.info(f"Datos sintéticos de productos generados: {len(result)} registros para {len(products)} productos (tenant {tenant_id})")
         
         return result
     
@@ -700,7 +812,7 @@ class TimeSeriesDataProcessor:
         
         # Verificar si hay suficientes datos para dividir
         if len(X) < 2:
-            print("ADVERTENCIA: No hay suficientes datos para crear secuencias de entrenamiento y validación")
+            self.logger.warning("No hay suficientes datos para crear secuencias de entrenamiento y validación")
             return X, y, np.array([]), np.array([])
         
         # Dividir en train y validation
@@ -734,7 +846,7 @@ class TimeSeriesDataProcessor:
         # Verificar si hay suficientes datos
         min_required = seq_length + horizon + 10  # +10 para tener algo de validación
         if len(product_data) < min_required:
-            print(f"Advertencia: Datos insuficientes para producto {product_id}. Se necesitan al menos {min_required} registros, pero hay {len(product_data)}.")
+            self.logger.warning(f"Datos insuficientes para producto {product_id}. Se necesitan al menos {min_required} registros, pero hay {len(product_data)}.")
             # Rellenar con datos sintéticos si es necesario
             if len(product_data) < seq_length + horizon:
                 return None, None, None, None
@@ -774,7 +886,7 @@ class TimeSeriesDataProcessor:
         
         # Verificar si hay suficientes datos
         if len(X) < 2:
-            print(f"ADVERTENCIA: No hay suficientes datos para producto {product_id}")
+            self.logger.warning(f"No hay suficientes datos para producto {product_id}")
             return None, None, None, None
             
         # Dividir en train y validation
@@ -825,7 +937,7 @@ class TimeSeriesDataProcessor:
             
             # Verificar si hay suficientes datos
             if len(data) < seq_length:
-                print(f"Advertencia: Datos insuficientes para preparar secuencia del producto {product_id}")
+                self.logger.warning(f"Datos insuficientes para preparar secuencia del producto {product_id}")
                 return None
             
             # Tomar últimos seq_length días
@@ -848,23 +960,30 @@ class TimeSeriesDataProcessor:
         # Convertir a formato numpy para el modelo
         return np.expand_dims(last_data_scaled.values, axis=0)
     
-    def get_product_info(self, product_id):
+    def get_product_info(self, product_id, tenant_id=1):
         """
         Obtiene información adicional de un producto.
         
         Args:
             product_id (int): ID del producto
+            tenant_id (int): ID del tenant al que pertenece el producto
             
         Returns:
             dict: Información del producto (nombre, categoría, etc)
         """
         try:
             # MODIFICADO: Buscar primero por producto_id
-            product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({"producto_id": product_id})
+            product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({
+                "producto_id": product_id,
+                "tenant_id": tenant_id  # Añadir tenant_id
+            })
             
             if not product_data:
                 # Si no se encuentra, intentar por _id
-                product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({"_id": product_id})
+                product_data = self.db_client.db[MONGO_PARAMS['collection_products']].find_one({
+                    "_id": product_id,
+                    "tenant_id": tenant_id  # Añadir tenant_id
+                })
                 
             if not product_data:
                 return {"nombre": f"Producto {product_id}", "categoria": "Desconocida"}
@@ -902,15 +1021,16 @@ class TimeSeriesDataProcessor:
             
             return info
         except Exception as e:
-            print(f"Error al obtener información del producto {product_id}: {str(e)}")
+            self.logger.error(f"Error al obtener información del producto {product_id} para tenant {tenant_id}: {str(e)}")
             return {"nombre": f"Producto {product_id}", "categoria": "Desconocida"}
     
-    def get_category_info(self, category_id):
+    def get_category_info(self, category_id, tenant_id=1):
         """
         Obtiene información de una categoría.
         
         Args:
             category_id: ID de la categoría
+            tenant_id (int): ID del tenant al que pertenece la categoría
             
         Returns:
             dict: Información de la categoría
@@ -925,7 +1045,10 @@ class TimeSeriesDataProcessor:
             
             for collection in category_collections:
                 if collection in self.db_client.db.list_collection_names():
-                    category_data = self.db_client.db[collection].find_one({"_id": category_id})
+                    category_data = self.db_client.db[collection].find_one({
+                        "_id": category_id,
+                        "tenant_id": tenant_id  # Añadir tenant_id
+                    })
                     if category_data:
                         name_field = next((f for f in category_data.keys() if "nombre" in f.lower()), None)
                         if name_field:
@@ -935,7 +1058,10 @@ class TimeSeriesDataProcessor:
                             }
             
             # Si no encontramos en colecciones de categorías, buscar productos con esta categoría
-            productos = list(self.db_client.db[MONGO_PARAMS['collection_products']].find({"categoria_id": category_id}))
+            productos = list(self.db_client.db[MONGO_PARAMS['collection_products']].find({
+                "categoria_id": category_id,
+                "tenant_id": tenant_id  # Añadir tenant_id
+            }))
             
             if productos:
                 # MODIFICADO: Usar producto_id para la lista de productos, no _id
@@ -954,14 +1080,15 @@ class TimeSeriesDataProcessor:
             return {"nombre": f"Categoría {category_id}", "productos": []}
                 
         except Exception as e:
-            print(f"Error al obtener información de categoría {category_id}: {str(e)}")
+            self.logger.error(f"Error al obtener información de categoría {category_id} para tenant {tenant_id}: {str(e)}")
             return {"nombre": f"Categoría {category_id}", "productos": []}
     
-    def get_top_products(self, limit=10):
+    def get_top_products(self, tenant_id=1, limit=10):
         """
         Obtiene los productos más vendidos basado en datos históricos.
         
         Args:
+            tenant_id (int): ID del tenant para filtrar datos
             limit (int): Número de productos a retornar
                 
         Returns:
@@ -971,34 +1098,48 @@ class TimeSeriesDataProcessor:
         
         try:
             # ESTRATEGIA 1: Obtener productos desde raw_pedido_detalles (método principal)
-            logging.info("Buscando top productos en raw_pedido_detalles...")
+            logging.info(f"Buscando top productos en raw_pedido_detalles para tenant {tenant_id}...")
             
-            # Pipeline de agregación más flexible (sin filtro de fecha para capturar más datos)
-            pipeline = [
-                {"$group": {
-                    "_id": "$producto_id",
-                    "total_vendido": {"$sum": {"$ifNull": ["$total_linea", {"$multiply": ["$cantidad", "$precio_unitario"]}]}},
-                    "cantidad_total": {"$sum": {"$ifNull": ["$cantidad", 0]}}
-                }},
-                {"$match": {
-                    "total_vendido": {"$gt": 0}
-                }},
-                {"$sort": {"total_vendido": -1}},
-                {"$limit": limit}
-            ]
+            # Primero obtener pedidos para este tenant
+            pedidos = list(self.db_client.db.raw_pedidos.find(
+                {"tenant_id": tenant_id},
+                {"pedido_id": 1}
+            ))
             
-            top_products = list(self.db_client.db.raw_pedido_detalles.aggregate(pipeline))
-            
-            if top_products:
-                product_ids = [p["_id"] for p in top_products]
-                logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalles")
-                return product_ids
+            if not pedidos:
+                logging.info(f"No se encontraron pedidos para tenant {tenant_id}")
+            else:
+                # Extraer pedido_ids
+                pedido_ids = [p.get("pedido_id") for p in pedidos if "pedido_id" in p]
                 
-            # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_productos
-            logging.info("No se encontraron detalles de pedidos. Buscando en raw_productos...")
+                if pedido_ids:
+                    # Pipeline de agregación para detalles de estos pedidos
+                    pipeline = [
+                        {"$match": {"pedido_id": {"$in": pedido_ids}}},
+                        {"$group": {
+                            "_id": "$producto_id",
+                            "total_vendido": {"$sum": {"$ifNull": ["$total_linea", {"$multiply": ["$cantidad", "$precio_unitario"]}]}},
+                            "cantidad_total": {"$sum": {"$ifNull": ["$cantidad", 0]}}
+                        }},
+                        {"$match": {
+                            "total_vendido": {"$gt": 0}
+                        }},
+                        {"$sort": {"total_vendido": -1}},
+                        {"$limit": limit}
+                    ]
+                    
+                    top_products = list(self.db_client.db.raw_pedido_detalles.aggregate(pipeline))
+                    
+                    if top_products:
+                        product_ids = [p["_id"] for p in top_products]
+                        logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalles para tenant {tenant_id}")
+                        return product_ids
             
-            # Obtener los primeros productos de la colección de productos
-            productos = list(self.db_client.db.raw_productos.find({}).limit(limit))
+            # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_productos
+            logging.info(f"Buscando en raw_productos para tenant {tenant_id}...")
+            
+            # Obtener los primeros productos de la colección de productos para este tenant
+            productos = list(self.db_client.db.raw_productos.find({"tenant_id": tenant_id}).limit(limit))
             
             if productos:
                 # MODIFICADO: Preferir producto_id sobre _id
@@ -1009,15 +1150,13 @@ class TimeSeriesDataProcessor:
                     else:
                         product_ids.append(p["_id"])
                         
-                logging.info(f"Encontrados {len(product_ids)} productos en raw_productos")
+                logging.info(f"Encontrados {len(product_ids)} productos en raw_productos para tenant {tenant_id}")
                 return product_ids
                 
-            # ESTRATEGIA 3: Buscar en otras colecciones
-            # [código existente para estrategia 3]
-                
         except Exception as e:
-            logging.error(f"Error al obtener productos más vendidos: {str(e)}", exc_info=True)
+            logging.error(f"Error al obtener productos más vendidos para tenant {tenant_id}: {str(e)}", exc_info=True)
             
         # ÚLTIMO RECURSO: Crear IDs de producto artificiales
-        logging.warning("ADVERTENCIA: Usando IDs artificiales debido a error en la consulta.")
-        return [1001, 1002, 1003, 1004, 1005][:limit]
+        logging.warning(f"ADVERTENCIA: Usando IDs artificiales para tenant {tenant_id} debido a error en la consulta")
+        base_id = 1000 + (tenant_id * 10)  # Diferentes IDs para diferentes tenants
+        return [base_id + i for i in range(1, limit+1)]

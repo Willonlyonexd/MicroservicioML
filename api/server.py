@@ -3,6 +3,7 @@ from flask_cors import CORS
 from ariadne import make_executable_schema, graphql_sync
 from ariadne import ObjectType, QueryType
 import logging
+from datetime import datetime
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -44,6 +45,16 @@ PLAYGROUND_HTML = """
         window.addEventListener('load', function(event) {
             GraphQLPlayground.init(document.getElementById('root'), {
                 endpoint: '/graphql',
+                settings: {
+                    'request.credentials': 'include',
+                    'tracing.hideTracingResponse': true,
+                    'editor.theme': 'dark',
+                    'editor.fontFamily': "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
+                    'editor.fontSize': 14,
+                },
+                headers: {
+                    'X-Tenant-ID': '1'  // Valor predeterminado para el playground
+                }
             })
         })
     </script>
@@ -62,13 +73,30 @@ def graphql_server():
     """Endpoint para consultas GraphQL"""
     data = request.get_json()
     
-    # Log de la consulta recibida (nivel debug)
-    logger.debug(f"GraphQL Query: {data}")
+    # Extraer tenant_id del encabezado HTTP
+    tenant_id = request.headers.get('X-Tenant-ID', '1')
+    
+    # Convertir a entero si es posible
+    try:
+        tenant_id = int(tenant_id)
+    except (ValueError, TypeError):
+        tenant_id = 1  # Valor predeterminado si no es un número válido
+    
+    # Crear objeto de contexto
+    context = {
+        "request": request,
+        "tenant_id": tenant_id,
+        "headers": dict(request.headers)
+    }
+    
+    # Log de la consulta recibida
+    logger.info(f"GraphQL Query para tenant {tenant_id}")
+    logger.debug(f"Query details: {data}")
     
     success, result = graphql_sync(
         schema,
         data,
-        context_value=request,
+        context_value=context,
         debug=app.debug
     )
     
@@ -82,19 +110,39 @@ def graphql_server():
 # Ruta para servir los archivos estáticos (gráficos)
 @app.route('/static/plots/<path:filename>')
 def serve_plot(filename):
-    logger.info(f"Sirviendo gráfico: {filename}")
-    return send_from_directory('plots', filename)
+    # Extraer tenant_id del encabezado HTTP
+    tenant_id = request.headers.get('X-Tenant-ID', '1')
+    try:
+        tenant_id = int(tenant_id)
+    except (ValueError, TypeError):
+        tenant_id = 1
+        
+    logger.info(f"Sirviendo gráfico: {filename} para tenant {tenant_id}")
+    
+    # Primero intentar servir desde el directorio específico del tenant
+    tenant_path = f'plots/tenant_{tenant_id}'
+    try:
+        return send_from_directory(tenant_path, filename)
+    except:
+        # Si no existe, servir desde el directorio general
+        return send_from_directory('plots', filename)
 
 # Ruta para health check
 @app.route('/health')
 def health_check():
     logger.info("Health check solicitado")
+    # Usar fecha actual para el timestamp
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return jsonify({
         "status": "ok", 
         "service": "restaurant-ml-forecast-api",
-        "version": "1.0.0",
-        "timestamp": "2025-05-31 02:53:03",
-        "user": "muimui69"
+        "version": "1.1.0",  # Actualizado a 1.1.0 para indicar soporte de visualización combinada
+        "timestamp": current_time,
+        "user": "muimui69",
+        "features": {
+            "combined_visualization": True,  # Indica soporte para visualización combinada
+            "current_date_pivot": "2025-05-31"  # Fecha actual como punto pivote
+        }
     })
 
 # Manejador de errores para rutas no encontradas
@@ -111,4 +159,6 @@ def server_error(e):
 if __name__ == '__main__':
     logger.info("Iniciando servidor GraphQL con Ariadne...")
     logger.info("Playground disponible en: http://localhost:5000/graphql")
+    logger.info("Soporte multi-tenant activado (usar encabezado HTTP 'X-Tenant-ID')")
+    logger.info("Visualización combinada disponible (histórico + predicción con fecha pivote 2025-05-31)")
     app.run(debug=True, host='0.0.0.0', port=5000)

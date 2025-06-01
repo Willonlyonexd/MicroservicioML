@@ -7,6 +7,8 @@ from etl.extract import get_postgres_extractor
 from etl.sync import get_data_synchronizer
 from db.models import create_indexes
 import time
+import shutil
+import sys
 
 # Importamos nuestro módulo de forecasting
 from ml.forecast import TFForecaster
@@ -20,13 +22,11 @@ logging.getLogger("pymongo").setLevel(logging.WARNING)
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 logging.getLogger("PIL.PngImagePlugin").setLevel(logging.WARNING)
 
-
-
-def diagnosticar_datos_disponibles():
-    """Realiza un diagnóstico de los datos disponibles en MongoDB."""
+def diagnosticar_datos_disponibles(tenant_id=1):
+    """Realiza un diagnóstico de los datos disponibles en MongoDB para un tenant específico."""
     mongo = get_mongo_manager()
     
-    logger.info("=== DIAGNÓSTICO DE DATOS EN MONGODB ===")
+    logger.info(f"=== DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT {tenant_id} ===")
     
     # Listar todas las colecciones
     collections = mongo.db.list_collection_names()
@@ -35,26 +35,26 @@ def diagnosticar_datos_disponibles():
     # Verificar datos en colecciones relevantes
     for collection_name in ["raw_pedidos", "raw_pedido_detalles", "raw_productos"]:
         if collection_name in collections:
-            count = mongo.db[collection_name].count_documents({})
-            logger.info(f"Colección {collection_name}: {count} documentos")
+            count = mongo.db[collection_name].count_documents({"tenant_id": tenant_id})
+            logger.info(f"Colección {collection_name}: {count} documentos para tenant {tenant_id}")
             
             # Mostrar un ejemplo de documento
             if count > 0:
-                sample = mongo.db[collection_name].find_one({})
+                sample = mongo.db[collection_name].find_one({"tenant_id": tenant_id})
                 logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
     
     # Verificar si hay datos de productos
     if "raw_productos" in collections:
-        productos = list(mongo.db.raw_productos.find({}).limit(5))
+        productos = list(mongo.db.raw_productos.find({"tenant_id": tenant_id}).limit(5))
         if productos:
-            logger.info(f"Ejemplos de productos disponibles: {[p.get('_id') for p in productos]}")
+            logger.info(f"Ejemplos de productos disponibles para tenant {tenant_id}: {[p.get('_id') for p in productos]}")
         else:
-            logger.warning("No hay productos en la colección raw_productos")
+            logger.warning(f"No hay productos en la colección raw_productos para tenant {tenant_id}")
             
     # Verificar pedidos y detalles de pedidos
     if "raw_pedidos" in collections and "raw_pedido_detalles" in collections:
         # Obtener un pedido de ejemplo
-        sample_pedido = mongo.db.raw_pedidos.find_one({})
+        sample_pedido = mongo.db.raw_pedidos.find_one({"tenant_id": tenant_id})
         if sample_pedido:
             pedido_id = sample_pedido.get('_id')
             # Buscar detalles asociados a este pedido
@@ -65,6 +65,19 @@ def diagnosticar_datos_disponibles():
             if detalles:
                 productos_en_detalles = [d.get('producto_id') for d in detalles if 'producto_id' in d]
                 logger.info(f"Productos en detalles de pedido: {productos_en_detalles}")
+    
+    # Verificar colecciones de predicciones
+    for collection_name in ["predicciones_ventas", "ml_predicciones", "predicciones_productos", "ml_predicciones_categoria"]:
+        if collection_name in collections:
+            count = mongo.db[collection_name].count_documents({"tenant_id": tenant_id})
+            logger.info(f"Colección {collection_name}: {count} documentos para tenant {tenant_id}")
+            
+            # Mostrar un ejemplo de documento
+            if count > 0:
+                sample = mongo.db[collection_name].find_one({"tenant_id": tenant_id})
+                logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
+                if 'fecha' in sample:
+                    logger.info(f"Primera fecha en {collection_name}: {sample['fecha']}")
     
     logger.info("=== FIN DEL DIAGNÓSTICO ===")
 
@@ -151,21 +164,24 @@ def sync_scheduled(tenant_id=1, interval_minutes=None, force_initial_full=False)
     # Código de sincronización existente...
     pass  # Mantenemos la función pero no la modificamos
 
-def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, train_product_models=True, top_products=10):
+def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generate_plots=True, train_product_models=False, top_products=10):
     """
-    Ejecuta el módulo de forecasting con TensorFlow.
+    Ejecuta el módulo de forecasting con TensorFlow para un tenant específico.
     
     Args:
+        tenant_id: ID del tenant para el que generar predicciones
         train_new_model: Si es True, entrena un nuevo modelo general
         save_model: Si es True, guarda los modelos entrenados
         generate_plots: Si es True, genera visualizaciones
         train_product_models: Si es True, entrena modelos por producto
         top_products: Número de productos top a predecir
     """
-    logger.info("Iniciando módulo de forecasting...")
+    # Obtener fecha actual como punto pivote para datos históricos/predicciones
+    current_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    logger.info(f"Iniciando módulo de forecasting para tenant {tenant_id} con fecha pivote {current_date}...")
     
     # Ejecutar diagnóstico para entender qué datos están disponibles
-    diagnosticar_datos_disponibles()
+    diagnosticar_datos_disponibles(tenant_id)
     
     # Obtenemos el cliente de MongoDB
     mongo = get_mongo_manager()
@@ -173,61 +189,97 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
     # Creamos la instancia de nuestro modelo
     forecaster = TFForecaster(db_client=mongo)
     
+    # Directorios específicos para tenant
+    model_path = f"models/forecast/tenant_{tenant_id}"
+    product_model_path = f"models/forecast/tenant_{tenant_id}/products"
+    plots_dir = f"plots/tenant_{tenant_id}"
+    
     # Verificamos si hay un modelo general guardado
-    model_path = "models/forecast"
     model_exists = os.path.exists(os.path.join(model_path, "tf_forecaster.h5"))
     
     # Verificamos si hay modelos de productos guardados
-    product_model_path = "models/forecast/products"
-    product_models_exist = os.path.exists(product_model_path) and len(os.listdir(product_model_path)) > 0
+    product_models_exist = os.path.exists(product_model_path) and len(os.listdir(product_model_path)) > 0 if os.path.exists(product_model_path) else False
     
     try:
         # 1. MODELO GENERAL
+        model_loaded = False
         if model_exists and not train_new_model:
-            logger.info("Cargando modelo general existente...")
-            forecaster.load_model(path=model_path)
-            logger.info("Modelo general cargado correctamente.")
-        else:
-            if train_new_model:
-                logger.info("Iniciando entrenamiento de nuevo modelo general...")
+            logger.info(f"Cargando modelo general existente para tenant {tenant_id}...")
+            try:
+                forecaster.load_model(path=model_path)
+                logger.info("Modelo general cargado correctamente.")
+                model_loaded = True
+            except Exception as e:
+                logger.error(f"Error al cargar el modelo general: {str(e)}")
+                logger.info("Realizando backup del modelo con problemas...")
                 
-                # Configurar memoria para TensorFlow (opcional)
-                gpus = tf.config.experimental.list_physical_devices('GPU')
-                if gpus:
-                    try:
-                        logger.info(f"GPU disponible: {gpus}")
-                        # Limitar memoria GPU si es necesario
-                        for gpu in gpus:
-                            tf.config.experimental.set_memory_growth(gpu, True)
-                    except RuntimeError as e:
-                        logger.warning(f"Error configurando GPU: {e}")
-                else:
-                    logger.info("Entrenando en CPU")
+                # Hacer backup del modelo con problemas
+                backup_dir = f"models/backup/tenant_{tenant_id}_{time.strftime('%Y%m%d_%H%M%S')}"
+                os.makedirs(os.path.dirname(backup_dir), exist_ok=True)
+                try:
+                    shutil.copytree(model_path, backup_dir)
+                    logger.info(f"Backup del modelo guardado en {backup_dir}")
+                except Exception as be:
+                    logger.warning(f"No se pudo realizar backup: {str(be)}")
                 
-                # Entrenamiento del modelo general
-                start_time = time.time()
-                history = forecaster.train()
-                end_time = time.time()
-                training_time = round(end_time - start_time, 2)
-                logger.info(f"Entrenamiento del modelo general completado en {training_time} segundos")
-                
-                # Guardar modelo general si es necesario
-                if save_model:
-                    logger.info("Guardando modelo general entrenado...")
-                    os.makedirs(model_path, exist_ok=True)
-                    forecaster.save_model(path=model_path)
-                    logger.info(f"Modelo general guardado en {model_path}")
+                # Forzar reentrenamiento
+                train_new_model = True
+                logger.info("Se forzará el entrenamiento de un nuevo modelo.")
+        
+        # Si no existe el modelo o hubo error al cargarlo, lo entrenamos
+        if not model_exists or (not model_loaded and train_new_model):
+            logger.info(f"Iniciando entrenamiento de nuevo modelo general para tenant {tenant_id}...")
+            
+            # Configurar memoria para TensorFlow (opcional)
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+            if gpus:
+                try:
+                    logger.info(f"GPU disponible: {gpus}")
+                    # Limitar memoria GPU si es necesario
+                    for gpu in gpus:
+                        tf.config.experimental.set_memory_growth(gpu, True)
+                except RuntimeError as e:
+                    logger.warning(f"Error configurando GPU: {e}")
             else:
-                logger.error("No se encontró un modelo general existente y no se solicitó entrenamiento.")
-                return False
+                logger.info("Entrenando en CPU")
+            
+            # Entrenamiento del modelo general con datos específicos del tenant
+            start_time = time.time()
+            # Obtener datos específicos del tenant
+            history = forecaster.train(tenant_id=tenant_id)
+            end_time = time.time()
+            training_time = round(end_time - start_time, 2)
+            logger.info(f"Entrenamiento del modelo general completado en {training_time} segundos")
+            
+            # Guardar modelo general si es necesario
+            if save_model:
+                logger.info(f"Guardando modelo general entrenado para tenant {tenant_id}...")
+                os.makedirs(model_path, exist_ok=True)
+                forecaster.save_model(path=model_path)
+                logger.info(f"Modelo general guardado en {model_path}")
         
         # 2. MODELOS POR PRODUCTO
-        if train_product_models:
-            logger.info(f"Iniciando entrenamiento de modelos para los top {top_products} productos...")
+        product_models_loaded = False
+        if product_models_exist and not train_product_models:
+            logger.info(f"Cargando modelos de productos existentes para tenant {tenant_id}...")
+            try:
+                forecaster.load_product_models(path=product_model_path)
+                logger.info("Modelos de productos cargados correctamente.")
+                product_models_loaded = True
+            except Exception as e:
+                logger.error(f"Error al cargar los modelos de productos: {str(e)}")
+                # Forzar reentrenamiento de modelos de productos
+                train_product_models = True
+                logger.info("Se forzará el entrenamiento de nuevos modelos de productos.")
+        
+        # Si no hay modelos de productos o hubo error al cargarlos, los entrenamos
+        if not product_models_exist or (not product_models_loaded and train_product_models):
+            # Solo entrenamos nuevos modelos si se solicita explícitamente o hubo error
+            logger.info(f"Iniciando entrenamiento de modelos para los top {top_products} productos del tenant {tenant_id}...")
             start_time = time.time()
             
-            # Entrenar modelos por producto
-            training_results = forecaster.train_product_models(top_n=top_products)
+            # Entrenar modelos por producto para este tenant
+            training_results = forecaster.train_product_models(top_n=top_products, tenant_id=tenant_id)
             
             end_time = time.time()
             training_time = round(end_time - start_time, 2)
@@ -238,37 +290,33 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
             
             # Guardar modelos de productos si es necesario
             if save_model and success_count > 0:
-                logger.info("Guardando modelos de productos entrenados...")
+                logger.info(f"Guardando modelos de productos entrenados para tenant {tenant_id}...")
                 os.makedirs(product_model_path, exist_ok=True)
                 forecaster.save_product_models(path=product_model_path)
                 logger.info(f"Modelos de productos guardados en {product_model_path}")
-        elif product_models_exist:
-            logger.info("Cargando modelos de productos existentes...")
-            forecaster.load_product_models(path=product_model_path)
-            logger.info("Modelos de productos cargados correctamente.")
         
         # 3. GENERAR PREDICCIONES GENERALES (DIARIAS, SEMANALES Y MENSUALES)
-        logger.info("Generando predicciones generales...")
+        logger.info(f"Generando predicciones generales para tenant {tenant_id} desde fecha actual ({current_date})...")
         
         # Predicciones diarias
-        daily_predictions = forecaster.predict_next_days()
+        daily_predictions = forecaster.predict_next_days(tenant_id=tenant_id)
         logger.info(f"Predicciones diarias generadas para los próximos {len(daily_predictions)} días")
         
-        # NUEVO: Predicciones semanales
-        logger.info("Generando predicciones semanales...")
-        weekly_predictions = forecaster.predict_aggregated(period='week', horizon=8)
+        # Predicciones semanales
+        logger.info(f"Generando predicciones semanales para tenant {tenant_id}...")
+        weekly_predictions = forecaster.predict_aggregated(period='week', horizon=8, tenant_id=tenant_id)
         logger.info(f"Predicciones semanales generadas para las próximas {len(weekly_predictions)} semanas")
         
-        # NUEVO: Predicciones mensuales
-        logger.info("Generando predicciones mensuales...")
-        monthly_predictions = forecaster.predict_aggregated(period='month', horizon=3)
+        # Predicciones mensuales
+        logger.info(f"Generando predicciones mensuales para tenant {tenant_id}...")
+        monthly_predictions = forecaster.predict_aggregated(period='month', horizon=3, tenant_id=tenant_id)
         logger.info(f"Predicciones mensuales generadas para los próximos {len(monthly_predictions)} meses")
         
         # Guardar predicciones generales en MongoDB
-        logger.info("Guardando predicciones diarias en MongoDB...")
-        forecaster.save_predictions_to_db(daily_predictions)
+        logger.info(f"Guardando predicciones diarias en MongoDB para tenant {tenant_id}...")
+        forecaster.save_predictions_to_db(daily_predictions, tenant_id=tenant_id)
         
-        # NUEVO: Guardar predicciones semanales y mensuales en MongoDB
+        # Guardar predicciones semanales y mensuales en MongoDB
         try:
             # Formato para guardar datos de semanas y meses
             weekly_docs = [{
@@ -278,7 +326,8 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                 "fecha_fin": w["fecha_fin"],
                 "prediccion": w["prediccion"],
                 "confianza": w["confianza"],
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(),
+                "tenant_id": tenant_id  # Añadir tenant_id
             } for w in weekly_predictions]
             
             monthly_docs = [{
@@ -288,39 +337,40 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                 "fecha_fin": m["fecha_fin"],
                 "prediccion": m["prediccion"],
                 "confianza": m["confianza"],
-                "timestamp": datetime.now()
+                "timestamp": datetime.now(),
+                "tenant_id": tenant_id  # Añadir tenant_id
             } for m in monthly_predictions]
             
-            # Eliminar predicciones anteriores
-            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "semanal"})
-            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "mensual"})
+            # Eliminar predicciones anteriores para este tenant
+            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "semanal", "tenant_id": tenant_id})
+            mongo.db[MONGO_PARAMS["collection_forecasts"]].delete_many({"tipo": "mensual", "tenant_id": tenant_id})
             
             # Insertar nuevas predicciones
             if weekly_docs:
                 mongo.db[MONGO_PARAMS["collection_forecasts"]].insert_many(weekly_docs)
-                logger.info(f"Guardadas {len(weekly_docs)} predicciones semanales en MongoDB")
+                logger.info(f"Guardadas {len(weekly_docs)} predicciones semanales en MongoDB para tenant {tenant_id}")
             
             if monthly_docs:
                 mongo.db[MONGO_PARAMS["collection_forecasts"]].insert_many(monthly_docs)
-                logger.info(f"Guardadas {len(monthly_docs)} predicciones mensuales en MongoDB")
+                logger.info(f"Guardadas {len(monthly_docs)} predicciones mensuales en MongoDB para tenant {tenant_id}")
         except Exception as e:
-            logger.error(f"Error guardando predicciones agregadas: {str(e)}")
+            logger.error(f"Error guardando predicciones agregadas para tenant {tenant_id}: {str(e)}")
         
         # 4. GENERAR PREDICCIONES POR PRODUCTO
         if hasattr(forecaster, 'product_models') and forecaster.product_models:
-            logger.info("Generando predicciones por producto...")
-            product_predictions = forecaster.predict_product_demand()
+            logger.info(f"Generando predicciones por producto para tenant {tenant_id}...")
+            product_predictions = forecaster.predict_product_demand(tenant_id=tenant_id)
             
             if not product_predictions.empty:
                 logger.info(f"Predicciones generadas para {product_predictions['producto_id'].nunique()} productos")
                 
                 # Guardar predicciones por producto en MongoDB
-                logger.info("Guardando predicciones por producto en MongoDB...")
-                forecaster.save_product_predictions_to_db(product_predictions)
+                logger.info(f"Guardando predicciones por producto en MongoDB para tenant {tenant_id}...")
+                forecaster.save_product_predictions_to_db(product_predictions, tenant_id=tenant_id)
                 
-                # NUEVO: Generar predicciones por categoría
-                logger.info("Generando predicciones por categoría...")
-                category_predictions = forecaster.predict_category_demand()
+                # Generar predicciones por categoría
+                logger.info(f"Generando predicciones por categoría para tenant {tenant_id}...")
+                category_predictions = forecaster.predict_category_demand(tenant_id=tenant_id)
                 
                 if category_predictions:
                     unique_categories = set(item['categoria_id'] for item in category_predictions)
@@ -339,48 +389,48 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                                 "prediccion": pred["prediccion"],
                                 "confianza": pred["confianza"],
                                 "productos": pred["productos"],
-                                "timestamp": datetime.now()
+                                "timestamp": datetime.now(),
+                                "tenant_id": tenant_id  # Añadir tenant_id
                             }
                             category_docs.append(doc)
                         
-                        # Eliminar predicciones anteriores
-                        mongo.db[MONGO_PARAMS["collection_category_predictions"]].delete_many({})
+                        # Eliminar predicciones anteriores para este tenant
+                        mongo.db[MONGO_PARAMS["collection_category_predictions"]].delete_many({"tenant_id": tenant_id})
                         
                         # Insertar nuevas predicciones
                         if category_docs:
                             mongo.db[MONGO_PARAMS["collection_category_predictions"]].insert_many(category_docs)
-                            logger.info(f"Guardadas {len(category_docs)} predicciones por categoría en MongoDB")
+                            logger.info(f"Guardadas {len(category_docs)} predicciones por categoría en MongoDB para tenant {tenant_id}")
                     except Exception as e:
-                        logger.error(f"Error guardando predicciones por categoría: {str(e)}")
+                        logger.error(f"Error guardando predicciones por categoría para tenant {tenant_id}: {str(e)}")
                 else:
-                    logger.warning("No se pudieron generar predicciones por categoría")
+                    logger.warning(f"No se pudieron generar predicciones por categoría para tenant {tenant_id}")
             else:
-                logger.warning("No se pudieron generar predicciones por producto")
+                logger.warning(f"No se pudieron generar predicciones por producto para tenant {tenant_id}")
         
         # 5. GENERAR VISUALIZACIONES
         if generate_plots:
-            # Crear directorio para gráficos si no existe
-            plots_dir = "plots"
+            # Crear directorio específico para tenant
             os.makedirs(plots_dir, exist_ok=True)
             
             # Generar y guardar gráfico general
-            logger.info("Generando visualización de predicciones generales...")
-            fig = forecaster.plot_forecast(history_days=30)
+            logger.info(f"Generando visualización de predicciones generales para tenant {tenant_id}...")
+            fig = forecaster.plot_forecast(history_days=30, forecast_days=7, tenant_id=tenant_id, generate_plot=True)
             plot_path = os.path.join(plots_dir, f"forecast_{time.strftime('%Y%m%d_%H%M%S')}.png")
             fig.savefig(plot_path)
             plt.close(fig)
             logger.info(f"Visualización general guardada en {plot_path}")
             
-            # MODIFICADO: Generar gráficos para TODOS los productos disponibles
+            # Generar gráficos para TODOS los productos disponibles
             if hasattr(forecaster, 'product_models') and forecaster.product_models:
                 # Usar todos los productos con modelos entrenados
                 all_product_ids = list(forecaster.product_models.keys())
-                logger.info(f"Generando visualizaciones para {len(all_product_ids)} productos...")
+                logger.info(f"Generando visualizaciones para {len(all_product_ids)} productos del tenant {tenant_id}...")
                 
                 for product_id in all_product_ids:
                     try:
                         logger.info(f"Generando visualización para producto {product_id}...")
-                        fig = forecaster.plot_product_forecast(product_id, history_days=30)
+                        fig = forecaster.plot_product_forecast(product_id, history_days=30, forecast_days=7, tenant_id=tenant_id, generate_plot=True)
                         product_plot_path = os.path.join(plots_dir, f"product_{product_id}_{time.strftime('%Y%m%d_%H%M%S')}.png")
                         fig.savefig(product_plot_path)
                         plt.close(fig)
@@ -388,23 +438,23 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                     except Exception as e:
                         logger.warning(f"Error al generar visualización para producto {product_id}: {str(e)}")
                 
-                # NUEVO: Generar visualizaciones por categoría
-                logger.info("Generando visualizaciones por categoría...")
+                # Generar visualizaciones por categoría
+                logger.info(f"Generando visualizaciones por categoría para tenant {tenant_id}...")
                 
                 # Obtener categorías únicas de los productos modelados
                 unique_categories = set()
                 for product_id in forecaster.product_models:
-                    product_info = forecaster.data_processor.get_product_info(product_id)
+                    product_info = forecaster.data_processor.get_product_info(product_id, tenant_id=tenant_id)
                     if 'categoria_id' in product_info and product_info['categoria_id'] is not None:
                         unique_categories.add(product_info['categoria_id'])
                 
-                logger.info(f"Generando visualizaciones para {len(unique_categories)} categorías...")
+                logger.info(f"Generando visualizaciones para {len(unique_categories)} categorías del tenant {tenant_id}...")
                 
                 # Generar gráfico para cada categoría
                 for category_id in unique_categories:
                     try:
                         logger.info(f"Generando visualización para categoría {category_id}...")
-                        fig = forecaster.plot_category_forecast(category_id, history_days=30)
+                        fig = forecaster.plot_category_forecast(category_id, history_days=30, forecast_days=7, tenant_id=tenant_id, generate_plot=True)
                         category_plot_path = os.path.join(plots_dir, f"category_{category_id}_{time.strftime('%Y%m%d_%H%M%S')}.png")
                         fig.savefig(category_plot_path)
                         plt.close(fig)
@@ -412,11 +462,46 @@ def run_ml_forecast(train_new_model=True, save_model=True, generate_plots=True, 
                     except Exception as e:
                         logger.warning(f"Error al generar visualización para categoría {category_id}: {str(e)}")
         
-        logger.info("Proceso de forecasting completado exitosamente")
+        # 6. GENERAR DATOS COMBINADOS PARA API
+        logger.info(f"Generando datos combinados (histórico + predicción) para tenant {tenant_id}...")
+        
+        # Obtener datos históricos y predicciones para cada tipo
+        combined_data = forecaster.get_historical_and_forecast_data(
+            history_days=30, 
+            forecast_days=7, 
+            tenant_id=tenant_id
+        )
+        logger.info(f"Datos combinados generados: {len(combined_data['historical'])} días históricos, {len(combined_data['forecast'])} días predicción")
+        
+        # Datos semanales combinados
+        weekly_combined = forecaster.get_historical_and_aggregated_forecast(
+            period='week',
+            history_periods=12,
+            forecast_periods=3,
+            tenant_id=tenant_id
+        )
+        logger.info(f"Datos semanales combinados generados: {len(weekly_combined['historical'])} semanas históricas, {len(weekly_combined['forecast'])} semanas predicción")
+        
+        # Datos mensuales combinados
+        monthly_combined = forecaster.get_historical_and_aggregated_forecast(
+            period='month',
+            history_periods=12,
+            forecast_periods=3,
+            tenant_id=tenant_id
+        )
+        logger.info(f"Datos mensuales combinados generados: {len(monthly_combined['historical'])} meses históricos, {len(monthly_combined['forecast'])} meses predicción")
+        
+        # Verificar resultados en MongoDB para diagnóstico
+        logger.info(f"Verificando datos en MongoDB después de procesamiento...")
+        for collection_name in ["predicciones_ventas", "ml_predicciones", "predicciones_productos", "ml_predicciones_categoria"]:
+            count = mongo.db[collection_name].count_documents({"tenant_id": tenant_id})
+            logger.info(f"Colección {collection_name} tiene {count} documentos para tenant {tenant_id}")
+        
+        logger.info(f"Proceso de forecasting completado exitosamente para tenant {tenant_id}")
         return True
         
     except Exception as e:
-        logger.error(f"Error en el proceso de forecasting: {str(e)}", exc_info=True)
+        logger.error(f"Error en el proceso de forecasting para tenant {tenant_id}: {str(e)}", exc_info=True)
         return False
 
 def main():
@@ -430,6 +515,8 @@ def main():
     # Mensaje de inicio
     logger.info(f"Iniciando {config.app_name} v{config.version}")
     logger.info(f"Modo desarrollo: {config.dev_mode}")
+    logger.info(f"Sistema multi-tenant activado - Fecha actual: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info(f"Fecha actual como punto pivote: {datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)}")
     
     # Probar conexiones
     if not test_connections():
@@ -442,29 +529,90 @@ def main():
     except Exception as e:
         logger.error(f"Error al crear índices: {str(e)}")
     
+    # Verificar si existe archivo server.py y crearlo si es necesario
+    if not os.path.exists('server.py') and config.dev_mode:
+        try:
+            logger.info("No se encontró archivo server.py. Creando uno básico...")
+            with open('server.py', 'w') as f:
+                f.write("""# Este archivo re-exporta el servidor desde api.server.py
+try:
+    from api.server import app
+except ImportError as e:
+    print(f"Error importando app desde api.server: {e}")
+    raise
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port=5000)
+""")
+            logger.info("Archivo server.py creado correctamente.")
+        except Exception as e:
+            logger.warning(f"No se pudo crear el archivo server.py: {str(e)}")
+    
     try:
-        # INSERTA TU CÓDIGO ML AQUÍ - REEMPLAZO CON NUESTRO CÓDIGO DE FORECASTING
-        logger.info("Sincronización desactivada. Usando datos existentes en MongoDB para ML.")
+        # MULTI-TENANT: Generar datos para varios tenants
+        tenants_to_process = [1]  # Lista de tenants a procesar
         
-        # Ejecutar módulo de forecasting
-        ml_success = run_ml_forecast(
-            train_new_model=True,        # True para entrenar nuevo modelo general
-            save_model=True,             # True para guardar los modelos después de entrenar
-            generate_plots=True,         # True para generar visualizaciones
-            train_product_models=True,   # True para entrenar modelos por producto
-            top_products=10              # Número de productos top a predecir
-        )
+        for tenant_id in tenants_to_process:
+            logger.info(f"======= PROCESANDO TENANT {tenant_id} =======")
+            
+            # Ejecutar módulo de forecasting para este tenant
+            ml_success = run_ml_forecast(
+                tenant_id=tenant_id,          # ID del tenant a procesar
+                train_new_model=True,         # Cambio a True para forzar entrenamiento y solucionar el error
+                save_model=True,              # True para guardar los modelos después de entrenar
+                generate_plots=True,          # True para generar visualizaciones
+                train_product_models=True,    # Cambio a True para entrenar nuevos modelos de productos
+                top_products=10               # Número de productos top a predecir
+            )
+            
+            if ml_success:
+                logger.info(f"Módulo ML ejecutado correctamente para tenant {tenant_id}. Resultados disponibles en MongoDB.")
+            else:
+                logger.warning(f"El módulo ML presentó errores para tenant {tenant_id}. Revisar logs para más detalles.")
+            
+            logger.info(f"======= FIN PROCESAMIENTO TENANT {tenant_id} =======")
         
-        if ml_success:
-            logger.info("Módulo ML ejecutado correctamente. Resultados disponibles en MongoDB.")
-        else:
-            logger.warning("El módulo ML presentó errores. Revisar logs para más detalles.")
+        logger.info("Todos los tenants procesados correctamente")
         
-        # Para entorno de desarrollo, podemos mantener el programa corriendo para probar más
+        # Para entorno de desarrollo, podemos iniciar un servidor de prueba
         if config.dev_mode:
-            logger.info("Modo desarrollo: Programa en ejecución. Presiona Ctrl+C para terminar.")
-            while True:
-                time.sleep(60)
+            logger.info("Iniciando servidor GraphQL para pruebas...")
+            
+            # Importar y ejecutar el servidor en un hilo separado
+            import threading
+            
+            def run_server():
+                try:
+                    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+                    # Intentar importar desde varios lugares posibles
+                    try:
+                        from api.server import app
+                        logger.info("Servidor importado desde api.server")
+                    except ImportError:
+                        try:
+                            from server import app
+                            logger.info("Servidor importado desde server")
+                        except ImportError:
+                            logger.error("No se pudo importar el servidor. Verificar que exista api/server.py o server.py")
+                            return
+                    
+                    app.run(debug=False, host='0.0.0.0', port=5000)
+                except Exception as e:
+                    logger.error(f"Error al iniciar el servidor GraphQL: {str(e)}")
+            
+            server_thread = threading.Thread(target=run_server)
+            server_thread.daemon = True
+            server_thread.start()
+            
+            logger.info("Servidor GraphQL iniciado en http://localhost:5000/graphql")
+            logger.info("API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote")
+            logger.info("Presiona Ctrl+C para terminar.")
+            
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                logger.info("Programa interrumpido por el usuario")
         
     except KeyboardInterrupt:
         logger.info("Programa interrumpido por el usuario")

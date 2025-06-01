@@ -1,37 +1,105 @@
-# Schema GraphQL en SDL (Schema Definition Language)
+# Schema GraphQL para el sistema de predicción de ventas con contexto multi-tenant
+
 schema_sdl = """
+type Query {
+  # Predicciones diarias
+  dailyForecasts(days: Int = 7): [DailyPrediction!]!
+  
+  # Predicciones semanales
+  weeklyForecasts(weeks: Int = 3): [WeeklyPrediction!]!
+  
+  # Predicciones mensuales
+  monthlyForecasts(months: Int = 3): [MonthlyPrediction!]!
+  
+  # Predicción para un producto específico
+  productForecast(productId: Int!, days: Int = 7): ProductForecast
+  
+  # Predicción para una categoría específica
+  categoryForecast(categoryId: Int!, days: Int = 7): CategoryForecast
+  
+  # Estado de los modelos
+  modelStatus: ModelStatus!
+  
+  # Visualizaciones disponibles
+  availableVisualizations: AvailableVisualizations!
+  
+  # NUEVAS CONSULTAS PARA DATOS COMBINADOS (HISTÓRICO + PREDICCIÓN)
+  
+  # Datos históricos y predicciones diarias combinados
+  salesWithForecast(history_days: Int = 30, forecast_days: Int = 7): CombinedSalesData!
+  
+  # Datos históricos y predicciones semanales combinados
+  weeklyWithForecast(history_weeks: Int = 12, forecast_weeks: Int = 3): CombinedWeeklyData!
+  
+  # Datos históricos y predicciones mensuales combinados
+  monthlyWithForecast(history_months: Int = 12, forecast_months: Int = 3): CombinedMonthlyData!
+  
+  # Datos históricos y predicciones para un producto específico
+  productHistoricalAndForecast(productId: Int!, history_days: Int = 30, forecast_days: Int = 7): CombinedProductData
+  
+  # Datos históricos y predicciones para una categoría específica
+  categoryHistoricalAndForecast(categoryId: Int!, history_days: Int = 30, forecast_days: Int = 7): CombinedCategoryData
+}
+
+# Predicción diaria de ventas
 type DailyPrediction {
   fecha: String!
   prediccion: Float!
   confianza: Float!
-  timestamp: String!
+  timestamp: String
   generado_en: String
   generado_por: String
+  tenant_id: Int
 }
 
-type AggregatedPrediction {
+# Predicción semanal de ventas
+type WeeklyPrediction {
   periodo: String!
   fecha_inicio: String!
   fecha_fin: String!
   prediccion: Float!
   confianza: Float!
-  timestamp: String!
+  timestamp: String
+  tenant_id: Int
 }
 
+# Predicción mensual de ventas
+type MonthlyPrediction {
+  periodo: String!
+  fecha_inicio: String!
+  fecha_fin: String!
+  prediccion: Float!
+  confianza: Float!
+  timestamp: String
+  tenant_id: Int
+}
+
+# Predicción de un producto específico
+type ProductForecast {
+  producto_id: Int!
+  nombre: String!
+  categoria_id: Int
+  categoria: String
+  predicciones: [ProductPrediction!]!
+  tenant_id: Int
+}
+
+# Predicción diaria para un producto
 type ProductPrediction {
   fecha: String!
   prediccion: Float!
   confianza: Float!
 }
 
-type ProductForecast {
-  producto_id: Int!
-  nombre: String!
+# Predicción de una categoría
+type CategoryForecast {
   categoria_id: Int!
-  categoria: String!
-  predicciones: [ProductPrediction!]!
+  nombre_categoria: String!
+  predicciones: [CategoryPrediction!]!
+  tenant_id: Int
 }
 
+# Predicción diaria para una categoría
 type CategoryPrediction {
   fecha: String!
   prediccion: Float!
@@ -39,64 +107,125 @@ type CategoryPrediction {
   productos: [Int!]!
 }
 
-type CategoryForecast {
-  categoria_id: Int!
-  nombre_categoria: String!
-  predicciones: [CategoryPrediction!]!
+# Estado de los modelos de ML
+type ModelStatus {
+  general: GeneralModelStatus!
+  productos: [ProductModelStatus!]!
 }
 
-type Visualization {
+# Estado del modelo general
+type GeneralModelStatus {
+  entrenado: Boolean!
+  ultima_actualizacion: String
+  exactitud: Float
+  error_mae: Float
+  tenant_id: Int
+}
+
+# Estado del modelo de un producto
+type ProductModelStatus {
+  producto_id: Int!
+  nombre: String!
+  entrenado: Boolean!
+  ultima_actualizacion: String
+  exactitud: Float
+  tenant_id: Int
+}
+
+# Visualizaciones disponibles
+type AvailableVisualizations {
+  general: GeneralVisualization
+  productos: [ProductVisualization!]!
+  categorias: [CategoryVisualization!]!
+}
+
+# Visualización general
+type GeneralVisualization {
   url: String!
   fecha_generacion: String!
+  tenant_id: Int
 }
 
+# Visualización para un producto
 type ProductVisualization {
   producto_id: Int!
   nombre: String!
   url: String!
   fecha_generacion: String!
+  tenant_id: Int
 }
 
+# Visualización para una categoría
 type CategoryVisualization {
   categoria_id: Int!
   nombre: String!
   url: String!
   fecha_generacion: String!
+  tenant_id: Int
 }
 
-type AvailableVisualizations {
-  general: Visualization
-  productos: [ProductVisualization!]!
-  categorias: [CategoryVisualization!]!
+# NUEVOS TIPOS PARA DATOS COMBINADOS (HISTÓRICO + PREDICCIÓN)
+
+# Dato histórico de ventas
+type HistoricalDataPoint {
+  fecha: String!
+  ventas: Float!
+  tipo: String!
+  tenant_id: Int
 }
 
-type ModelInfo {
-  entrenado: Boolean!
-  ultima_actualizacion: String
-  exactitud: Float
-  error_mae: Float
+# Datos históricos semanales o mensuales
+type HistoricalAggregatedData {
+  periodo: String!
+  fecha_inicio: String!
+  fecha_fin: String!
+  ventas: Float!
+  tipo: String!
+  tenant_id: Int
 }
 
-type ProductModelInfo {
+# Datos históricos y predicciones diarias combinados
+type CombinedSalesData {
+  current_date: String!
+  historical: [HistoricalDataPoint!]!
+  forecast: [DailyPrediction!]!
+  tenant_id: Int
+}
+
+# Datos históricos y predicciones semanales combinados
+type CombinedWeeklyData {
+  current_date: String!
+  historical: [HistoricalAggregatedData!]!
+  forecast: [WeeklyPrediction!]!
+  tenant_id: Int
+}
+
+# Datos históricos y predicciones mensuales combinados
+type CombinedMonthlyData {
+  current_date: String!
+  historical: [HistoricalAggregatedData!]!
+  forecast: [MonthlyPrediction!]!
+  tenant_id: Int
+}
+
+# Datos históricos y predicciones para un producto específico
+type CombinedProductData {
   producto_id: Int!
-  nombre: String!
-  entrenado: Boolean!
-  ultima_actualizacion: String
-  exactitud: Float
+  nombre_producto: String!
+  categoria_id: Int
+  current_date: String!
+  historical: [HistoricalDataPoint!]!
+  forecast: [ProductPrediction!]!
+  tenant_id: Int
 }
 
-type ModelStatus {
-  general: ModelInfo!
-  productos: [ProductModelInfo!]!
-}
-
-type Query {
-  dailyForecasts(days: Int = 7): [DailyPrediction!]!
-  weeklyForecasts(weeks: Int = 1): [AggregatedPrediction!]!
-  monthlyForecasts(months: Int = 1): [AggregatedPrediction!]!
-  productForecast(productId: Int!, days: Int = 7): ProductForecast
-  categoryForecast(categoryId: Int!, days: Int = 7): CategoryForecast
-  modelStatus: ModelStatus!
-  availableVisualizations: AvailableVisualizations!
+# Datos históricos y predicciones para una categoría específica
+type CombinedCategoryData {
+  categoria_id: Int!
+  nombre_categoria: String!
+  current_date: String!
+  historical: [HistoricalDataPoint!]!
+  forecast: [CategoryPrediction!]!
+  tenant_id: Int
 }
 """
