@@ -908,13 +908,24 @@ class TimeSeriesDataProcessor:
         Returns:
             np.array: Valores en escala original
         """
+        # CORREGIDO: Aseguramos que la transformación inversa sea correcta
+        # multiplicando por la desviación estándar y sumando la media
         if product_id is not None and product_id in self.product_scalers:
             # Usar scaler específico del producto
             scaler = self.product_scalers[product_id]
-            return scaled_values * scaler['std']['total'] + scaler['mean']['total']
+            # Obtener valores escalares para la media y desviación estándar
+            mean_total = float(scaler['mean']['total'])
+            std_total = max(1.0, float(scaler['std']['total']))  # Evitar std muy pequeñas
+            
+            # Aplicar transformación inversa
+            return scaled_values * std_total + mean_total
         else:
             # Usar scaler general
-            return scaled_values * self.std['total'] + self.mean['total']
+            mean_total = float(self.mean['total'])
+            std_total = max(1.0, float(self.std['total']))  # Evitar std muy pequeñas
+            
+            # Aplicar transformación inversa
+            return scaled_values * std_total + mean_total
     
     def prepare_last_sequence(self, data, target_col='total', product_id=None):
         """

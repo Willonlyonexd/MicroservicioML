@@ -312,6 +312,85 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
         monthly_predictions = forecaster.predict_aggregated(period='month', horizon=3, tenant_id=tenant_id)
         logger.info(f"Predicciones mensuales generadas para los próximos {len(monthly_predictions)} meses")
         
+        # FUNCIÓN DE CORRECCIÓN DE ESCALA PARA PREDICCIONES
+        def apply_scale_correction(predictions, typical_value=100.0, historical_data=None):
+            """
+            Corrige la escala de las predicciones si son anormalmente bajas.
+            
+            Args:
+                predictions: Lista de predicciones a corregir
+                typical_value: Valor típico a usar como referencia si no hay datos históricos
+                historical_data: Datos históricos para determinar escala (opcional)
+                
+            Returns:
+                list: Predicciones con escala corregida
+            """
+            if not predictions:
+                return predictions
+                
+            # Obtener el valor máximo de predicción
+            max_pred = max(p.get('prediccion', 0) for p in predictions)
+            logger.info(f"Valor máximo de predicción antes de corrección: {max_pred}")
+            
+            # Verificar si las predicciones son anormalmente bajas
+            if max_pred < 1.0:
+                # Determinar valor objetivo para escala
+                scale_target = typical_value
+                
+                # Si hay datos históricos, usar su promedio como referencia
+                if historical_data:
+                    if isinstance(historical_data, list):
+                        sales_values = [item.get('ventas', 0) for item in historical_data 
+                                        if isinstance(item.get('ventas', 0), (int, float))]
+                    elif isinstance(historical_data, pd.DataFrame) and 'total' in historical_data.columns:
+                        sales_values = historical_data['total'].tolist()
+                    else:
+                        sales_values = []
+                    
+                    # Filtrar valores no nulos y mayores que cero
+                    non_zero_sales = [s for s in sales_values if s > 0]
+                    if non_zero_sales:
+                        scale_target = sum(non_zero_sales) / len(non_zero_sales)
+                        logger.info(f"Valor promedio de ventas históricas: {scale_target}")
+                
+                # Calcular factor de escala
+                scale_factor = scale_target / max(max_pred, 0.0001)
+                logger.warning(f"Aplicando corrección de escala (factor: {scale_factor:.2f}) a predicciones anormalmente bajas")
+                
+                # Aplicar escala a todas las predicciones
+                for p in predictions:
+                    p['prediccion'] = p.get('prediccion', 0) * scale_factor
+                
+                # Verificar resultado
+                new_max_pred = max(p.get('prediccion', 0) for p in predictions)
+                logger.info(f"Valor máximo de predicción después de corrección: {new_max_pred}")
+            
+            return predictions
+        
+        # Obtener datos históricos para determinar escala
+        try:
+            historical_data = forecaster.get_historical_and_forecast_data(
+                history_days=30, 
+                forecast_days=1, 
+                tenant_id=tenant_id
+            ).get('historical', [])
+        except Exception as e:
+            logger.warning(f"No se pudieron obtener datos históricos para corrección de escala: {str(e)}")
+            historical_data = None
+        
+        # Corregir predicciones
+        if daily_predictions:
+            daily_predictions = apply_scale_correction(daily_predictions, historical_data=historical_data)
+            logger.info("Corrección de escala aplicada a predicciones diarias")
+            
+        if weekly_predictions:
+            weekly_predictions = apply_scale_correction(weekly_predictions, typical_value=500.0)
+            logger.info("Corrección de escala aplicada a predicciones semanales")
+            
+        if monthly_predictions:
+            monthly_predictions = apply_scale_correction(monthly_predictions, typical_value=2000.0)
+            logger.info("Corrección de escala aplicada a predicciones mensuales")
+        
         # Guardar predicciones generales en MongoDB
         logger.info(f"Guardando predicciones diarias en MongoDB para tenant {tenant_id}...")
         forecaster.save_predictions_to_db(daily_predictions, tenant_id=tenant_id)
@@ -364,6 +443,31 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
             if not product_predictions.empty:
                 logger.info(f"Predicciones generadas para {product_predictions['producto_id'].nunique()} productos")
                 
+                # Corregir escala para predicciones por producto
+                def apply_product_scale_correction(predictions_df, typical_value=100.0):
+                    """Corrige la escala de las predicciones por producto."""
+                    if predictions_df.empty:
+                        return predictions_df
+                    
+                    # Obtener máxima predicción
+                    max_pred = predictions_df['prediccion'].max()
+                    logger.info(f"Valor máximo de predicción por producto antes de corrección: {max_pred}")
+                    
+                    # Verificar si las predicciones son anormalmente bajas
+                    if max_pred < 1.0:
+                        # Calcular factor de escala
+                        scale_factor = typical_value / max(max_pred, 0.0001)
+                        logger.warning(f"Aplicando corrección de escala (factor: {scale_factor:.2f}) a predicciones por producto")
+                        
+                        # Aplicar escala
+                        predictions_df['prediccion'] = predictions_df['prediccion'] * scale_factor
+                        logger.info(f"Valor máximo de predicción por producto después de corrección: {predictions_df['prediccion'].max()}")
+                    
+                    return predictions_df
+                
+                # Aplicar corrección de escala
+                product_predictions = apply_product_scale_correction(product_predictions)
+                
                 # Guardar predicciones por producto en MongoDB
                 logger.info(f"Guardando predicciones por producto en MongoDB para tenant {tenant_id}...")
                 forecaster.save_product_predictions_to_db(product_predictions, tenant_id=tenant_id)
@@ -373,6 +477,9 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
                 category_predictions = forecaster.predict_category_demand(tenant_id=tenant_id)
                 
                 if category_predictions:
+                    # Corregir escala para predicciones por categoría
+                    category_predictions = apply_scale_correction(category_predictions, typical_value=150.0)
+                    
                     unique_categories = set(item['categoria_id'] for item in category_predictions)
                     logger.info(f"Predicciones generadas para {len(unique_categories)} categorías")
                     
@@ -471,6 +578,14 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
             forecast_days=7, 
             tenant_id=tenant_id
         )
+        
+        # Corregir escala de predicciones en datos combinados
+        if 'forecast' in combined_data and combined_data['forecast']:
+            combined_data['forecast'] = apply_scale_correction(
+                combined_data['forecast'], 
+                historical_data=combined_data.get('historical', [])
+            )
+            
         logger.info(f"Datos combinados generados: {len(combined_data['historical'])} días históricos, {len(combined_data['forecast'])} días predicción")
         
         # Datos semanales combinados
@@ -480,6 +595,15 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
             forecast_periods=3,
             tenant_id=tenant_id
         )
+        
+        # Corregir escala de predicciones semanales
+        if 'forecast' in weekly_combined and weekly_combined['forecast']:
+            weekly_combined['forecast'] = apply_scale_correction(
+                weekly_combined['forecast'], 
+                typical_value=500.0,
+                historical_data=weekly_combined.get('historical', [])
+            )
+            
         logger.info(f"Datos semanales combinados generados: {len(weekly_combined['historical'])} semanas históricas, {len(weekly_combined['forecast'])} semanas predicción")
         
         # Datos mensuales combinados
@@ -489,6 +613,15 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
             forecast_periods=3,
             tenant_id=tenant_id
         )
+        
+        # Corregir escala de predicciones mensuales
+        if 'forecast' in monthly_combined and monthly_combined['forecast']:
+            monthly_combined['forecast'] = apply_scale_correction(
+                monthly_combined['forecast'], 
+                typical_value=2000.0,
+                historical_data=monthly_combined.get('historical', [])
+            )
+            
         logger.info(f"Datos mensuales combinados generados: {len(monthly_combined['historical'])} meses históricos, {len(monthly_combined['forecast'])} meses predicción")
         
         # Verificar resultados en MongoDB para diagnóstico

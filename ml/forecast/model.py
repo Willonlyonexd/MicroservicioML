@@ -274,7 +274,7 @@ class TFForecaster:
         self.logger.info(f"Generando predicción para los próximos {days} días (tenant {tenant_id})")
         scaled_prediction = self.model.predict(last_sequence)
         
-        # Invertir normalización
+        # Invertir normalización - CORREGIDO: Aseguramos que la transformación inversa se aplique correctamente
         prediction = self.data_processor.inverse_transform(scaled_prediction[0])
         
         # Asegurar que no predecimos más días de los solicitados
@@ -638,7 +638,7 @@ class TFForecaster:
                     # Hacer predicción
                     scaled_prediction = prod_model.predict(last_sequence)
                     
-                    # Invertir normalización
+                    # CORREGIDO: Invertir normalización correctamente
                     prediction = self.data_processor.inverse_transform(
                         scaled_prediction[0], product_id=prod_id)
                     
@@ -695,7 +695,7 @@ class TFForecaster:
             # Hacer predicción
             scaled_prediction = self.product_models[product_id].predict(last_sequence)
             
-            # Invertir normalización
+            # CORREGIDO: Invertir normalización correctamente
             prediction = self.data_processor.inverse_transform(
                 scaled_prediction[0], product_id=product_id)
             
@@ -761,9 +761,9 @@ class TFForecaster:
         
         # Preparar resultado combinado
         result = {
-            'product_id': product_id,
-            'product_name': product_info.get('nombre', f'Producto {product_id}'),
-            'category_id': product_info.get('categoria_id', None),
+            'producto_id': product_id,  # CORREGIDO: Cambiado de 'product_id' a 'producto_id' para mantener consistencia
+            'nombre_producto': product_info.get('nombre', f'Producto {product_id}'),  # CORREGIDO: Cambiado de 'product_name' a 'nombre_producto'
+            'categoria_id': product_info.get('categoria_id', None),  # CORREGIDO: Cambiado de 'category_id' a 'categoria_id'
             'historical': [],
             'forecast': future_predictions.to_dict('records') if not future_predictions.empty else [],
             'current_date': current_date,
@@ -1131,8 +1131,8 @@ class TFForecaster:
         
         Args:
             category_id: ID de la categoría
-            history_days: Días de historia a incluir
-            forecast_days: Días de predicción a incluir
+            history_days: Número de días de historia a incluir
+            forecast_days: Número de días a predecir
             tenant_id: ID del tenant para filtrar datos
             generate_plot: Si es True, genera el gráfico (no usar por ahora)
             

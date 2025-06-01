@@ -59,6 +59,7 @@ def auto_complete_data(data, count, period_type):
             
         days_increment = 7
         last_periodo = int(last_item["periodo"].split(" ")[1]) if isinstance(last_item["periodo"], str) else last_item["periodo"]
+        period_name = "Semana"  # Añadida esta variable que faltaba
         
     elif period_type == "monthly":
         if isinstance(last_item.get('fecha_fin'), str):
@@ -69,6 +70,7 @@ def auto_complete_data(data, count, period_type):
         # Incrementar un mes (aproximadamente 30 días)
         days_increment = 30
         last_periodo = int(last_item["periodo"].split(" ")[1]) if isinstance(last_item["periodo"], str) else last_item["periodo"]
+        period_name = "Mes"  # Añadida esta variable que faltaba
     
     # Generar items adicionales
     for i in range(count - len(result)):
@@ -830,11 +832,11 @@ def resolve_product_historical_and_forecast(obj, info, productId, history_days=S
             tenant_id=tenant_id
         )
         
-        # Preparar resultado
+        # Preparar resultado - CORREGIDO: Usar las claves correctas del combined_data
         result = {
-            "producto_id": combined_data["product_id"],
-            "nombre_producto": combined_data["product_name"],
-            "categoria_id": combined_data["category_id"],
+            "producto_id": combined_data["producto_id"],
+            "nombre_producto": combined_data["nombre_producto"],
+            "categoria_id": combined_data["categoria_id"],
             "current_date": combined_data["current_date"].isoformat() if isinstance(combined_data["current_date"], datetime) else combined_data["current_date"],
             "historical": [],
             "forecast": [],
