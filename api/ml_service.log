@@ -1,0 +1,2 @@
+2025-06-01 18:22:47.076 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:22:47.077 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos

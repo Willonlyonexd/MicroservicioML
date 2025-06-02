@@ -5,6 +5,7 @@ import logging
 import random
 from db.mongo_client import get_mongo_manager
 from ml.forecast.model import TFForecaster
+import pandas as pd
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -961,6 +962,196 @@ def resolve_category_historical_and_forecast(obj, info, categoryId, history_days
         logger.error(f"Error obteniendo datos combinados de la categoría {categoryId}: {str(e)}")
         return None
 
+# NUEVOS RESOLVERS PARA SEGMENTACIÓN DE CLIENTES
+
+def resolve_clientes_segmentados(obj, info, clusterId=None):
+    """Resolver para obtener clientes segmentados"""
+    try:
+        # Obtener tenant_id del contexto de GraphQL
+        tenant_id = get_tenant_id_from_context(info)
+        logger.info(f"Buscando clientes segmentados para tenant {tenant_id}, cluster: {clusterId if clusterId is not None else 'todos'}")
+        
+        # Construir consulta
+        query = {"tenant_id": tenant_id}
+        if clusterId is not None:
+            query["cluster"] = clusterId
+        
+        # Buscar datos de segmentación de clientes
+        clientes = list(mongo.db.cliente_segmentacion.find(query, {"_id": 0}))
+        
+        logger.info(f"Encontrados {len(clientes)} clientes segmentados para tenant {tenant_id}")
+        
+        # Formatear resultados para GraphQL
+        result = []
+        for cliente in clientes:
+            result.append({
+                "clienteId": str(cliente["cliente_id"]),
+                "cluster": cliente["cluster"],
+                "clusterNombre": cliente.get("cluster_nombre", "DESCONOCIDO"),
+                "numVisitas": cliente["num_visitas"],
+                "comensalesPromedio": cliente["comensales_promedio"],
+                "gastoTotal": cliente["gasto_total"],
+                "tenantId": tenant_id
+            })
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error obteniendo clientes segmentados: {str(e)}")
+        return []
+
+def resolve_cluster_info(obj, info, clusterId):
+    """Resolver para obtener información de un cluster específico"""
+    try:
+        # Obtener tenant_id del contexto de GraphQL
+        tenant_id = get_tenant_id_from_context(info)
+        logger.info(f"Buscando información del cluster {clusterId} para tenant {tenant_id}")
+        
+        # Buscar perfil del cluster
+        cluster = mongo.db.cluster_perfiles.find_one({
+            "cluster_id": clusterId,
+            "tenant_id": tenant_id
+        }, {"_id": 0})
+        
+        if not cluster:
+            logger.warning(f"No se encontró información para el cluster {clusterId} del tenant {tenant_id}")
+            return None
+        
+        # Formatear resultado para GraphQL
+        result = {
+            "clusterId": cluster["cluster_id"],
+            "nombre": cluster["nombre"],
+            "numClientes": cluster["num_clientes"],
+            "gastoPromedio": cluster["gasto_promedio"],
+            "visitasPromedio": cluster["visitas_promedio"],
+            "comensalesPromedio": cluster["comensales_promedio"],
+            "descripcion": cluster["descripcion"],
+            "tenantId": tenant_id
+        }
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error obteniendo información del cluster {clusterId}: {str(e)}")
+        return None
+
+def resolve_todos_clusters(obj, info):
+    """Resolver para obtener información de todos los clusters"""
+    try:
+        # Obtener tenant_id del contexto de GraphQL
+        tenant_id = get_tenant_id_from_context(info)
+        logger.info(f"Buscando información de todos los clusters para tenant {tenant_id}")
+        
+        # Buscar perfiles de todos los clusters
+        clusters = list(mongo.db.cluster_perfiles.find({"tenant_id": tenant_id}, {"_id": 0}))
+        
+        logger.info(f"Encontrados {len(clusters)} clusters para tenant {tenant_id}")
+        
+        # Formatear resultados para GraphQL
+        result = []
+        for cluster in clusters:
+            result.append({
+                "clusterId": cluster["cluster_id"],
+                "nombre": cluster["nombre"],
+                "numClientes": cluster["num_clientes"],
+                "gastoPromedio": cluster["gasto_promedio"],
+                "visitasPromedio": cluster["visitas_promedio"],
+                "comensalesPromedio": cluster["comensales_promedio"],
+                "descripcion": cluster["descripcion"],
+                "tenantId": tenant_id
+            })
+        
+        return result
+    except Exception as e:
+        logger.error(f"Error obteniendo información de todos los clusters: {str(e)}")
+        return []
+
+def resolve_segmentacion_general(obj, info):
+    """Resolver para obtener distribución general de segmentos para gráfico de pastel"""
+    try:
+        # Obtener tenant_id del contexto de GraphQL
+        tenant_id = get_tenant_id_from_context(info)
+        logger.info(f"Obteniendo distribución general de segmentos para tenant {tenant_id}")
+        
+        # Obtener conteo de clientes por cluster
+        pipeline = [
+            {"$match": {"tenant_id": tenant_id}},
+            {"$group": {
+                "_id": "$cluster_nombre",
+                "cantidad": {"$sum": 1}
+            }},
+            {"$sort": {"_id": 1}}
+        ]
+        
+        segments = list(mongo.db.cliente_segmentacion.aggregate(pipeline))
+        
+        # Calcular total y porcentajes
+        total = sum(segment["cantidad"] for segment in segments)
+        
+        # Preparar resultado
+        distribucion = []
+        for segment in segments:
+            porcentaje = (segment["cantidad"] / total) * 100 if total > 0 else 0
+            distribucion.append({
+                "nombre": segment["_id"],
+                "cantidad": segment["cantidad"],
+                "porcentaje": round(porcentaje, 2)
+            })
+        
+        return {
+            "total": total,
+            "distribucion": distribucion,
+            "tenantId": tenant_id
+        }
+    except Exception as e:
+        logger.error(f"Error obteniendo distribución general de segmentos: {str(e)}")
+        return {"total": 0, "distribucion": [], "tenantId": tenant_id}
+
+def resolve_clientes_con_segmentacion(obj, info):
+    """Resolver para obtener lista detallada de clientes con su información de segmentación"""
+    try:
+        # Obtener tenant_id del contexto de GraphQL
+        tenant_id = get_tenant_id_from_context(info)
+        logger.info(f"Obteniendo clientes con segmentación para tenant {tenant_id}")
+        
+        # Buscar clientes con información adicional de nombres
+        pipeline = [
+            {"$match": {"tenant_id": tenant_id}},
+            {"$lookup": {
+                "from": "raw_clientes",
+                "localField": "cliente_id",
+                "foreignField": "cliente_id",
+                "as": "cliente_info"
+            }},
+            {"$unwind": {"path": "$cliente_info", "preserveNullAndEmptyArrays": True}},
+            {"$project": {
+                "clienteId": "$cliente_id",
+                "nombreCompleto": {
+                    "$concat": [
+                        {"$ifNull": [{"$ifNull": ["$cliente_info.nombre", ""]}, ""]}, 
+                        " ", 
+                        {"$ifNull": [{"$ifNull": ["$cliente_info.apellido", ""]}, ""]}
+                    ]
+                },
+                "segmento": "$cluster_nombre",
+                "numVisitas": "$num_visitas",
+                "comensalesPromedio": "$comensales_promedio",
+                "gastoTotal": "$gasto_total",
+                "tenantId": "$tenant_id"
+            }},
+            {"$sort": {"segmento": 1, "gastoTotal": -1}}
+        ]
+        
+        clientes = list(mongo.db.cliente_segmentacion.aggregate(pipeline))
+        
+        # Si no pudimos obtener nombres, usar IDs
+        for cliente in clientes:
+            if not cliente["nombreCompleto"] or cliente["nombreCompleto"].strip() == " ":
+                cliente["nombreCompleto"] = f"Cliente {cliente['clienteId']}"
+        
+        return clientes
+    except Exception as e:
+        logger.error(f"Error obteniendo clientes con segmentación: {str(e)}")
+        return []
+
 # Diccionario de resolvers para Ariadne
 resolvers = {
     "Query": {
@@ -973,11 +1164,20 @@ resolvers = {
         "modelStatus": resolve_model_status,
         "availableVisualizations": resolve_available_visualizations,
         
-        # Nuevos resolvers para datos combinados
+        # Resolvers para datos combinados
         "salesWithForecast": resolve_sales_with_forecast,
         "weeklyWithForecast": resolve_weekly_with_forecast,
         "monthlyWithForecast": resolve_monthly_with_forecast,
         "productHistoricalAndForecast": resolve_product_historical_and_forecast,
-        "categoryHistoricalAndForecast": resolve_category_historical_and_forecast
+        "categoryHistoricalAndForecast": resolve_category_historical_and_forecast,
+        
+        # Resolvers para segmentación
+        "clientesSegmentados": resolve_clientes_segmentados,
+        "clusterInfo": resolve_cluster_info,
+        "todosClusters": resolve_todos_clusters,
+        
+        # Nuevos resolvers para visualizaciones específicas
+        "segmentacionGeneral": resolve_segmentacion_general,
+        "clientesConSegmentacion": resolve_clientes_con_segmentacion
     }
 }

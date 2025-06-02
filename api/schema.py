@@ -1,5 +1,4 @@
 # Schema GraphQL para el sistema de predicción de ventas con contexto multi-tenant
-
 schema_sdl = """
 type Query {
   # Predicciones diarias
@@ -39,6 +38,25 @@ type Query {
   
   # Datos históricos y predicciones para una categoría específica
   categoryHistoricalAndForecast(categoryId: Int!, history_days: Int = 30, forecast_days: Int = 7): CombinedCategoryData
+  
+  # CONSULTAS PARA SEGMENTACIÓN DE CLIENTES
+  
+  # Obtener todos los clientes segmentados, con filtro opcional por cluster
+  clientesSegmentados(clusterId: Int): [ClienteSegmento!]!
+  
+  # Obtener información detallada de un cluster específico
+  clusterInfo(clusterId: Int!): ClusterInfo
+  
+  # Obtener información de todos los clusters
+  todosClusters: [ClusterInfo!]!
+  
+  # NUEVAS CONSULTAS ESPECÍFICAS PARA GRÁFICOS
+  
+  # Distribución general de segmentos para gráfico de pastel
+  segmentacionGeneral: SegmentacionGeneral!
+  
+  # Lista detallada de clientes con su información de segmentación
+  clientesConSegmentacion: [ClienteConSegmento!]!
 }
 
 # Predicción diaria de ventas
@@ -227,5 +245,57 @@ type CombinedCategoryData {
   historical: [HistoricalDataPoint!]!
   forecast: [CategoryPrediction!]!
   tenant_id: Int
+}
+
+# TIPOS PARA SEGMENTACIÓN DE CLIENTES
+
+# Cliente segmentado
+type ClienteSegmento {
+  clienteId: ID!
+  cluster: Int!
+  clusterNombre: String!
+  numVisitas: Int!
+  comensalesPromedio: Float!
+  gastoTotal: Float!
+  tenantId: Int
+}
+
+# Información de un cluster
+type ClusterInfo {
+  clusterId: Int!
+  nombre: String!
+  numClientes: Int!
+  gastoPromedio: Float!
+  visitasPromedio: Float!
+  comensalesPromedio: Float!
+  descripcion: String!
+  tenantId: Int
+}
+
+# NUEVOS TIPOS PARA VISUALIZACIONES ESPECÍFICAS
+
+# Distribución general de segmentos
+type SegmentacionGeneral {
+  total: Int!
+  distribucion: [SegmentoCount!]!
+  tenantId: Int
+}
+
+# Conteo por segmento para gráfico de pastel
+type SegmentoCount {
+  nombre: String!
+  cantidad: Int!
+  porcentaje: Float!
+}
+
+# Cliente con información detallada de segmentación
+type ClienteConSegmento {
+  clienteId: ID!
+  nombreCompleto: String!
+  segmento: String!
+  numVisitas: Int!
+  comensalesPromedio: Float!
+  gastoTotal: Float!
+  tenantId: Int
 }
 """

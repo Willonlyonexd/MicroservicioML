@@ -2108,3 +2108,1328 @@
 2025-06-01 13:52:34.026 | INFO     | __main__:main:755 - Servicio finalizado. Cerrando conexiones...
 2025-06-01 13:52:34.027 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
 2025-06-01 13:52:34.029 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 14:56:35.905 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 14:56:35.905 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 14:56:36.179 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 14:56:36.179 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 14:57:20.892 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 14:57:20.893 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 14:57:21.156 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 14:57:21.157 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 14:57:24.482 | INFO     | __main__:main:772 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 14:57:24.483 | INFO     | __main__:main:773 - Modo desarrollo: True
+2025-06-01 14:57:24.483 | INFO     | __main__:main:774 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 14:57:24
+2025-06-01 14:57:24.484 | INFO     | __main__:main:775 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 14:57:24.484 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 14:57:24.485 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 14:57:24.487 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 14:57:24.487 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 14:57:24.488 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 14:57:24.489 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 14:57:24.490 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 14:57:24.491 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 14:57:24.493 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 14:57:24.494 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 14:57:24.496 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 14:57:24.496 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 14:57:24.497 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 14:57:24.498 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 14:57:24.499 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 14:57:24.500 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 14:57:24.500 | INFO     | __main__:main:812 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 14:57:24.500 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 14:57:24.501 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 14:57:24.502 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-06-01 14:57:24.505 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 14:57:24.506 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 14:57:24.513 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 14:57:24.515 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 14:57:24.516 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 14:57:24.519 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 14:57:24.521 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 14:57:24.534 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 14:57:24.536 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 14:57:24.538 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 14:57:24.539 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 14:57:24.541 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 14:57:24.544 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 14:57:24.546 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 14:57:24.547 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 14:57:24.547 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 14:57:24.549 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 14:57:24.550 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 14:57:24.550 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 14:57:24.551 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 14:57:24.552 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 14:57:24.552 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 14:57:41.630 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 17.08 segundos
+2025-06-01 14:57:41.631 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 14:57:41.662 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 14:57:41.662 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 15:00:03.778 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 142.12 segundos
+2025-06-01 15:00:03.779 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 15:00:03.980 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 15:00:03.981 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 15:00:04.512 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 15:00:04.513 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 15:00:04.651 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 15:00:04.652 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 15:00:04.792 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 15:00:04.976 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.3548975150333717e-05
+2025-06-01 15:00:04.977 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 15:00:04.978 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 15:00:04.978 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 472.13929003282817
+2025-06-01 15:00:04.979 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 15:00:04.979 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 5.509589141183824e-05
+2025-06-01 15:00:04.979 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 5000000.00) a predicciones anormalmente bajas
+2025-06-01 15:00:04.980 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 275.4794570591912
+2025-06-01 15:00:04.980 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 15:00:04.980 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 5.509589141183824e-05
+2025-06-01 15:00:04.981 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20000000.00) a predicciones anormalmente bajas
+2025-06-01 15:00:04.981 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1101.9178282367648
+2025-06-01 15:00:04.981 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 15:00:04.981 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 15:00:04.987 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 15:00:04.988 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 15:00:04.988 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 15:00:07.581 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 15:00:07.582 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.000100367957202252
+2025-06-01 15:00:07.582 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 996333.92) a predicciones por producto
+2025-06-01 15:00:07.583 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 15:00:07.583 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 15:00:07.590 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 15:00:08.652 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00013199932072893716
+2025-06-01 15:00:08.652 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 1136369.48) a predicciones anormalmente bajas
+2025-06-01 15:00:08.653 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 15:00:08.653 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 15:00:08.656 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 15:00:08.657 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 15:00:08.826 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 15:00:08.827 | WARNING  | __main__:main:827 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:00:08.827 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 15:00:08.829 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 15:00:08.920 | INFO     | __main__:run_ml_segmentation:693 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 15:00:08.921 | INFO     | __main__:run_ml_segmentation:696 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 15:00:08.928 | INFO     | __main__:run_ml_segmentation:700 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 15:00:10.898 | INFO     | __main__:run_ml_segmentation:705 - Segmentación completada en 1.97 segundos
+2025-06-01 15:00:10.900 | INFO     | __main__:run_ml_segmentation:706 - Distribución de clientes por segmento: {2: 86, 0: 80, 1: 1}
+2025-06-01 15:00:10.900 | INFO     | __main__:run_ml_segmentation:710 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 15:00:12.287 | INFO     | __main__:run_ml_segmentation:712 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 15:00:12.287 | INFO     | __main__:run_ml_segmentation:715 - Guardando resultados de la segmentación...
+2025-06-01 15:00:12.304 | INFO     | __main__:run_ml_segmentation:719 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 15:00:12.306 | CRITICAL | __main__:main:889 - Error fatal en el servicio: "'q'"
+2025-06-01 15:00:12.306 | INFO     | __main__:main:891 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 15:00:12.307 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 15:00:12.311 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 15:09:32.932 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 15:09:32.933 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-06-01 15:09:33.233 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 15:09:33.233 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 15:09:37.051 | INFO     | __main__:main:773 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 15:09:37.052 | INFO     | __main__:main:774 - Modo desarrollo: True
+2025-06-01 15:09:37.052 | INFO     | __main__:main:775 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 15:09:37
+2025-06-01 15:09:37.053 | INFO     | __main__:main:776 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 15:09:37.054 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 15:09:37.055 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 15:09:37.056 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 15:09:37.057 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 15:09:37.059 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 15:09:37.060 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 15:09:37.061 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 15:09:37.063 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 15:09:37.064 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 15:09:37.064 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 15:09:37.065 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 15:09:37.066 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:09:37.067 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:09:37.067 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 15:09:37.068 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 15:09:37.068 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 15:09:37.069 | INFO     | __main__:main:813 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 15:09:37.069 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 15:09:37.069 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 15:09:37.070 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', '1']
+2025-06-01 15:09:37.074 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 15:09:37.075 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 15:09:37.082 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 15:09:37.083 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 15:09:37.086 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 15:09:37.087 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 15:09:37.088 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 15:09:37.196 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 15:09:37.198 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 15:09:37.199 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 15:09:37.200 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 15:09:37.202 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 15:09:37.203 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 15:09:37.205 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 15:09:37.207 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 15:09:37.207 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 15:09:37.209 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 15:09:37.210 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 15:09:37.211 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 15:09:37.212 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 15:09:37.213 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 15:09:37.213 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 15:09:54.951 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 17.74 segundos
+2025-06-01 15:09:54.951 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 15:09:54.979 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 15:09:54.980 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 15:12:39.636 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 164.65 segundos
+2025-06-01 15:12:39.638 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 15:12:39.973 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 15:12:39.973 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 15:12:40.680 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 15:12:40.680 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 15:12:40.873 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 15:12:40.874 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 15:12:41.066 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 15:12:41.263 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.0884779587504454e-05
+2025-06-01 15:12:41.264 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 15:12:41.265 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 15:12:41.265 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 418.7241671447736
+2025-06-01 15:12:41.266 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 15:12:41.267 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 4.1720100853126496e-05
+2025-06-01 15:12:41.267 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 5000000.00) a predicciones anormalmente bajas
+2025-06-01 15:12:41.268 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 208.60050426563248
+2025-06-01 15:12:41.268 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 15:12:41.269 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 4.1720100853126496e-05
+2025-06-01 15:12:41.269 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20000000.00) a predicciones anormalmente bajas
+2025-06-01 15:12:41.270 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 834.4020170625299
+2025-06-01 15:12:41.270 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 15:12:41.271 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 15:12:41.276 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 15:12:41.278 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 15:12:41.278 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 15:12:44.659 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 15:12:44.660 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 5.573381713475101e-05
+2025-06-01 15:12:44.661 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 1000000.00) a predicciones por producto
+2025-06-01 15:12:44.662 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 55.73381713475101
+2025-06-01 15:12:44.663 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 15:12:44.671 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 15:12:46.120 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 9.081041571334936e-05
+2025-06-01 15:12:46.121 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 1500000.00) a predicciones anormalmente bajas
+2025-06-01 15:12:46.122 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 136.21562357002404
+2025-06-01 15:12:46.122 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 15:12:46.126 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 15:12:46.128 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 15:12:46.340 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 15:12:46.340 | WARNING  | __main__:main:828 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:12:46.342 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 15:12:46.342 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 15:12:46.450 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 15:12:46.451 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 15:12:46.467 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 15:12:48.399 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.93 segundos
+2025-06-01 15:12:48.400 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {2: 86, 0: 80, 1: 1}
+2025-06-01 15:12:48.401 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 15:12:49.045 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 15:12:49.046 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 15:12:49.060 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 15:12:49.062 | ERROR    | __main__:run_ml_segmentation:761 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 15:12:49.063 | WARNING  | __main__:main:840 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:12:49.063 | INFO     | __main__:main:842 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 15:12:49.064 | INFO     | __main__:main:844 - Todos los tenants procesados correctamente
+2025-06-01 15:12:49.064 | INFO     | __main__:main:848 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 15:12:49.066 | INFO     | __main__:main:876 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 15:12:49.066 | INFO     | __main__:main:877 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 15:12:49.067 | INFO     | __main__:main:878 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 15:12:49.068 | INFO     | __main__:main:879 - Presiona Ctrl+C para terminar.
+2025-06-01 15:12:49.475 | INFO     | __main__:run_server:859 - Servidor importado desde api.server
+2025-06-01 15:16:33.536 | INFO     | __main__:main:885 - Programa interrumpido por el usuario
+2025-06-01 15:16:33.536 | INFO     | __main__:main:892 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 15:16:33.538 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 15:16:33.539 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 15:19:30.041 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 15:19:30.041 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.01 segundos
+2025-06-01 15:19:30.308 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 15:19:30.308 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 15:19:33.689 | INFO     | __main__:main:773 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 15:19:33.690 | INFO     | __main__:main:774 - Modo desarrollo: True
+2025-06-01 15:19:33.691 | INFO     | __main__:main:775 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 15:19:33
+2025-06-01 15:19:33.691 | INFO     | __main__:main:776 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 15:19:33.692 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 15:19:33.693 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 15:19:33.695 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 15:19:33.696 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 15:19:33.697 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 15:19:33.698 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 15:19:33.699 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 15:19:33.700 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 15:19:33.701 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 15:19:33.702 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 15:19:33.705 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 15:19:33.706 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:19:33.707 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:19:33.707 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 15:19:33.708 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 15:19:33.708 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 15:19:33.709 | INFO     | __main__:main:813 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 15:19:33.710 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 15:19:33.710 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 15:19:33.711 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 15:19:33.715 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 15:19:33.716 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 15:19:33.723 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 15:19:33.725 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 15:19:33.727 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 15:19:33.729 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 15:19:33.730 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 15:19:33.743 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 15:19:33.745 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 15:19:33.747 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 15:19:33.747 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 15:19:33.749 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 15:19:33.751 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 15:19:33.753 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 15:19:33.754 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 15:19:33.755 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 15:19:33.757 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 15:19:33.759 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 15:19:33.759 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 15:19:33.761 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 15:19:33.762 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 15:19:33.763 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 15:19:33.764 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 15:19:33.764 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 15:19:50.804 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 17.04 segundos
+2025-06-01 15:19:50.805 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 15:19:50.831 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 15:19:50.832 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 15:22:21.316 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 150.48 segundos
+2025-06-01 15:22:21.317 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 15:22:21.546 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 15:22:21.547 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 15:22:22.096 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 15:22:22.096 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 15:22:22.237 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 15:22:22.237 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 15:22:22.380 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 15:22:22.564 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 6.122310878708959e-05
+2025-06-01 15:22:22.565 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 15:22:22.565 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 15:22:22.566 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1227.4774138495557
+2025-06-01 15:22:22.566 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 15:22:22.566 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00012104596771678189
+2025-06-01 15:22:22.567 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 4130662.17) a predicciones anormalmente bajas
+2025-06-01 15:22:22.567 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.0
+2025-06-01 15:22:22.567 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 15:22:22.568 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00012104596771678189
+2025-06-01 15:22:22.568 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 16522648.69) a predicciones anormalmente bajas
+2025-06-01 15:22:22.568 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0
+2025-06-01 15:22:22.569 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 15:22:22.569 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 15:22:22.573 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 15:22:22.574 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 15:22:22.575 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 15:22:25.112 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 15:22:25.113 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00011189185897819698
+2025-06-01 15:22:25.114 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 893720.07) a predicciones por producto
+2025-06-01 15:22:25.115 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 15:22:25.115 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 15:22:25.124 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 15:22:26.212 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0001184853335871594
+2025-06-01 15:22:26.213 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 1265979.47) a predicciones anormalmente bajas
+2025-06-01 15:22:26.213 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 15:22:26.213 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 15:22:26.216 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 15:22:26.217 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 15:22:26.401 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 15:22:26.402 | WARNING  | __main__:main:828 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:22:26.403 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 15:22:26.404 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 15:22:26.530 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 15:22:26.531 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 15:22:26.542 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 15:22:28.159 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.62 segundos
+2025-06-01 15:22:28.160 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 15:22:28.161 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 15:22:28.799 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 15:22:28.800 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 15:22:28.808 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 15:22:28.810 | ERROR    | __main__:run_ml_segmentation:761 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 15:22:28.811 | WARNING  | __main__:main:840 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:22:28.811 | INFO     | __main__:main:842 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 15:22:28.812 | INFO     | __main__:main:844 - Todos los tenants procesados correctamente
+2025-06-01 15:22:28.812 | INFO     | __main__:main:848 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 15:22:28.814 | INFO     | __main__:main:876 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 15:22:28.814 | INFO     | __main__:main:877 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 15:22:28.815 | INFO     | __main__:main:878 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 15:22:28.816 | INFO     | __main__:main:879 - Presiona Ctrl+C para terminar.
+2025-06-01 15:22:29.030 | INFO     | __main__:run_server:859 - Servidor importado desde api.server
+2025-06-01 15:38:00.545 | INFO     | __main__:main:885 - Programa interrumpido por el usuario
+2025-06-01 15:38:00.546 | INFO     | __main__:main:892 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 15:38:00.548 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 15:38:00.549 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 15:41:41.007 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 15:41:41.008 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 15:41:41.307 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 15:41:41.308 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 15:41:45.434 | INFO     | __main__:main:773 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 15:41:45.435 | INFO     | __main__:main:774 - Modo desarrollo: True
+2025-06-01 15:41:45.435 | INFO     | __main__:main:775 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 15:41:45
+2025-06-01 15:41:45.436 | INFO     | __main__:main:776 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 15:41:45.436 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 15:41:45.438 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 15:41:45.440 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 15:41:45.440 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 15:41:45.442 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 15:41:45.443 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 15:41:45.445 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 15:41:45.446 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 15:41:45.447 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 15:41:45.450 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 15:41:45.451 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 15:41:45.452 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:41:45.453 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:41:45.454 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 15:41:45.456 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 15:41:45.457 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 15:41:45.457 | INFO     | __main__:main:813 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 15:41:45.458 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 15:41:45.458 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 15:41:45.459 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 15:41:45.462 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 15:41:45.464 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 15:41:45.470 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 15:41:45.472 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 15:41:45.474 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 15:41:45.475 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 15:41:45.476 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 15:41:45.658 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 15:41:45.660 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 15:41:45.662 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 15:41:45.662 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 15:41:45.664 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 15:41:45.666 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 15:41:45.667 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 15:41:45.670 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 15:41:45.670 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 15:41:45.673 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 15:41:45.674 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 15:41:45.675 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 15:41:45.677 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 15:41:45.679 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 15:41:45.679 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 15:41:45.680 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 15:41:45.680 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 15:42:02.738 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 17.06 segundos
+2025-06-01 15:42:02.738 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 15:42:02.768 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 15:42:02.768 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 15:44:39.892 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 157.12 segundos
+2025-06-01 15:44:39.893 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 15:44:40.134 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 15:44:40.135 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 15:44:40.669 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 15:44:40.669 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 15:44:40.951 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 15:44:40.952 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 15:44:41.235 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 15:44:41.629 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00011688108497764915
+2025-06-01 15:44:41.629 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 15:44:41.630 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 17153545.42) a predicciones anormalmente bajas
+2025-06-01 15:44:41.630 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2004.9249999999997
+2025-06-01 15:44:41.631 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 15:44:41.631 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0002303932828908728
+2025-06-01 15:44:41.631 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 2170202.16) a predicciones anormalmente bajas
+2025-06-01 15:44:41.632 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.0
+2025-06-01 15:44:41.632 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 15:44:41.633 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0002303932828908728
+2025-06-01 15:44:41.633 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 8680808.64) a predicciones anormalmente bajas
+2025-06-01 15:44:41.633 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0
+2025-06-01 15:44:41.634 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 15:44:41.636 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 15:44:41.640 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 15:44:41.641 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 15:44:41.641 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 15:44:44.015 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 15:44:44.016 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.0001905406970763579
+2025-06-01 15:44:44.017 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 524822.26) a predicciones por producto
+2025-06-01 15:44:44.018 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 15:44:44.018 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 15:44:44.024 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 15:44:45.287 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00022615752095589414
+2025-06-01 15:44:45.287 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 663254.53) a predicciones anormalmente bajas
+2025-06-01 15:44:45.288 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 15:44:45.288 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 15:44:45.291 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 15:44:45.292 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 15:44:45.467 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 15:44:45.468 | WARNING  | __main__:main:828 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:44:45.468 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 15:44:45.470 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 15:44:45.561 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 15:44:45.563 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 15:44:45.571 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 15:44:47.211 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.64 segundos
+2025-06-01 15:44:47.212 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 15:44:47.214 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 15:44:47.828 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 15:44:47.828 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 15:44:47.837 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 15:44:47.838 | ERROR    | __main__:run_ml_segmentation:761 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 15:44:47.839 | WARNING  | __main__:main:840 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:44:47.839 | INFO     | __main__:main:842 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 15:44:47.840 | INFO     | __main__:main:844 - Todos los tenants procesados correctamente
+2025-06-01 15:44:47.840 | INFO     | __main__:main:848 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 15:44:47.841 | INFO     | __main__:main:876 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 15:44:47.842 | INFO     | __main__:main:877 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 15:44:47.842 | INFO     | __main__:main:878 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 15:44:47.843 | INFO     | __main__:main:879 - Presiona Ctrl+C para terminar.
+2025-06-01 15:44:48.062 | ERROR    | __main__:run_server:865 - No se pudo importar el servidor. Verificar que exista api/server.py o server.py
+2025-06-01 15:45:13.468 | INFO     | __main__:main:885 - Programa interrumpido por el usuario
+2025-06-01 15:45:13.469 | INFO     | __main__:main:892 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 15:45:13.471 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 15:45:13.475 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 15:55:01.932 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 15:55:01.932 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 15:55:02.216 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 15:55:02.217 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 15:55:05.657 | INFO     | __main__:main:773 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 15:55:05.658 | INFO     | __main__:main:774 - Modo desarrollo: True
+2025-06-01 15:55:05.658 | INFO     | __main__:main:775 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 15:55:05
+2025-06-01 15:55:05.659 | INFO     | __main__:main:776 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 15:55:05.659 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 15:55:05.660 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 15:55:05.662 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 15:55:05.663 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 15:55:05.664 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 15:55:05.665 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 15:55:05.667 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 15:55:05.668 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 15:55:05.670 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 15:55:05.671 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 15:55:05.673 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 15:55:05.674 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:55:05.675 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 15:55:05.676 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 15:55:05.676 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 15:55:05.678 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 15:55:05.678 | INFO     | __main__:main:813 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 15:55:05.678 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 15:55:05.679 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 15:55:05.679 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 15:55:05.682 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 15:55:05.683 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 15:55:05.690 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 15:55:05.691 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 15:55:05.694 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 15:55:05.695 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 15:55:05.696 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 15:55:05.711 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 15:55:05.713 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 15:55:05.714 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 15:55:05.714 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 15:55:05.716 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 15:55:05.717 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 15:55:05.718 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 15:55:05.719 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 15:55:05.720 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 15:55:05.722 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 15:55:05.723 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 15:55:05.724 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 15:55:05.725 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 15:55:05.726 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 15:55:05.727 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 15:55:05.727 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 15:55:05.728 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 15:55:27.171 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 21.44 segundos
+2025-06-01 15:55:27.172 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 15:55:27.223 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 15:55:27.224 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 15:57:58.932 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 151.71 segundos
+2025-06-01 15:57:58.932 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 15:57:59.160 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 15:57:59.160 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 15:57:59.707 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 15:57:59.707 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 15:57:59.848 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 15:57:59.848 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 15:57:59.991 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 15:58:00.168 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 7.832127448637038e-05
+2025-06-01 15:58:00.169 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 15:58:00.169 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 15:58:00.170 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1570.2828124958612
+2025-06-01 15:58:00.170 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 15:58:00.170 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 7.832127448637038e-05
+2025-06-01 15:58:00.171 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 5000000.00) a predicciones anormalmente bajas
+2025-06-01 15:58:00.171 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 391.6063724318519
+2025-06-01 15:58:00.171 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 15:58:00.171 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 7.832127448637038e-05
+2025-06-01 15:58:00.172 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20000000.00) a predicciones anormalmente bajas
+2025-06-01 15:58:00.172 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1566.4254897274077
+2025-06-01 15:58:00.172 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 15:58:00.173 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 15:58:00.176 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 15:58:00.177 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 15:58:00.177 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 15:58:02.735 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 15:58:02.736 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00016714840603526682
+2025-06-01 15:58:02.736 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 598270.74) a predicciones por producto
+2025-06-01 15:58:02.737 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 99.99999999999999
+2025-06-01 15:58:02.738 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 15:58:02.744 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 15:58:03.899 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00016902521019801497
+2025-06-01 15:58:03.899 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 887441.58) a predicciones anormalmente bajas
+2025-06-01 15:58:03.900 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 15:58:03.901 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 15:58:03.903 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 15:58:03.904 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 15:58:04.074 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 15:58:04.075 | WARNING  | __main__:main:828 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:58:04.075 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 15:58:04.076 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 15:58:04.167 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 15:58:04.168 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 15:58:04.178 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 15:58:05.779 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.6 segundos
+2025-06-01 15:58:05.780 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 15:58:05.781 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 15:58:06.380 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 15:58:06.380 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 15:58:06.388 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 15:58:06.390 | ERROR    | __main__:run_ml_segmentation:761 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 15:58:06.390 | WARNING  | __main__:main:840 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 15:58:06.391 | INFO     | __main__:main:842 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 15:58:06.391 | INFO     | __main__:main:844 - Todos los tenants procesados correctamente
+2025-06-01 15:58:06.391 | INFO     | __main__:main:848 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 15:58:06.392 | INFO     | __main__:main:876 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 15:58:06.393 | INFO     | __main__:main:877 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 15:58:06.394 | INFO     | __main__:main:878 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 15:58:06.395 | INFO     | __main__:main:879 - Presiona Ctrl+C para terminar.
+2025-06-01 15:58:06.592 | ERROR    | __main__:run_server:865 - No se pudo importar el servidor. Verificar que exista api/server.py o server.py
+2025-06-01 15:59:35.730 | INFO     | __main__:main:885 - Programa interrumpido por el usuario
+2025-06-01 15:59:35.732 | INFO     | __main__:main:892 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 15:59:35.734 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 15:59:35.740 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 16:11:22.204 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 16:11:22.205 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-06-01 16:11:22.482 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 16:11:22.483 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 16:11:26.357 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 16:11:26.358 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-01 16:11:26.358 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 16:11:26
+2025-06-01 16:11:26.359 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 16:11:26.359 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 16:11:26.360 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 16:11:26.362 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 16:11:26.362 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 16:11:26.364 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 16:11:26.365 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 16:11:26.366 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 16:11:26.366 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 16:11:26.367 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 16:11:26.368 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 16:11:26.369 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 16:11:26.369 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 16:11:26.370 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 16:11:26.371 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 16:11:26.371 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 16:11:26.372 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 16:11:26.372 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 16:11:26.373 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 16:11:26.373 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 16:11:26.374 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 16:11:26.378 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 16:11:26.379 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 16:11:26.386 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 16:11:26.388 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 16:11:26.389 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 16:11:26.391 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 16:11:26.392 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 16:11:26.406 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 16:11:26.408 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 16:11:26.409 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 16:11:26.410 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 16:11:26.412 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 16:11:26.413 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 16:11:26.415 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 16:11:26.417 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 16:11:26.418 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 16:11:26.420 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 16:11:26.422 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 16:11:26.422 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 16:11:26.424 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 16:11:26.426 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 16:11:26.426 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 16:11:26.427 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 16:11:26.428 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 16:11:48.395 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 21.97 segundos
+2025-06-01 16:11:48.396 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 16:11:48.452 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 16:11:48.453 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 16:14:43.003 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 174.55 segundos
+2025-06-01 16:14:43.003 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 16:14:43.221 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 16:14:43.221 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 16:14:43.804 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 16:14:43.805 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 16:14:43.952 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 16:14:43.952 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 16:14:44.099 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 16:14:44.285 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 7.951503357617185e-05
+2025-06-01 16:14:44.286 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 16:14:44.286 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 16:14:44.287 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1594.2167869270631
+2025-06-01 16:14:44.287 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 16:14:44.287 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0001635451062611537
+2025-06-01 16:14:44.288 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 3057260.54) a predicciones anormalmente bajas
+2025-06-01 16:14:44.288 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.0
+2025-06-01 16:14:44.288 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 16:14:44.289 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0001635451062611537
+2025-06-01 16:14:44.289 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 12229042.16) a predicciones anormalmente bajas
+2025-06-01 16:14:44.289 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0
+2025-06-01 16:14:44.289 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 16:14:44.290 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 16:14:44.293 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 16:14:44.294 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 16:14:44.295 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 16:14:46.898 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 16:14:46.899 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00015172567509580404
+2025-06-01 16:14:46.899 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 659084.23) a predicciones por producto
+2025-06-01 16:14:46.900 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 16:14:46.901 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 16:14:46.907 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 16:14:48.024 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00015172567509580404
+2025-06-01 16:14:48.024 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 988626.35) a predicciones anormalmente bajas
+2025-06-01 16:14:48.025 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 16:14:48.025 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 16:14:48.027 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 16:14:48.028 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 16:14:48.328 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 16:14:48.329 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 16:14:48.329 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 16:14:48.330 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 16:14:48.422 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 16:14:48.422 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 16:14:48.432 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 16:14:50.109 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.68 segundos
+2025-06-01 16:14:50.110 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 16:14:50.110 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 16:14:50.738 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 16:14:50.739 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 16:14:50.748 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 16:14:50.750 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 16:14:50.750 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 16:14:50.751 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 16:14:50.751 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-01 16:14:50.751 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 16:14:50.752 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 16:14:50.752 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 16:14:50.753 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 16:14:50.754 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.
+2025-06-01 16:14:50.964 | ERROR    | __main__:run_server:1120 - No se pudo importar el servidor. Verificar que exista api/server.py o server.py
+2025-06-01 16:17:01.926 | INFO     | __main__:main:1140 - Programa interrumpido por el usuario
+2025-06-01 16:17:01.927 | INFO     | __main__:main:1147 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 16:17:01.929 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 16:17:01.935 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 18:01:15.045 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:01:15.046 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 18:01:15.315 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 18:01:15.316 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 18:01:18.875 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 18:01:18.876 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-01 18:01:18.876 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 18:01:18
+2025-06-01 18:01:18.877 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 18:01:18.877 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 18:01:18.878 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 18:01:18.880 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 18:01:18.880 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 18:01:18.881 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 18:01:18.882 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 18:01:18.884 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 18:01:18.886 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 18:01:18.887 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 18:01:18.887 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 18:01:18.889 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 18:01:18.890 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:01:18.891 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:01:18.892 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 18:01:18.893 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 18:01:18.893 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 18:01:18.894 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 18:01:18.894 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 18:01:18.895 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 18:01:18.896 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 18:01:18.899 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 18:01:18.900 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 18:01:18.906 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 18:01:18.908 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 18:01:18.910 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 18:01:18.912 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 18:01:18.913 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 18:01:18.927 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 18:01:18.930 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 18:01:18.931 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 18:01:18.932 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 18:01:18.933 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 18:01:18.934 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 18:01:18.935 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 18:01:18.936 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 18:01:18.937 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 18:01:18.938 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 18:01:18.939 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 18:01:18.940 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 18:01:18.942 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 18:01:18.943 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 18:01:18.943 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 18:01:18.944 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 18:01:18.944 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 18:01:40.050 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 21.1 segundos
+2025-06-01 18:01:40.051 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 18:01:40.117 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 18:01:40.119 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 18:04:37.408 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 177.28 segundos
+2025-06-01 18:04:37.408 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 18:04:37.652 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 18:04:37.653 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 18:04:38.223 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 18:04:38.224 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 18:04:38.371 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 18:04:38.371 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 18:04:38.524 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 18:04:38.724 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 1.3041444617556408e-05
+2025-06-01 18:04:38.725 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 18:04:38.726 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 18:04:38.726 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 261.47118349854276
+2025-06-01 18:04:38.727 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 18:04:38.727 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.4482324079144746e-05
+2025-06-01 18:04:38.727 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 5000000.00) a predicciones anormalmente bajas
+2025-06-01 18:04:38.728 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 122.41162039572373
+2025-06-01 18:04:38.728 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 18:04:38.729 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.4482324079144746e-05
+2025-06-01 18:04:38.729 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20000000.00) a predicciones anormalmente bajas
+2025-06-01 18:04:38.730 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 489.6464815828949
+2025-06-01 18:04:38.730 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 18:04:38.732 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 18:04:38.737 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 18:04:38.739 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 18:04:38.739 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 18:04:41.575 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 18:04:41.576 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00020991871133446693
+2025-06-01 18:04:41.576 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 476374.88) a predicciones por producto
+2025-06-01 18:04:41.578 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 18:04:41.578 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 18:04:41.586 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 18:04:42.786 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00020991871133446693
+2025-06-01 18:04:42.787 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 714562.31) a predicciones anormalmente bajas
+2025-06-01 18:04:42.787 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 18:04:42.788 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 18:04:42.791 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 18:04:42.792 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 18:04:42.980 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 18:04:42.981 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:04:42.981 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 18:04:42.982 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 18:04:43.082 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 18:04:43.083 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 18:04:43.093 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 18:04:45.095 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 2.0 segundos
+2025-06-01 18:04:45.096 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 18:04:45.097 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 18:04:45.742 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 18:04:45.743 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 18:04:45.751 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 18:04:45.754 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 18:04:45.754 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:04:45.755 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 18:04:45.755 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-01 18:04:45.755 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 18:04:45.756 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 18:04:45.757 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 18:04:45.757 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 18:04:45.757 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.
+2025-06-01 18:04:45.972 | ERROR    | __main__:run_server:1120 - No se pudo importar el servidor. Verificar que exista api/server.py o server.py
+2025-06-01 18:11:57.354 | INFO     | __main__:main:1140 - Programa interrumpido por el usuario
+2025-06-01 18:11:57.355 | INFO     | __main__:main:1147 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 18:11:57.356 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 18:11:57.362 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 18:12:01.616 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:12:01.618 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 18:12:01.939 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 18:12:01.939 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 18:12:05.890 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 18:12:05.891 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-01 18:12:05.891 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 18:12:05
+2025-06-01 18:12:05.892 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 18:12:05.892 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 18:12:05.893 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 18:12:05.895 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 18:12:05.895 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 18:12:05.896 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 18:12:05.897 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 18:12:05.898 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 18:12:05.899 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 18:12:05.900 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 18:12:05.901 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 18:12:05.902 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 18:12:05.903 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:12:05.903 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:12:05.904 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 18:12:05.906 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 18:12:05.906 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 18:12:05.907 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 18:12:05.907 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 18:12:05.908 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 18:12:05.909 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 18:12:05.912 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 18:12:05.913 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 18:12:05.920 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 18:12:05.921 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 18:12:05.923 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 18:12:05.924 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 18:12:05.926 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 18:12:05.940 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 18:12:05.942 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 18:12:05.943 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 18:12:05.944 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 18:12:05.946 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 18:12:05.947 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 18:12:05.949 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 18:12:05.950 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 18:12:05.950 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 18:12:05.952 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 18:12:05.954 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 18:12:05.954 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 18:12:05.956 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 18:12:05.958 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 18:12:05.959 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 18:12:05.959 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 18:12:05.960 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 18:12:35.829 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 29.87 segundos
+2025-06-01 18:12:35.830 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 18:12:35.879 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 18:12:35.880 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 18:15:28.521 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 172.64 segundos
+2025-06-01 18:15:28.522 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 18:15:28.766 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 18:15:28.766 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 18:15:29.365 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 18:15:29.366 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 18:15:29.540 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 18:15:29.540 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 18:15:29.700 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 18:15:29.900 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 1.5503492249990813e-05
+2025-06-01 18:15:29.900 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 18:15:29.901 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 18:15:29.901 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 310.83339199312826
+2025-06-01 18:15:29.902 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 18:15:29.902 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.879050998672028e-05
+2025-06-01 18:15:29.902 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 5000000.00) a predicciones anormalmente bajas
+2025-06-01 18:15:29.902 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 143.9525499336014
+2025-06-01 18:15:29.903 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 18:15:29.903 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 2.879050998672028e-05
+2025-06-01 18:15:29.904 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20000000.00) a predicciones anormalmente bajas
+2025-06-01 18:15:29.904 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 575.8101997344056
+2025-06-01 18:15:29.905 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 18:15:29.906 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 18:15:29.910 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 18:15:29.912 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 18:15:29.912 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 18:15:32.801 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 18:15:32.802 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00015561962209176272
+2025-06-01 18:15:32.803 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 642592.49) a predicciones por producto
+2025-06-01 18:15:32.803 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 18:15:32.804 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 18:15:32.813 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 18:15:34.077 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00022305132006295025
+2025-06-01 18:15:34.077 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 672490.98) a predicciones anormalmente bajas
+2025-06-01 18:15:34.078 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 18:15:34.078 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 18:15:34.082 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 18:15:34.083 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 18:15:34.268 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 18:15:34.268 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:15:34.269 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 18:15:34.270 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 18:15:34.368 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 18:15:34.369 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 18:15:34.378 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 18:15:36.274 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.89 segundos
+2025-06-01 18:15:36.275 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 18:15:36.276 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 18:15:36.919 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 18:15:36.919 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 18:15:36.928 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 18:15:36.930 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 18:15:36.931 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:15:36.931 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 18:15:36.932 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-01 18:15:36.933 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 18:15:36.934 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 18:15:36.935 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 18:15:36.936 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 18:15:36.936 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.
+2025-06-01 18:15:37.166 | ERROR    | __main__:run_server:1120 - No se pudo importar el servidor. Verificar que exista api/server.py o server.py
+2025-06-01 18:15:59.810 | INFO     | __main__:main:1140 - Programa interrumpido por el usuario
+2025-06-01 18:15:59.810 | INFO     | __main__:main:1147 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 18:15:59.811 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 18:15:59.826 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 18:16:12.084 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:16:12.084 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-06-01 18:26:02.878 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:26:02.878 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 18:26:03.168 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 18:26:03.169 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 18:26:06.812 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 18:26:06.813 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-01 18:26:06.814 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 18:26:06
+2025-06-01 18:26:06.814 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 18:26:06.815 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 18:26:06.816 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 18:26:06.818 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 18:26:06.819 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 18:26:06.820 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 18:26:06.821 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 18:26:06.822 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 18:26:06.823 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 18:26:06.824 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 18:26:06.825 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 18:26:06.826 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 18:26:06.827 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:26:06.828 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:26:06.829 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 18:26:06.830 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 18:26:06.830 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 18:26:06.831 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 18:26:06.831 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 18:26:06.832 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 18:26:06.833 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 18:26:06.837 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 18:26:06.839 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 18:26:06.846 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 18:26:06.848 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 18:26:06.850 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 18:26:06.852 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 18:26:06.854 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 18:26:06.868 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 18:26:06.869 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 18:26:06.872 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 18:26:06.873 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 18:26:06.875 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 18:26:06.876 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 18:26:06.878 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 18:26:06.880 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 18:26:06.880 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 18:26:06.882 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 18:26:06.884 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 18:26:06.885 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 18:26:06.886 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 18:26:06.890 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 18:26:06.891 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 18:26:06.892 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 18:26:06.893 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 18:26:24.706 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 17.81 segundos
+2025-06-01 18:26:24.707 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 18:26:24.737 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 18:26:24.737 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 18:29:16.347 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 171.61 segundos
+2025-06-01 18:29:16.348 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 18:29:16.578 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 18:29:16.579 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 18:29:17.160 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 18:29:17.160 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 18:29:17.305 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 18:29:17.305 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 18:29:17.449 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 18:29:17.627 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 4.7601199185010046e-05
+2025-06-01 18:29:17.628 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 18:29:17.628 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 18:29:17.628 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 954.3683427600624
+2025-06-01 18:29:17.629 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 18:29:17.629 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0001461789711356687
+2025-06-01 18:29:17.630 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 3420464.63) a predicciones anormalmente bajas
+2025-06-01 18:29:17.630 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.00000000000006
+2025-06-01 18:29:17.630 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 18:29:17.632 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.0001461789711356687
+2025-06-01 18:29:17.632 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 13681858.51) a predicciones anormalmente bajas
+2025-06-01 18:29:17.632 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0000000000002
+2025-06-01 18:29:17.632 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 18:29:17.632 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 18:29:17.636 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 18:29:17.637 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 18:29:17.638 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 18:29:20.346 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 18:29:20.347 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 0.00010932522127404809
+2025-06-01 18:29:20.348 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 914702.01) a predicciones por producto
+2025-06-01 18:29:20.349 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 100.0
+2025-06-01 18:29:20.349 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 18:29:20.356 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 18:29:21.549 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00019240913388784975
+2025-06-01 18:29:21.549 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 779588.77) a predicciones anormalmente bajas
+2025-06-01 18:29:21.550 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-01 18:29:21.550 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 18:29:21.553 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 18:29:21.554 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 18:29:21.749 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 18:29:21.750 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:29:21.750 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 18:29:21.751 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 18:29:21.854 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 18:29:21.854 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 18:29:21.866 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 18:29:23.490 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.62 segundos
+2025-06-01 18:29:23.491 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 18:29:23.491 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 18:29:24.109 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 18:29:24.109 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 18:29:24.117 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 18:29:24.119 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 18:29:24.120 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:29:24.120 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 18:29:24.120 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-01 18:29:24.121 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 18:29:24.122 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 18:29:24.122 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 18:29:24.123 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 18:29:24.123 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.
+2025-06-01 18:29:24.350 | INFO     | __main__:run_server:1114 - Servidor importado desde api.server
+2025-06-01 18:33:08.912 | INFO     | __main__:main:1140 - Programa interrumpido por el usuario
+2025-06-01 18:33:08.912 | INFO     | __main__:main:1147 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 18:33:08.913 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 18:33:08.914 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-01 18:35:06.117 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:35:06.117 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.02 segundos
+2025-06-01 18:35:06.399 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 18:35:06.400 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 18:35:13.601 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-01 18:35:13.602 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.03 segundos
+2025-06-01 18:35:13.894 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-01 18:35:13.894 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.07 segundos
+2025-06-01 18:35:17.540 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-01 18:35:17.540 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-01 18:35:17.541 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-01 18:35:17
+2025-06-01 18:35:17.541 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-01 00:00:00
+2025-06-01 18:35:17.542 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-01 18:35:17.543 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-01 18:35:17.545 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-01 18:35:17.546 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-01 18:35:17.548 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-01 18:35:17.549 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-01 18:35:17.550 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-01 18:35:17.551 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-01 18:35:17.552 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-01 18:35:17.553 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-01 18:35:17.554 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-01 18:35:17.554 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:35:17.554 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-01 18:35:17.555 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-01 18:35:17.556 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-01 18:35:17.556 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-01 18:35:17.557 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-01 18:35:17.557 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-01 00:00:00...
+2025-06-01 18:35:17.558 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-01 18:35:17.560 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-01 18:35:17.564 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-01 18:35:17.566 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-01 18:35:17.572 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-01 18:35:17.572 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-01 18:35:17.575 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-01 18:35:17.575 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-01 18:35:17.576 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-01 18:35:17.591 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-01 18:35:17.593 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-01 18:35:17.595 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-01 18:35:17.596 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-01 18:35:17.598 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-01 18:35:17.600 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-01 18:35:17.601 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-01 18:35:17.602 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-01 18:35:17.603 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-01 18:35:17.605 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-01 18:35:17.606 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-01 18:35:17.607 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-01 18:35:17.608 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 0 documentos para tenant 1
+2025-06-01 18:35:17.610 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 0 documentos para tenant 1
+2025-06-01 18:35:17.611 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-01 18:35:17.611 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-01 18:35:17.613 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-01 18:35:41.371 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 23.76 segundos
+2025-06-01 18:35:41.372 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-01 18:35:41.427 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-01 18:35:41.428 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-01 18:39:05.805 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 204.38 segundos
+2025-06-01 18:39:05.806 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-01 18:39:06.042 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-01 18:39:06.043 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-01 00:00:00)...
+2025-06-01 18:39:06.627 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-01 18:39:06.627 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-01 18:39:06.783 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-01 18:39:06.784 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-01 18:39:06.942 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-01 18:39:07.135 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 7.244776497827843e-05
+2025-06-01 18:39:07.136 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 2004.9249999999997
+2025-06-01 18:39:07.137 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 20049250.00) a predicciones anormalmente bajas
+2025-06-01 18:39:07.137 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1452.5233519907486
+2025-06-01 18:39:07.139 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-01 18:39:07.139 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00014745616863365285
+2025-06-01 18:39:07.139 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 3390838.14) a predicciones anormalmente bajas
+2025-06-01 18:39:07.140 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.0
+2025-06-01 18:39:07.140 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-01 18:39:07.140 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00014745616863365285
+2025-06-01 18:39:07.141 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 13563352.54) a predicciones anormalmente bajas
+2025-06-01 18:39:07.141 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0
+2025-06-01 18:39:07.141 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-01 18:39:07.142 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-01 18:39:07.146 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-01 18:39:07.147 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-01 18:39:07.147 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-01 18:39:10.016 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-01 18:39:10.018 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 6.416191172320396e-05
+2025-06-01 18:39:10.018 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 1000000.00) a predicciones por producto
+2025-06-01 18:39:10.019 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 64.16191172320396
+2025-06-01 18:39:10.020 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-01 18:39:10.027 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-01 18:39:11.696 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 9.618369585950859e-05
+2025-06-01 18:39:11.697 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 1500000.00) a predicciones anormalmente bajas
+2025-06-01 18:39:11.698 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 144.27554378926288
+2025-06-01 18:39:11.699 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-01 18:39:11.704 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-01 18:39:11.705 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-01 18:39:11.962 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-01 18:39:11.964 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:39:11.965 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-01 18:39:11.966 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-01 18:39:12.093 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-01 18:39:12.093 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-01 18:39:12.106 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-01 18:39:13.769 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.66 segundos
+2025-06-01 18:39:13.770 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-01 18:39:13.771 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-01 18:39:14.454 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-01 18:39:14.455 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-01 18:39:14.466 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-01 18:39:14.468 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-01 18:39:14.469 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-01 18:39:14.469 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-01 18:39:14.469 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-01 18:39:14.470 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-01 18:39:14.471 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-01 18:39:14.471 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-01 18:39:14.472 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-01 18:39:14.472 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.
+2025-06-01 18:39:14.728 | INFO     | __main__:run_server:1114 - Servidor importado desde api.server
+2025-06-01 18:42:48.249 | INFO     | __main__:main:1140 - Programa interrumpido por el usuario
+2025-06-01 18:42:48.249 | INFO     | __main__:main:1147 - Servicio finalizado. Cerrando conexiones...
+2025-06-01 18:42:48.251 | INFO     | etl.extract:close:328 - Conexión a PostgreSQL cerrada
+2025-06-01 18:42:48.252 | INFO     | db.mongo_client:close:194 - Conexión a MongoDB cerrada
+2025-06-02 17:32:15.809 | ERROR    | db.mongo_client:_connect:37 - No se pudo conectar a MongoDB: localhost:27017: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 5.0s, Topology Description: <TopologyDescription id: 683e185ae98498f490528fec, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-06-02 17:32:57.148 | INFO     | db.mongo_client:_connect:35 - Conexión a MongoDB establecida: mongodb://localhost:27017/
+2025-06-02 17:32:57.149 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.04 segundos
+2025-06-02 17:32:58.195 | INFO     | etl.extract:_connect:87 - Conexión a PostgreSQL establecida: postgresql://postgres:will@localhost:5432/microservicio_erp5
+2025-06-02 17:32:58.196 | DEBUG    | utils:wrapper:35 - Función _connect ejecutada en 0.23 segundos
+2025-06-02 17:33:17.268 | INFO     | __main__:main:1025 - Iniciando Restaurant ML Microservice v0.1.0
+2025-06-02 17:33:17.268 | INFO     | __main__:main:1026 - Modo desarrollo: True
+2025-06-02 17:33:17.269 | INFO     | __main__:main:1027 - Sistema multi-tenant activado - Fecha actual: 2025-06-02 17:33:17
+2025-06-02 17:33:17.269 | INFO     | __main__:main:1028 - Fecha actual como punto pivote: 2025-06-02 00:00:00
+2025-06-02 17:33:17.270 | INFO     | __main__:test_connections:102 - Probando conexiones a bases de datos...
+2025-06-02 17:33:17.271 | INFO     | __main__:test_connections:109 - Conexión a MongoDB funciona correctamente: versión 8.0.6
+2025-06-02 17:33:17.275 | DEBUG    | utils:wrapper:35 - Función execute_query ejecutada en 0.00 segundos
+2025-06-02 17:33:17.275 | INFO     | __main__:test_connections:118 - Conexión a PostgreSQL funciona correctamente
+2025-06-02 17:33:17.277 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedidos
+2025-06-02 17:33:17.278 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_hora_-1' creado en raw_pedidos
+2025-06-02 17:33:17.279 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_detalle_id_1' creado en raw_pedido_detalles
+2025-06-02 17:33:17.280 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_pedido_id_1' creado en raw_pedido_detalles
+2025-06-02 17:33:17.282 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_pedido_detalles
+2025-06-02 17:33:17.284 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en raw_productos
+2025-06-02 17:33:17.285 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en raw_productos
+2025-06-02 17:33:17.286 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_fecha_1_producto_id_1' creado en ventas_diarias
+2025-06-02 17:33:17.289 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_producto_id_1' creado en ventas_diarias
+2025-06-02 17:33:17.290 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_categoria_id_1' creado en ventas_diarias
+2025-06-02 17:33:17.292 | INFO     | db.mongo_client:create_index:172 - Índice 'tenant_id_1_table_name_1' creado en sync_status
+2025-06-02 17:33:17.292 | INFO     | db.models:create_indexes:145 - Índices creados para todas las colecciones
+2025-06-02 17:33:17.293 | INFO     | __main__:main:1068 - ======= PROCESANDO TENANT 1 =======
+2025-06-02 17:33:17.294 | INFO     | __main__:run_ml_forecast:197 - Iniciando módulo de forecasting para tenant 1 con fecha pivote 2025-06-02 00:00:00...
+2025-06-02 17:33:17.295 | INFO     | __main__:diagnosticar_datos_disponibles:34 - === DIAGNÓSTICO DE DATOS EN MONGODB PARA TENANT 1 ===
+2025-06-02 17:33:17.297 | INFO     | __main__:diagnosticar_datos_disponibles:38 - Colecciones disponibles: ['ml_predicciones_categoria', 'sync_status', 'raw_usuarios', 'cluster_perfiles', 'ml_predicciones', 'raw_clientes', 'raw_productos', 'predicciones_productos', 'raw_reservas', 'ventas_diarias', 'predicciones_ventas', 'raw_pedidos', 'raw_mesas', 'raw_cuenta_mesas', 'raw_pedido_detalles', 'raw_ventas', 'raw_categorias', 'cliente_segmentacion', '1']
+2025-06-02 17:33:17.302 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedidos: 7449 documentos para tenant 1
+2025-06-02 17:33:17.306 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedidos: ['_id', 'pedido_id', 'cuenta_mesa_id', 'dia_semana', 'etl_timestamp', 'fecha', 'fecha_hora', 'hora', 'nota', 'tenant_id', 'total']
+2025-06-02 17:33:17.322 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_pedido_detalles: 25943 documentos para tenant 1
+2025-06-02 17:33:17.325 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_pedido_detalles: ['_id', 'pedido_detalle_id', 'cantidad', 'estado', 'etl_timestamp', 'nota', 'pedido_id', 'precio_unitario', 'producto_id', 'subtotal', 'tenant_id']
+2025-06-02 17:33:17.330 | INFO     | __main__:diagnosticar_datos_disponibles:44 - Colección raw_productos: 31 documentos para tenant 1
+2025-06-02 17:33:17.332 | INFO     | __main__:diagnosticar_datos_disponibles:49 - Ejemplo de raw_productos: ['_id', 'producto_id', 'activo', 'categoria_id', 'codigo', 'costo', 'descripcion', 'etl_timestamp', 'imagen_url', 'nombre', 'precio', 'preparacion_minutos', 'stock', 'tenant_id', 'unidad_medida']
+2025-06-02 17:33:17.335 | INFO     | __main__:diagnosticar_datos_disponibles:55 - Ejemplos de productos disponibles para tenant 1: [ObjectId('68387a1b34901322cba5f918'), ObjectId('6838818a34901322cba600eb'), ObjectId('6838818a34901322cba600ec'), ObjectId('6838818a34901322cba600ed'), ObjectId('6838818a34901322cba600ee')]
+2025-06-02 17:33:17.366 | INFO     | __main__:diagnosticar_datos_disponibles:67 - Pedido 6838818934901322cba5f91a tiene 0 detalles
+2025-06-02 17:33:17.368 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_ventas: 7 documentos para tenant 1
+2025-06-02 17:33:17.370 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_ventas: ['_id', 'fecha', 'dia', 'prediccion', 'confianza', 'timestamp', 'tipo', 'generado_en', 'generado_por', 'tenant_id']
+2025-06-02 17:33:17.370 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_ventas: 2025-06-02 00:00:00
+2025-06-02 17:33:17.373 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones: 2 documentos para tenant 1
+2025-06-02 17:33:17.375 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones: ['_id', 'tipo', 'periodo', 'fecha_inicio', 'fecha_fin', 'prediccion', 'confianza', 'timestamp', 'tenant_id']
+2025-06-02 17:33:17.377 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección predicciones_productos: 63 documentos para tenant 1
+2025-06-02 17:33:17.379 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de predicciones_productos: ['_id', 'fecha', 'dia', 'producto_id', 'nombre_producto', 'prediccion', 'confianza', 'timestamp', 'tenant_id', 'categoria_id']
+2025-06-02 17:33:17.380 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en predicciones_productos: 2025-06-02 00:00:00
+2025-06-02 17:33:17.382 | INFO     | __main__:diagnosticar_datos_disponibles:78 - Colección ml_predicciones_categoria: 35 documentos para tenant 1
+2025-06-02 17:33:17.383 | INFO     | __main__:diagnosticar_datos_disponibles:83 - Ejemplo de ml_predicciones_categoria: ['_id', 'fecha', 'dia', 'categoria_id', 'nombre_categoria', 'prediccion', 'confianza', 'productos', 'timestamp', 'tenant_id']
+2025-06-02 17:33:17.384 | INFO     | __main__:diagnosticar_datos_disponibles:85 - Primera fecha en ml_predicciones_categoria: 2025-06-02 00:00:00
+2025-06-02 17:33:17.386 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cliente_segmentacion: 166 documentos para tenant 1
+2025-06-02 17:33:17.387 | INFO     | __main__:diagnosticar_datos_disponibles:96 - Ejemplo de cliente_segmentacion: ['_id', 'cliente_id', 'cluster', 'cluster_nombre', 'num_visitas', 'comensales_promedio', 'gasto_total', 'tenant_id', 'timestamp']
+2025-06-02 17:33:17.390 | INFO     | __main__:diagnosticar_datos_disponibles:91 - Colección cluster_perfiles: 4 documentos para tenant 1
+2025-06-02 17:33:17.392 | INFO     | __main__:diagnosticar_datos_disponibles:96 - Ejemplo de cluster_perfiles: ['_id', 'cluster_id', 'nombre', 'num_clientes', 'gasto_promedio', 'visitas_promedio', 'comensales_promedio', 'descripcion', 'tenant_id', 'timestamp']
+2025-06-02 17:33:17.393 | INFO     | __main__:diagnosticar_datos_disponibles:98 - === FIN DEL DIAGNÓSTICO ===
+2025-06-02 17:33:17.394 | INFO     | __main__:run_ml_forecast:247 - Iniciando entrenamiento de nuevo modelo general para tenant 1...
+2025-06-02 17:33:17.397 | INFO     | __main__:run_ml_forecast:260 - Entrenando en CPU
+2025-06-02 17:33:38.316 | INFO     | __main__:run_ml_forecast:268 - Entrenamiento del modelo general completado en 20.92 segundos
+2025-06-02 17:33:38.317 | INFO     | __main__:run_ml_forecast:272 - Guardando modelo general entrenado para tenant 1...
+2025-06-02 17:33:38.360 | INFO     | __main__:run_ml_forecast:275 - Modelo general guardado en models/forecast/tenant_1
+2025-06-02 17:33:38.361 | INFO     | __main__:run_ml_forecast:294 - Iniciando entrenamiento de modelos para los top 10 productos del tenant 1...
+2025-06-02 17:36:51.582 | INFO     | __main__:run_ml_forecast:305 - Entrenamiento de 9/10 modelos de productos completado en 193.22 segundos
+2025-06-02 17:36:51.583 | INFO     | __main__:run_ml_forecast:309 - Guardando modelos de productos entrenados para tenant 1...
+2025-06-02 17:36:51.913 | INFO     | __main__:run_ml_forecast:312 - Modelos de productos guardados en models/forecast/tenant_1/products
+2025-06-02 17:36:51.914 | INFO     | __main__:run_ml_forecast:315 - Generando predicciones generales para tenant 1 desde fecha actual (2025-06-02 00:00:00)...
+2025-06-02 17:36:52.618 | INFO     | __main__:run_ml_forecast:319 - Predicciones diarias generadas para los próximos 7 días
+2025-06-02 17:36:52.618 | INFO     | __main__:run_ml_forecast:322 - Generando predicciones semanales para tenant 1...
+2025-06-02 17:36:52.825 | INFO     | __main__:run_ml_forecast:324 - Predicciones semanales generadas para las próximas 1 semanas
+2025-06-02 17:36:52.825 | INFO     | __main__:run_ml_forecast:327 - Generando predicciones mensuales para tenant 1...
+2025-06-02 17:36:53.001 | INFO     | __main__:run_ml_forecast:329 - Predicciones mensuales generadas para los próximos 1 meses
+2025-06-02 17:36:53.238 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 6.4747771830298e-05
+2025-06-02 17:36:53.239 | INFO     | __main__:apply_scale_correction:370 - Valor promedio de ventas históricas: 1680.6584000000003
+2025-06-02 17:36:53.240 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 16806584.00) a predicciones anormalmente bajas
+2025-06-02 17:36:53.240 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 1088.1888660787372
+2025-06-02 17:36:53.241 | INFO     | __main__:run_ml_forecast:400 - Corrección de escala aplicada a predicciones diarias
+2025-06-02 17:36:53.241 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00012729339050565613
+2025-06-02 17:36:53.242 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 3927933.71) a predicciones anormalmente bajas
+2025-06-02 17:36:53.243 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 500.0
+2025-06-02 17:36:53.245 | INFO     | __main__:run_ml_forecast:404 - Corrección de escala aplicada a predicciones semanales
+2025-06-02 17:36:53.245 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00012729339050565613
+2025-06-02 17:36:53.245 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 15711734.85) a predicciones anormalmente bajas
+2025-06-02 17:36:53.247 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 2000.0
+2025-06-02 17:36:53.248 | INFO     | __main__:run_ml_forecast:408 - Corrección de escala aplicada a predicciones mensuales
+2025-06-02 17:36:53.248 | INFO     | __main__:run_ml_forecast:411 - Guardando predicciones diarias en MongoDB para tenant 1...
+2025-06-02 17:36:53.257 | INFO     | __main__:run_ml_forecast:446 - Guardadas 1 predicciones semanales en MongoDB para tenant 1
+2025-06-02 17:36:53.259 | INFO     | __main__:run_ml_forecast:450 - Guardadas 1 predicciones mensuales en MongoDB para tenant 1
+2025-06-02 17:36:53.260 | INFO     | __main__:run_ml_forecast:456 - Generando predicciones por producto para tenant 1...
+2025-06-02 17:36:56.426 | INFO     | __main__:run_ml_forecast:460 - Predicciones generadas para 9 productos
+2025-06-02 17:36:56.428 | INFO     | __main__:apply_product_scale_correction:470 - Valor máximo de predicción por producto antes de corrección: 7.54914726712741e-05
+2025-06-02 17:36:56.429 | WARNING  | __main__:apply_product_scale_correction:476 - Aplicando corrección de escala (factor: 1000000.00) a predicciones por producto
+2025-06-02 17:36:56.429 | INFO     | __main__:apply_product_scale_correction:480 - Valor máximo de predicción por producto después de corrección: 75.4914726712741
+2025-06-02 17:36:56.430 | INFO     | __main__:run_ml_forecast:488 - Guardando predicciones por producto en MongoDB para tenant 1...
+2025-06-02 17:36:56.442 | INFO     | __main__:run_ml_forecast:492 - Generando predicciones por categoría para tenant 1...
+2025-06-02 17:36:57.887 | INFO     | __main__:apply_scale_correction:349 - Valor máximo de predicción antes de corrección: 0.00012616240928764455
+2025-06-02 17:36:57.888 | WARNING  | __main__:apply_scale_correction:374 - Aplicando corrección de escala (factor: 1188943.69) a predicciones anormalmente bajas
+2025-06-02 17:36:57.888 | INFO     | __main__:apply_scale_correction:382 - Valor máximo de predicción después de corrección: 150.0
+2025-06-02 17:36:57.889 | INFO     | __main__:run_ml_forecast:500 - Predicciones generadas para 5 categorías
+2025-06-02 17:36:57.892 | INFO     | __main__:run_ml_forecast:526 - Guardadas 35 predicciones por categoría en MongoDB para tenant 1
+2025-06-02 17:36:57.893 | INFO     | __main__:run_ml_forecast:540 - Generando visualización de predicciones generales para tenant 1...
+2025-06-02 17:36:58.124 | ERROR    | __main__:run_ml_forecast:653 - Error en el proceso de forecasting para tenant 1: 'NoneType' object has no attribute 'savefig'
+2025-06-02 17:36:58.125 | WARNING  | __main__:main:1083 - El módulo ML de forecasting presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-02 17:36:58.127 | INFO     | __main__:run_ml_segmentation:665 - Iniciando módulo de segmentación de clientes para tenant 1...
+2025-06-02 17:36:58.128 | INFO     | __main__:run_ml_segmentation:681 - Cargando datos para segmentación de clientes del tenant 1...
+2025-06-02 17:36:58.270 | INFO     | __main__:run_ml_segmentation:695 - Datos cargados: 167 clientes, 5000 cuenta mesas, 7449 pedidos
+2025-06-02 17:36:58.271 | INFO     | __main__:run_ml_segmentation:698 - Preparando características para segmentación de clientes del tenant 1...
+2025-06-02 17:36:58.297 | INFO     | __main__:run_ml_segmentation:702 - Ejecutando algoritmo K-means con 3 clusters...
+2025-06-02 17:36:59.900 | INFO     | __main__:run_ml_segmentation:707 - Segmentación completada en 1.6 segundos
+2025-06-02 17:36:59.902 | INFO     | __main__:run_ml_segmentation:708 - Distribución de clientes por segmento: {0: 99, 1: 67, 2: 1}
+2025-06-02 17:36:59.903 | INFO     | __main__:run_ml_segmentation:712 - Generando visualizaciones para segmentación de clientes...
+2025-06-02 17:37:01.610 | INFO     | __main__:run_ml_segmentation:714 - Visualizaciones guardadas en plots/tenant_1/segmentation
+2025-06-02 17:37:01.611 | INFO     | __main__:run_ml_segmentation:717 - Guardando resultados de la segmentación...
+2025-06-02 17:37:01.624 | INFO     | __main__:run_ml_segmentation:721 - Guardando resultados de segmentación en MongoDB...
+2025-06-02 17:37:01.626 | ERROR    | __main__:run_ml_segmentation:783 - Error en el proceso de segmentación para tenant 1: "'q'"
+2025-06-02 17:37:01.627 | WARNING  | __main__:main:1095 - El módulo ML de segmentación presentó errores para tenant 1. Revisar logs para más detalles.
+2025-06-02 17:37:01.628 | INFO     | __main__:main:1097 - ======= FIN PROCESAMIENTO TENANT 1 =======
+2025-06-02 17:37:01.629 | INFO     | __main__:main:1099 - Todos los tenants procesados correctamente
+2025-06-02 17:37:01.630 | INFO     | __main__:main:1103 - Iniciando servidor GraphQL para pruebas...
+2025-06-02 17:37:01.631 | INFO     | __main__:main:1131 - Servidor GraphQL iniciado en http://localhost:5000/graphql
+2025-06-02 17:37:01.632 | INFO     | __main__:main:1132 - API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote
+2025-06-02 17:37:01.633 | INFO     | __main__:main:1133 - API soporta segmentación de clientes (K-means en 3 clusters)
+2025-06-02 17:37:01.633 | INFO     | __main__:main:1134 - Presiona Ctrl+C para terminar.

@@ -14,6 +14,11 @@ import sys
 from ml.forecast import TFForecaster
 from ml.forecast.model import TFForecaster
 from ml.forecast.config import MONGO_PARAMS, AGGREGATION_PARAMS
+
+# Importamos el módulo de segmentación
+from ml.segmentation.kmeans_segmentation import load_data_from_mongo, prepare_features, run_kmeans, visualize_clusters, save_results
+from ml.segmentation.data_utils import prepare_mongodb_data, save_to_mongodb
+
 import matplotlib.pyplot as plt
 import os
 import tensorflow as tf
@@ -78,6 +83,17 @@ def diagnosticar_datos_disponibles(tenant_id=1):
                 logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
                 if 'fecha' in sample:
                     logger.info(f"Primera fecha en {collection_name}: {sample['fecha']}")
+                    
+    # Verificar colecciones de segmentación
+    for collection_name in ["cliente_segmentacion", "cluster_perfiles"]:
+        if collection_name in collections:
+            count = mongo.db[collection_name].count_documents({"tenant_id": tenant_id})
+            logger.info(f"Colección {collection_name}: {count} documentos para tenant {tenant_id}")
+            
+            # Mostrar un ejemplo de documento
+            if count > 0:
+                sample = mongo.db[collection_name].find_one({"tenant_id": tenant_id})
+                logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
     
     logger.info("=== FIN DEL DIAGNÓSTICO ===")
 
@@ -637,6 +653,366 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
         logger.error(f"Error en el proceso de forecasting para tenant {tenant_id}: {str(e)}", exc_info=True)
         return False
 
+def run_ml_segmentation(tenant_id=1, n_clusters=3, generate_plots=True):
+    """
+    Ejecuta el módulo de segmentación con K-means para un tenant específico.
+    
+    Args:
+        tenant_id: ID del tenant para el que realizar la segmentación
+        n_clusters: Número de clusters a generar
+        generate_plots: Si es True, genera visualizaciones
+    """
+    logger.info(f"Iniciando módulo de segmentación de clientes para tenant {tenant_id}...")
+    
+    # Obtener el cliente de MongoDB
+    mongo = get_mongo_manager()
+    
+    # Directorios específicos para tenant
+    results_dir = f"ml/segmentation/results/tenant_{tenant_id}"
+    plots_dir = f"plots/tenant_{tenant_id}/segmentation"
+    
+    # Crear directorios si no existen
+    os.makedirs(results_dir, exist_ok=True)
+    if generate_plots:
+        os.makedirs(plots_dir, exist_ok=True)
+    
+    try:
+        # 1. CARGAR DATOS
+        logger.info(f"Cargando datos para segmentación de clientes del tenant {tenant_id}...")
+        
+        # Consultar datos de MongoDB específicos del tenant
+        raw_clientes, raw_cuenta_mesas, raw_pedidos = load_data_from_mongo(mongo, tenant_id)
+        
+        # Verificar si tenemos suficientes datos
+        if raw_clientes is None or raw_cuenta_mesas is None or raw_pedidos is None:
+            logger.error(f"Error al cargar datos para tenant {tenant_id}")
+            return False
+            
+        if len(raw_clientes) == 0 or len(raw_cuenta_mesas) == 0 or len(raw_pedidos) == 0:
+            logger.warning(f"Datos insuficientes para segmentación. Clientes: {len(raw_clientes)}, Cuenta mesas: {len(raw_cuenta_mesas)}, Pedidos: {len(raw_pedidos)}")
+            return False
+        
+        logger.info(f"Datos cargados: {len(raw_clientes)} clientes, {len(raw_cuenta_mesas)} cuenta mesas, {len(raw_pedidos)} pedidos")
+        
+        # 2. PREPARAR CARACTERÍSTICAS
+        logger.info(f"Preparando características para segmentación de clientes del tenant {tenant_id}...")
+        features = prepare_features(raw_clientes, raw_cuenta_mesas, raw_pedidos)
+        
+        # 3. EJECUTAR K-MEANS
+        logger.info(f"Ejecutando algoritmo K-means con {n_clusters} clusters...")
+        start_time = time.time()
+        segmented_data, kmeans_model, scaler = run_kmeans(features, n_clusters=n_clusters)
+        end_time = time.time()
+        
+        logger.info(f"Segmentación completada en {round(end_time - start_time, 2)} segundos")
+        logger.info(f"Distribución de clientes por segmento: {segmented_data['cluster'].value_counts().to_dict()}")
+        
+        # 4. GENERAR VISUALIZACIONES
+        if generate_plots:
+            logger.info(f"Generando visualizaciones para segmentación de clientes...")
+            visualize_clusters(segmented_data, plots_dir)
+            logger.info(f"Visualizaciones guardadas en {plots_dir}")
+        
+        # 5. GUARDAR RESULTADOS
+        logger.info(f"Guardando resultados de la segmentación...")
+        cluster_names = save_results(segmented_data, kmeans_model, scaler, results_dir)
+        
+        # 6. GUARDAR RESULTADOS EN MONGODB - IMPLEMENTACIÓN DIRECTA
+        logger.info(f"Guardando resultados de segmentación en MongoDB...")
+        
+        try:
+            # Guardar metadatos del modelo
+            model_metadata = {
+                "model_type": "kmeans",
+                "n_clusters": n_clusters,
+                "tenant_id": tenant_id,
+                "timestamp": datetime.now(),
+                "features_used": features.columns.tolist(),
+                "cluster_distribution": segmented_data['cluster'].value_counts().to_dict(),
+                "model_path": results_dir
+            }
+            
+            # Actualizar o insertar metadata del modelo
+            mongo.db.ml_modelos.update_one(
+                {"model_type": "kmeans", "tenant_id": tenant_id},
+                {"$set": model_metadata},
+                upsert=True
+            )
+            
+            # Preparar documentos para MongoDB
+            logger.info("Preparando documentos para MongoDB...")
+            client_docs, cluster_docs = prepare_mongodb_data(segmented_data, cluster_names, tenant_id)
+            
+            # Guardar documentos en MongoDB - Implementación directa para evitar el error "'q'"
+            # 1. Guardar clientes segmentados
+            if client_docs:
+                # Eliminar documentos anteriores del mismo tenant
+                mongo.db.cliente_segmentacion.delete_many({"tenant_id": tenant_id})
+                
+                # Insertar nuevos documentos uno por uno para identificar problemas
+                for doc in client_docs:
+                    try:
+                        mongo.db.cliente_segmentacion.insert_one(doc)
+                    except Exception as doc_error:
+                        logger.error(f"Error al insertar documento de cliente {doc.get('cliente_id')}: {str(doc_error)}")
+                
+                logger.info(f"Guardados {len(client_docs)} documentos de clientes en MongoDB")
+            
+            # 2. Guardar perfiles de clusters
+            if cluster_docs:
+                # Eliminar documentos anteriores del mismo tenant
+                mongo.db.cluster_perfiles.delete_many({"tenant_id": tenant_id})
+                
+                # Insertar nuevos documentos uno por uno para identificar problemas
+                for doc in cluster_docs:
+                    try:
+                        mongo.db.cluster_perfiles.insert_one(doc)
+                    except Exception as doc_error:
+                        logger.error(f"Error al insertar documento de cluster {doc.get('cluster_id')}: {str(doc_error)}")
+                
+                logger.info(f"Guardados {len(cluster_docs)} perfiles de clusters en MongoDB")
+            
+            logger.info(f"Proceso de segmentación completado exitosamente para tenant {tenant_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error al guardar datos de segmentación en MongoDB: {str(e)}", exc_info=True)
+            return False
+        
+    except Exception as e:
+        logger.error(f"Error en el proceso de segmentación para tenant {tenant_id}: {str(e)}", exc_info=True)
+        return False
+
+# Función para asegurar que existan los archivos y directorios necesarios
+def ensure_server_files_exist():
+    """Asegura que los archivos necesarios para el servidor existan"""
+    # Verificar si existe el directorio api/
+    if not os.path.exists('api'):
+        os.makedirs('api', exist_ok=True)
+        logger.info("Directorio api/ creado")
+    
+    # Crear archivo api/__init__.py si no existe
+    if not os.path.exists('api/__init__.py'):
+        with open('api/__init__.py', 'w') as f:
+            f.write("# Este archivo permite que Python reconozca el directorio api como un paquete")
+        logger.info("Archivo api/__init__.py creado")
+    
+    # Verificar si existe server.py pero no api/server.py
+    if os.path.exists('server.py') and not os.path.exists('api/server.py'):
+        try:
+            # Buscar líneas que importen desde api.server
+            import_from_api = False
+            with open('server.py', 'r') as f:
+                for line in f:
+                    if 'from api.server import' in line:
+                        import_from_api = True
+                        break
+            
+            # Si server.py importa desde api.server, necesitamos crear api/server.py
+            if import_from_api:
+                logger.info("server.py importa desde api.server, creando archivo api/server.py")
+                with open('api/server.py', 'w') as f:
+                    f.write("""from flask import Flask, send_from_directory, jsonify, request
+from flask_cors import CORS
+from ariadne import make_executable_schema, graphql_sync
+from ariadne import ObjectType, QueryType
+import logging
+from datetime import datetime
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Importar nuestro esquema y resolvers
+from api.schema import schema_sdl
+from api.resolvers import resolvers
+
+# Importar inicialización de segmentación
+from api.segmentation_init import init_segmentation
+
+# Crear aplicación Flask
+app = Flask(__name__)
+CORS(app)  # Habilitar CORS para todas las rutas
+
+# Configurar los tipos para Ariadne
+query = QueryType()
+
+# Registrar resolvers en el tipo Query
+for field, resolver in resolvers["Query"].items():
+    query.set_field(field, resolver)
+
+# Crear el esquema ejecutable
+schema = make_executable_schema(schema_sdl, query)
+
+# Inicializar módulo de segmentación
+init_segmentation()
+
+# Definir HTML del playground manualmente (ya que PLAYGROUND_HTML no está disponible)
+PLAYGROUND_HTML = \"\"\"
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GraphQL Playground</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/graphql-playground-react@1.7.22/build/static/css/index.css" />
+    <link rel="shortcut icon" href="//cdn.jsdelivr.net/npm/graphql-playground-react@1.7.22/build/favicon.png" />
+    <script src="//cdn.jsdelivr.net/npm/graphql-playground-react@1.7.22/build/static/js/middleware.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        window.addEventListener('load', function(event) {
+            GraphQLPlayground.init(document.getElementById('root'), {
+                endpoint: '/graphql',
+                settings: {
+                    'request.credentials': 'include',
+                    'tracing.hideTracingResponse': true,
+                    'editor.theme': 'dark',
+                    'editor.fontFamily': "'Source Code Pro', 'Consolas', 'Inconsolata', 'Droid Sans Mono', 'Monaco', monospace",
+                    'editor.fontSize': 14,
+                },
+                headers: {
+                    'X-Tenant-ID': '1'  // Valor predeterminado para el playground
+                }
+            })
+        })
+    </script>
+</body>
+</html>
+\"\"\"
+
+# Ruta para GraphQL
+@app.route("/graphql", methods=["GET"])
+def graphql_playground():
+    \"\"\"Playground de GraphQL para pruebas interactivas\"\"\"
+    return PLAYGROUND_HTML, 200
+
+@app.route("/graphql", methods=["POST"])
+def graphql_server():
+    \"\"\"Endpoint para consultas GraphQL\"\"\"
+    data = request.get_json()
+    
+    # Extraer tenant_id del encabezado HTTP
+    tenant_id = request.headers.get('X-Tenant-ID', '1')
+    
+    # Convertir a entero si es posible
+    try:
+        tenant_id = int(tenant_id)
+    except (ValueError, TypeError):
+        tenant_id = 1  # Valor predeterminado si no es un número válido
+    
+    # Crear objeto de contexto
+    context = {
+        "request": request,
+        "tenant_id": tenant_id,
+        "headers": dict(request.headers)
+    }
+    
+    # Log de la consulta recibida
+    logger.info(f"GraphQL Query para tenant {tenant_id}")
+    logger.debug(f"Query details: {data}")
+    
+    success, result = graphql_sync(
+        schema,
+        data,
+        context_value=context,
+        debug=app.debug
+    )
+    
+    # Log de errores si los hay
+    if not success:
+        logger.error(f"GraphQL Error: {result}")
+    
+    status_code = 200 if success else 400
+    return jsonify(result), status_code
+
+# Ruta para servir los archivos estáticos (gráficos)
+@app.route('/static/plots/<path:filename>')
+def serve_plot(filename):
+    # Extraer tenant_id del encabezado HTTP
+    tenant_id = request.headers.get('X-Tenant-ID', '1')
+    try:
+        tenant_id = int(tenant_id)
+    except (ValueError, TypeError):
+        tenant_id = 1
+        
+    logger.info(f"Sirviendo gráfico: {filename} para tenant {tenant_id}")
+    
+    # Primero intentar servir desde el directorio específico del tenant
+    tenant_path = f'plots/tenant_{tenant_id}'
+    try:
+        return send_from_directory(tenant_path, filename)
+    except:
+        # Si no existe, servir desde el directorio general
+        return send_from_directory('plots', filename)
+
+# Nueva ruta para servir gráficos de segmentación
+@app.route('/static/segmentation/<path:filename>')
+def serve_segmentation_plot(filename):
+    # Extraer tenant_id del encabezado HTTP
+    tenant_id = request.headers.get('X-Tenant-ID', '1')
+    try:
+        tenant_id = int(tenant_id)
+    except (ValueError, TypeError):
+        tenant_id = 1
+        
+    logger.info(f"Sirviendo gráfico de segmentación: {filename} para tenant {tenant_id}")
+    
+    # Primero intentar servir desde el directorio específico del tenant
+    tenant_path = f'plots/tenant_{tenant_id}/segmentation'
+    try:
+        return send_from_directory(tenant_path, filename)
+    except:
+        # Si no existe, intentar servir desde un directorio general de segmentación
+        try:
+            return send_from_directory('plots/segmentation', filename)
+        except:
+            # Si tampoco existe, servir desde el directorio general
+            return send_from_directory('plots', filename)
+
+# Ruta para health check
+@app.route('/health')
+def health_check():
+    logger.info("Health check solicitado")
+    # Usar fecha actual para el timestamp
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return jsonify({
+        "status": "ok", 
+        "service": "restaurant-ml-forecast-api",
+        "version": "1.2.0",  # Actualizado a 1.2.0 para indicar soporte de segmentación
+        "timestamp": current_time,
+        "user": "muimui69",
+        "features": {
+            "combined_visualization": True,  # Indica soporte para visualización combinada
+            "current_date_pivot": "2025-05-31",  # Fecha actual como punto pivote
+            "customer_segmentation": True  # Nueva característica: segmentación de clientes
+        }
+    })
+
+# Manejador de errores para rutas no encontradas
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Ruta no encontrada"}), 404
+
+# Manejador de errores para excepciones internas
+@app.errorhandler(500)
+def server_error(e):
+    logger.error(f"Error interno del servidor: {str(e)}")
+    return jsonify({"error": "Error interno del servidor"}), 500
+
+if __name__ == '__main__':
+    logger.info("Iniciando servidor GraphQL con Ariadne...")
+    logger.info("Playground disponible en: http://localhost:5000/graphql")
+    logger.info("Soporte multi-tenant activado (usar encabezado HTTP 'X-Tenant-ID')")
+    logger.info("Visualización combinada disponible (histórico + predicción con fecha pivote 2025-05-31)")
+    logger.info("Segmentación de clientes disponible (K-means en 3 clusters)")
+    app.run(debug=True, host='0.0.0.0', port=5000)
+""")
+                logger.info("Archivo api/server.py creado correctamente")
+        except Exception as e:
+            logger.warning(f"No se pudo crear api/server.py: {str(e)}")
+
 def main():
     """Función principal de la aplicación."""
     # Obtener configuración
@@ -681,6 +1057,9 @@ if __name__ == "__main__":
         except Exception as e:
             logger.warning(f"No se pudo crear el archivo server.py: {str(e)}")
     
+    # Asegurar que existan todos los archivos necesarios para el servidor
+    ensure_server_files_exist()
+    
     try:
         # MULTI-TENANT: Generar datos para varios tenants
         tenants_to_process = [1]  # Lista de tenants a procesar
@@ -699,9 +1078,21 @@ if __name__ == "__main__":
             )
             
             if ml_success:
-                logger.info(f"Módulo ML ejecutado correctamente para tenant {tenant_id}. Resultados disponibles en MongoDB.")
+                logger.info(f"Módulo ML de forecasting ejecutado correctamente para tenant {tenant_id}.")
             else:
-                logger.warning(f"El módulo ML presentó errores para tenant {tenant_id}. Revisar logs para más detalles.")
+                logger.warning(f"El módulo ML de forecasting presentó errores para tenant {tenant_id}. Revisar logs para más detalles.")
+            
+            # NUEVO: Ejecutar módulo de segmentación para este tenant
+            seg_success = run_ml_segmentation(
+                tenant_id=tenant_id,
+                n_clusters=3,
+                generate_plots=True
+            )
+            
+            if seg_success:
+                logger.info(f"Módulo ML de segmentación ejecutado correctamente para tenant {tenant_id}.")
+            else:
+                logger.warning(f"El módulo ML de segmentación presentó errores para tenant {tenant_id}. Revisar logs para más detalles.")
             
             logger.info(f"======= FIN PROCESAMIENTO TENANT {tenant_id} =======")
         
@@ -739,6 +1130,7 @@ if __name__ == "__main__":
             
             logger.info("Servidor GraphQL iniciado en http://localhost:5000/graphql")
             logger.info("API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote")
+            logger.info("API soporta segmentación de clientes (K-means en 3 clusters)")
             logger.info("Presiona Ctrl+C para terminar.")
             
             try:

@@ -1,0 +1,30 @@
+Informe de Segmentación - 2025-06-01 15:12:49
+
+Número de clientes por segmento:
+Segmento 0 (OCASIONAL): 80 clientes
+Segmento 1 (PREMIUM): 1 clientes
+Segmento 2 (REGULAR): 86 clientes
+
+Características promedio por segmento:
+         cliente_id  num_visitas  comensales_promedio    gasto_total
+cluster                                                             
+0         84.487500    21.925000             4.897840    7480.349625
+1          1.000000  1266.000000             4.504739  431368.720000
+2         84.511628    23.023256             4.173759    7710.008953
+
+Interpretación de Segmentos:
+
+Segmento 1 (PREMIUM):
+- Gasto promedio: 431368.72
+- Visitas promedio: 1266.00
+- Comensales promedio: 4.50
+
+Segmento 2 (REGULAR):
+- Gasto promedio: 7710.01
+- Visitas promedio: 23.02
+- Comensales promedio: 4.17
+
+Segmento 0 (OCASIONAL):
+- Gasto promedio: 7480.35
+- Visitas promedio: 21.93
+- Comensales promedio: 4.90
