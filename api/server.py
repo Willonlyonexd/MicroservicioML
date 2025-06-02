@@ -217,5 +217,5 @@ if __name__ == '__main__':
     logger.info("Playground disponible en: http://localhost:5000/graphql")
     logger.info("Soporte multi-tenant activado (usar encabezado HTTP 'X-Tenant-ID')")
     logger.info("Visualización combinada disponible (histórico + predicción con fecha pivote 2025-05-31)")
-    logger.info("Segmentación de clientes disponible (K-means en 3 clusters)")
+    logger.info("Segmentación de clientes disponible (K-means en 4 clusters: VIP, PREMIUM, REGULAR, OCASIONAL)")
     app.run(debug=True, host='0.0.0.0', port=5000)

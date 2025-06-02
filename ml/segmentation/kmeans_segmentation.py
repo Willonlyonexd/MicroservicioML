@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import joblib
+import json
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def load_data_from_mongo(mongo_client, tenant_id):
     """
@@ -30,9 +34,19 @@ def load_data_from_mongo(mongo_client, tenant_id):
         df_cuenta_mesas = pd.DataFrame(raw_cuenta_mesas)
         df_pedidos = pd.DataFrame(raw_pedidos)
         
+        # NUEVO: Filtrar cliente_id=1 (usado para ventas generales)
+        if 'cliente_id' in df_clientes.columns:
+            df_clientes = df_clientes[df_clientes['cliente_id'] != 1]
+            logger.info(f"Filtrado cliente_id=1, quedan {len(df_clientes)} clientes")
+        
+        # Filtrar cuenta_mesas relacionadas con cliente_id=1
+        if 'cliente_id' in df_cuenta_mesas.columns:
+            df_cuenta_mesas = df_cuenta_mesas[df_cuenta_mesas['cliente_id'] != 1]
+            logger.info(f"Filtradas mesas de cliente_id=1, quedan {len(df_cuenta_mesas)} mesas")
+        
         return df_clientes, df_cuenta_mesas, df_pedidos
     except Exception as e:
-        print(f"Error cargando datos desde MongoDB: {str(e)}")
+        logger.error(f"Error cargando datos desde MongoDB: {str(e)}")
         return None, None, None
 
 def prepare_features(df_clientes, df_cuenta_mesas, df_pedidos):
@@ -91,13 +105,13 @@ def prepare_features(df_clientes, df_cuenta_mesas, df_pedidos):
     
     return features
 
-def run_kmeans(features, n_clusters=3):
+def run_kmeans(features, n_clusters=4):  # MODIFICADO: Ahora 4 clusters por defecto
     """
     Ejecuta el algoritmo K-means
     
     Args:
         features: DataFrame con características
-        n_clusters: Número de clusters
+        n_clusters: Número de clusters (ahora 4 por defecto)
         
     Returns:
         tuple: (datos_segmentados, modelo_kmeans, scaler)
@@ -114,7 +128,7 @@ def run_kmeans(features, n_clusters=3):
     X_scaled = scaler.fit_transform(X)
     
     # 4. Ejecutar K-means
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     df['cluster'] = kmeans.fit_predict(X_scaled)
     
     # 5. Calcular métricas adicionales
@@ -213,13 +227,15 @@ def save_results(df, kmeans_model, scaler, output_dir):
     # Ordenar clusters por gasto total para asignar nombres coherentes
     cluster_stats = cluster_stats.sort_values(by='gasto_total', ascending=False)
     
-    # Asignar nombres a clusters
+    # MODIFICADO: Asignar nombres a 4 clusters
     cluster_names = {}
     for i, row in cluster_stats.iterrows():
         cluster_id = int(row['cluster'])
         if i == 0:
-            cluster_names[cluster_id] = "PREMIUM"
+            cluster_names[cluster_id] = "VIP"       # NUEVO: Nivel más alto
         elif i == 1:
+            cluster_names[cluster_id] = "PREMIUM"
+        elif i == 2:
             cluster_names[cluster_id] = "REGULAR"
         else:
             cluster_names[cluster_id] = "OCASIONAL"
@@ -228,5 +244,9 @@ def save_results(df, kmeans_model, scaler, output_dir):
     with open(os.path.join(output_dir, 'cluster_names.txt'), 'w') as f:
         for cluster_id, name in cluster_names.items():
             f.write(f"{cluster_id}: {name}\n")
+    
+    # Guardar también como JSON para facilitar su carga
+    with open(os.path.join(output_dir, 'cluster_names.json'), 'w') as f:
+        json.dump(cluster_names, f)
     
     return cluster_names

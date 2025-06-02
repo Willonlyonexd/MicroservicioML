@@ -9,6 +9,8 @@ from db.models import create_indexes
 import time
 import shutil
 import sys
+import os
+import subprocess
 
 # Importamos nuestro módulo de forecasting
 from ml.forecast import TFForecaster
@@ -20,7 +22,6 @@ from ml.segmentation.kmeans_segmentation import load_data_from_mongo, prepare_fe
 from ml.segmentation.data_utils import prepare_mongodb_data, save_to_mongodb
 
 import matplotlib.pyplot as plt
-import os
 import tensorflow as tf
 import logging
 logging.getLogger("pymongo").setLevel(logging.WARNING)
@@ -653,13 +654,13 @@ def run_ml_forecast(tenant_id=1, train_new_model=False, save_model=True, generat
         logger.error(f"Error en el proceso de forecasting para tenant {tenant_id}: {str(e)}", exc_info=True)
         return False
 
-def run_ml_segmentation(tenant_id=1, n_clusters=3, generate_plots=True):
+def run_ml_segmentation(tenant_id=1, n_clusters=4, generate_plots=True):  # MODIFICADO: Ahora 4 clusters por defecto
     """
     Ejecuta el módulo de segmentación con K-means para un tenant específico.
     
     Args:
         tenant_id: ID del tenant para el que realizar la segmentación
-        n_clusters: Número de clusters a generar
+        n_clusters: Número de clusters a generar (ahora 4 por defecto)
         generate_plots: Si es True, genera visualizaciones
     """
     logger.info(f"Iniciando módulo de segmentación de clientes para tenant {tenant_id}...")
@@ -1006,7 +1007,7 @@ if __name__ == '__main__':
     logger.info("Playground disponible en: http://localhost:5000/graphql")
     logger.info("Soporte multi-tenant activado (usar encabezado HTTP 'X-Tenant-ID')")
     logger.info("Visualización combinada disponible (histórico + predicción con fecha pivote 2025-05-31)")
-    logger.info("Segmentación de clientes disponible (K-means en 3 clusters)")
+    logger.info("Segmentación de clientes disponible (K-means en 4 clusters: VIP, PREMIUM, REGULAR, OCASIONAL)")
     app.run(debug=True, host='0.0.0.0', port=5000)
 """)
                 logger.info("Archivo api/server.py creado correctamente")
@@ -1082,10 +1083,10 @@ if __name__ == "__main__":
             else:
                 logger.warning(f"El módulo ML de forecasting presentó errores para tenant {tenant_id}. Revisar logs para más detalles.")
             
-            # NUEVO: Ejecutar módulo de segmentación para este tenant
+            # MODIFICADO: Ejecutar módulo de segmentación para este tenant con 4 clusters
             seg_success = run_ml_segmentation(
                 tenant_id=tenant_id,
-                n_clusters=3,
+                n_clusters=4,  # MODIFICADO: Ahora 4 clusters
                 generate_plots=True
             )
             
@@ -1098,47 +1099,26 @@ if __name__ == "__main__":
         
         logger.info("Todos los tenants procesados correctamente")
         
-        # Para entorno de desarrollo, podemos iniciar un servidor de prueba
+        # SIMPLIFICADO: Para entorno de desarrollo, iniciar server.py directamente
         if config.dev_mode:
-            logger.info("Iniciando servidor GraphQL para pruebas...")
+            logger.info("Procesamiento ML completado. Iniciando servidor GraphQL desde server.py...")
+            logger.info("Si deseas ejecutar solo el servidor sin reentrenar modelos ML, ejecuta 'python server.py'")
             
-            # Importar y ejecutar el servidor en un hilo separado
-            import threading
-            
-            def run_server():
+            # Verificar que server.py existe
+            if os.path.exists('server.py'):
+                # Iniciar el servidor en un proceso separado
                 try:
-                    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-                    # Intentar importar desde varios lugares posibles
-                    try:
-                        from api.server import app
-                        logger.info("Servidor importado desde api.server")
-                    except ImportError:
-                        try:
-                            from server import app
-                            logger.info("Servidor importado desde server")
-                        except ImportError:
-                            logger.error("No se pudo importar el servidor. Verificar que exista api/server.py o server.py")
-                            return
-                    
-                    app.run(debug=False, host='0.0.0.0', port=5000)
+                    # Iniciar server.py directamente
+                    import server
+                    # Solo si este script es el principal, iniciar el servidor
+                    if __name__ == "__main__":
+                        server.app.run(debug=False, host='0.0.0.0', port=5000)
                 except Exception as e:
-                    logger.error(f"Error al iniciar el servidor GraphQL: {str(e)}")
-            
-            server_thread = threading.Thread(target=run_server)
-            server_thread.daemon = True
-            server_thread.start()
-            
-            logger.info("Servidor GraphQL iniciado en http://localhost:5000/graphql")
-            logger.info("API soporta visualización combinada (histórico + predicción) con fecha actual como punto pivote")
-            logger.info("API soporta segmentación de clientes (K-means en 3 clusters)")
-            logger.info("Presiona Ctrl+C para terminar.")
-            
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                logger.info("Programa interrumpido por el usuario")
-        
+                    logger.error(f"Error al iniciar server.py: {str(e)}")
+                    logger.info("Puedes iniciar el servidor manualmente con: python server.py")
+            else:
+                logger.error("No se encontró server.py en el directorio raíz")
+    
     except KeyboardInterrupt:
         logger.info("Programa interrumpido por el usuario")
     except Exception as e:

@@ -1,6 +1,9 @@
 import pandas as pd
 from datetime import datetime
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 def enrich_customer_data(clientes_df, cuenta_mesas_df, pedidos_df):
     """
@@ -24,12 +27,16 @@ def enrich_customer_data(clientes_df, cuenta_mesas_df, pedidos_df):
     for df_name, fields in required_fields.items():
         df = locals()[df_name]
         if df is None or df.empty:
-            print(f"Error: {df_name} está vacío o es None")
+            logger.error(f"Error: {df_name} está vacío o es None")
             return None
         for field in fields:
             if field not in df.columns:
-                print(f"Error: Campo '{field}' no encontrado en {df_name}")
+                logger.error(f"Error: Campo '{field}' no encontrado en {df_name}")
                 return None
+    
+    # NUEVO: Filtrar cliente_id=1 (ventas generales)
+    clientes_df = clientes_df[clientes_df['cliente_id'] != 1]
+    cuenta_mesas_df = cuenta_mesas_df[cuenta_mesas_df['cliente_id'] != 1]
     
     # 1. Calcular frecuencia de visitas
     if 'fecha' in cuenta_mesas_df.columns:
@@ -38,7 +45,7 @@ def enrich_customer_data(clientes_df, cuenta_mesas_df, pedidos_df):
             try:
                 cuenta_mesas_df['fecha'] = pd.to_datetime(cuenta_mesas_df['fecha'])
             except:
-                print("Error al convertir fechas en cuenta_mesas_df")
+                logger.error("Error al convertir fechas en cuenta_mesas_df")
         
         # Calcular días desde la primera hasta la última visita
         visitas_por_cliente = cuenta_mesas_df.groupby('cliente_id')['fecha'].agg(['min', 'max', 'count'])
@@ -111,6 +118,10 @@ def prepare_mongodb_data(segmented_data, cluster_names, tenant_id=1):
     # 1. Preparar documentos de clientes
     client_docs = []
     for _, row in segmented_data.iterrows():
+        # NUEVO: Excluir cliente_id=1 por seguridad
+        if row['cliente_id'] == 1:
+            continue
+            
         cluster_id = int(row['cluster'])
         doc = {
             "cliente_id": int(row['cliente_id']),
@@ -141,8 +152,10 @@ def prepare_mongodb_data(segmented_data, cluster_names, tenant_id=1):
                 "timestamp": datetime.now()
             }
             
-            # Determinar descripción basada en el nombre del cluster
-            if name == "PREMIUM":
+            # MODIFICADO: Determinar descripción basada en el nombre del cluster
+            if name == "VIP":
+                profile["descripcion"] = "Clientes exclusivos con alto valor, gasto excepcional y visitas muy frecuentes"
+            elif name == "PREMIUM":
                 profile["descripcion"] = "Clientes de alto valor con gasto elevado y visitas frecuentes"
             elif name == "REGULAR":
                 profile["descripcion"] = "Clientes con nivel de gasto medio y frecuencia moderada"
@@ -168,7 +181,7 @@ def save_to_mongodb(mongo_client, client_docs, cluster_docs):
     try:
         # Asegúrate de que tengas documentos para guardar
         if not client_docs or not cluster_docs:
-            print("No hay documentos para guardar en MongoDB")
+            logger.warning("No hay documentos para guardar en MongoDB")
             return False
 
         # 1. Guardar clientes segmentados
@@ -179,7 +192,7 @@ def save_to_mongodb(mongo_client, client_docs, cluster_docs):
             try:
                 mongo_client.db.cliente_segmentacion.delete_many({"tenant_id": tenant_id})
             except Exception as e:
-                print(f"Error al eliminar clientes anteriores: {str(e)}")
+                logger.error(f"Error al eliminar clientes anteriores: {str(e)}")
                 return False
             
             # Insertar documentos uno por uno en lugar de en bloque
@@ -189,9 +202,9 @@ def save_to_mongodb(mongo_client, client_docs, cluster_docs):
                     mongo_client.db.cliente_segmentacion.insert_one(doc)
                     success_count += 1
                 except Exception as e:
-                    print(f"Error al insertar cliente {doc.get('cliente_id')}: {str(e)}")
+                    logger.error(f"Error al insertar cliente {doc.get('cliente_id')}: {str(e)}")
             
-            print(f"Guardados {success_count} de {len(client_docs)} documentos de clientes en MongoDB")
+            logger.info(f"Guardados {success_count} de {len(client_docs)} documentos de clientes en MongoDB")
         
         # 2. Guardar perfiles de clusters
         if cluster_docs:
@@ -201,7 +214,7 @@ def save_to_mongodb(mongo_client, client_docs, cluster_docs):
             try:
                 mongo_client.db.cluster_perfiles.delete_many({"tenant_id": tenant_id})
             except Exception as e:
-                print(f"Error al eliminar perfiles de cluster anteriores: {str(e)}")
+                logger.error(f"Error al eliminar perfiles de cluster anteriores: {str(e)}")
                 return False
             
             # Insertar documentos uno por uno
@@ -211,11 +224,11 @@ def save_to_mongodb(mongo_client, client_docs, cluster_docs):
                     mongo_client.db.cluster_perfiles.insert_one(doc)
                     success_count += 1
                 except Exception as e:
-                    print(f"Error al insertar cluster {doc.get('cluster_id')}: {str(e)}")
+                    logger.error(f"Error al insertar cluster {doc.get('cluster_id')}: {str(e)}")
             
-            print(f"Guardados {success_count} de {len(cluster_docs)} perfiles de clusters en MongoDB")
+            logger.info(f"Guardados {success_count} de {len(cluster_docs)} perfiles de clusters en MongoDB")
         
         return True
     except Exception as e:
-        print(f"Error al guardar en MongoDB: {str(e)}")
+        logger.error(f"Error al guardar en MongoDB: {str(e)}")
         return False
