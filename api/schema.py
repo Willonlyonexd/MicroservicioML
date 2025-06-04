@@ -1,6 +1,6 @@
   # Schema GraphQL para el sistema de predicción de ventas con contexto multi-tenant
-  schema_sdl = """
-  
+schema_sdl = """
+
   type Query {
     # Predicciones diarias
     dailyForecasts(days: Int = 7): [DailyPrediction!]!
