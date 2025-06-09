@@ -13,7 +13,7 @@ class DatabaseConfig(BaseModel):
     mongo_db: str = os.getenv("MONGO_DB", "microservicio_ml")
     
     # PostgreSQL (ERP)
-    postgres_uri: str = os.getenv("POSTGRES_URI", "postgresql://postgres:will@localhost:5432/erp_zamo1")
+    postgres_uri: str = os.getenv("POSTGRES_URI", "postgresql://db_erpfinal_user:EqEkEukceSrqrTHpuo4X0T8ZD79GVtUB@dpg-d133na15pdvs73dad96g-a.oregon-postgres.render.com:5432/db_erpfinal?sslmode=require")
 
 class ETLConfig(BaseModel):
     """Configuración del proceso ETL"""
