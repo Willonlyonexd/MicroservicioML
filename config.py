@@ -9,7 +9,7 @@ load_dotenv()
 class DatabaseConfig(BaseModel):
     """Configuración de bases de datos"""
     # MongoDB
-    mongo_uri: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+    mongo_uri: str = os.getenv("MONGO_URI", "mongodb+srv://houwenvt:will@cluster0.crz8eun.mongodb.net/")
     mongo_db: str = os.getenv("MONGO_DB", "microservicio_ml")
     
     # PostgreSQL (ERP)

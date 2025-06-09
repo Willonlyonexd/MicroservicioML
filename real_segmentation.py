@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Configuración de MongoDB
-MONGO_URI = "mongodb://localhost:27017"
+MONGO_URI = "mongodb+srv://houwenvt:will@cluster0.crz8eun.mongodb.net/"
 DB_NAME = "microservicio_ml"  # Nombre exacto de la base de datos
 
 def crear_segmentacion():
