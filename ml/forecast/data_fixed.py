@@ -43,10 +43,10 @@ class TimeSeriesDataProcessor:
             
         self.logger.info(f"Buscando datos desde: {start_date} hasta: {end_date} para tenant {tenant_id}")
         
-        # CAMBIADO: Intentar obtener datos de raw_pedidos primero (invertir orden)
+        # CAMBIADO: Intentar obtener datos de raw_pedido primero (invertir orden)
         try:
-            self.logger.info(f"Intentando obtener datos de raw_pedidos (fuente principal) para tenant {tenant_id}...")
-            # Consulta directa a raw_pedidos
+            self.logger.info(f"Intentando obtener datos de raw_pedido (fuente principal) para tenant {tenant_id}...")
+            # Consulta directa a raw_pedido
             pedidos_query = {
                 "tenant_id": tenant_id,  # Usar tenant_id como parámetro
                 "$or": [
@@ -55,13 +55,13 @@ class TimeSeriesDataProcessor:
                 ]
             }
             
-            pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query))
-            self.logger.info(f"Encontrados {len(pedidos_data)} registros en raw_pedidos para tenant {tenant_id}")
+            pedidos_data = list(self.db_client.db.raw_pedido.find(pedidos_query))
+            self.logger.info(f"Encontrados {len(pedidos_data)} registros en raw_pedido para tenant {tenant_id}")
             
             if pedidos_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(pedidos_data)
-                self.logger.debug(f"Columnas disponibles en raw_pedidos: {df.columns.tolist()}")
+                self.logger.debug(f"Columnas disponibles en raw_pedido: {df.columns.tolist()}")
                 
                 # Convertir fechas - adaptarse a la estructura real
                 if 'fecha_hora' in df.columns:
@@ -96,7 +96,7 @@ class TimeSeriesDataProcessor:
                     # Añadir tenant_id para garantizar que se propague
                     daily_sales['tenant_id'] = tenant_id
                     
-                    self.logger.info(f"Datos procesados exitosamente de raw_pedidos: {len(daily_sales)} días")
+                    self.logger.info(f"Datos procesados exitosamente de raw_pedido: {len(daily_sales)} días")
                     days_count = len(daily_sales['fecha'].dt.date.unique())
                     self.logger.info(f"Días únicos encontrados: {days_count}")
                     
@@ -105,24 +105,24 @@ class TimeSeriesDataProcessor:
                     
                     return self._ensure_complete_dates(daily_sales, start_date, end_date)
         except Exception as e:
-            self.logger.error(f"Error al procesar raw_pedidos para tenant {tenant_id}: {str(e)}")
+            self.logger.error(f"Error al procesar raw_pedido para tenant {tenant_id}: {str(e)}")
         
-        # Si llegamos aquí, intentamos con raw_ventas
+        # Si llegamos aquí, intentamos con raw_venta
         try:
-            self.logger.info(f"Intentando obtener datos de raw_ventas (fuente secundaria) para tenant {tenant_id}...")
+            self.logger.info(f"Intentando obtener datos de raw_venta (fuente secundaria) para tenant {tenant_id}...")
             # Consulta usando etl_timestamp en lugar de fecha
             ventas_query = {
                 "tenant_id": tenant_id,  # Usar tenant_id como parámetro
                 "etl_timestamp": {"$gte": start_date, "$lte": end_date}  # Usar etl_timestamp en lugar de fecha
             }
             
-            ventas_data = list(self.db_client.db.raw_ventas.find(ventas_query))
-            self.logger.info(f"Encontrados {len(ventas_data)} registros en raw_ventas para tenant {tenant_id}")
+            ventas_data = list(self.db_client.db.raw_venta.find(ventas_query))
+            self.logger.info(f"Encontrados {len(ventas_data)} registros en raw_venta para tenant {tenant_id}")
             
             if ventas_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(ventas_data)
-                self.logger.debug(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
+                self.logger.debug(f"Columnas disponibles en raw_venta: {df.columns.tolist()}")
                 
                 # Usar etl_timestamp como fecha para análisis
                 df['fecha'] = pd.to_datetime(df['etl_timestamp'])
@@ -152,7 +152,7 @@ class TimeSeriesDataProcessor:
                     daily_sales['tenant_id'] = tenant_id
                     
                     days_count = len(daily_sales['fecha'].dt.date.unique())
-                    self.logger.info(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días, días únicos: {days_count}")
+                    self.logger.info(f"Datos procesados exitosamente de raw_venta: {len(daily_sales)} días, días únicos: {days_count}")
                     
                     if days_count < 14:
                         self.logger.warning(f"Solo se encontraron {days_count} días únicos, se requieren al menos 14 para el modelo LSTM.")
@@ -168,7 +168,7 @@ class TimeSeriesDataProcessor:
                     
                     return self._ensure_complete_dates(daily_sales, start_date, end_date)
         except Exception as e:
-            self.logger.error(f"Error al procesar raw_ventas para tenant {tenant_id}: {str(e)}")
+            self.logger.error(f"Error al procesar raw_venta para tenant {tenant_id}: {str(e)}")
         
         # Si llegamos aquí, generamos datos sintéticos
         self.logger.warning(f"No se pudieron obtener datos reales suficientes para tenant {tenant_id}. Generando datos sintéticos...")
@@ -198,7 +198,7 @@ class TimeSeriesDataProcessor:
             
         self.logger.info(f"Buscando datos de productos desde: {start_date} hasta: {end_date} para tenant {tenant_id}")
         
-        # Primero intentamos obtener detalles de pedidos (raw_pedido_detalles)
+        # Primero intentamos obtener detalles de pedidos (raw_pedido_detalle)
         try:
             self.logger.info(f"Intentando obtener datos de pedidos con detalles para tenant {tenant_id}...")
             
@@ -212,7 +212,7 @@ class TimeSeriesDataProcessor:
             }
             
             # CORREGIDO: Obtener todos los pedidos incluyendo el campo pedido_id
-            pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query, 
+            pedidos_data = list(self.db_client.db.raw_pedido.find(pedidos_query, 
                                                                   {"_id": 1, "pedido_id": 1, "fecha": 1, "fecha_hora": 1}))
             
             if not pedidos_data:
@@ -220,7 +220,7 @@ class TimeSeriesDataProcessor:
                 return self._generate_synthetic_product_data(product_id, start_date, end_date, tenant_id)
                 
             # CORREGIDO: Extraer IDs utilizando el campo pedido_id en lugar de _id
-            # Los IDs en raw_pedido_detalles son enteros simples (pedido_id), no ObjectIDs
+            # Los IDs en raw_pedido_detalle son enteros simples (pedido_id), no ObjectIDs
             pedido_ids = []
             for p in pedidos_data:
                 if "pedido_id" in p:
@@ -251,7 +251,7 @@ class TimeSeriesDataProcessor:
                 # Verificar si es un ObjectID o un entero
                 if isinstance(product_id, str) and len(product_id) > 10:
                     # Es un ObjectID, buscar en productos para obtener el producto_id
-                    producto = self.db_client.db.raw_productos.find_one({"_id": product_id})
+                    producto = self.db_client.db.raw_producto.find_one({"_id": product_id})
                     if producto and "producto_id" in producto:
                         detalles_query["producto_id"] = producto["producto_id"]
                 else:
@@ -259,14 +259,14 @@ class TimeSeriesDataProcessor:
                     detalles_query["producto_id"] = int(product_id) if isinstance(product_id, str) and product_id.isdigit() else product_id
             
             # Obtener detalles de pedidos
-            detalles_data = list(self.db_client.db.raw_pedido_detalles.find(detalles_query))
+            detalles_data = list(self.db_client.db.raw_pedido_detalle.find(detalles_query))
             
             if not detalles_data:
                 self.logger.warning(f"No se encontraron detalles de pedidos para el período solicitado para tenant {tenant_id}. Query: {detalles_query}")
                 # Intentar diagnóstico adicional
-                sample_detalle = self.db_client.db.raw_pedido_detalles.find_one()
+                sample_detalle = self.db_client.db.raw_pedido_detalle.find_one()
                 if sample_detalle:
-                    self.logger.debug(f"Ejemplo de documento en raw_pedido_detalles: {sample_detalle}")
+                    self.logger.debug(f"Ejemplo de documento en raw_pedido_detalle: {sample_detalle}")
                     if "pedido_id" in sample_detalle:
                         self.logger.debug(f"Tipo de pedido_id en detalles: {type(sample_detalle['pedido_id']).__name__}")
                 
@@ -342,7 +342,7 @@ class TimeSeriesDataProcessor:
                         # Si es un ObjectID
                         productos_query["_id"] = product_id
                 
-                productos_data = list(self.db_client.db.raw_productos.find(productos_query))
+                productos_data = list(self.db_client.db.raw_producto.find(productos_query))
                 
                 if productos_data:
                     productos_df = pd.DataFrame(productos_data)
@@ -395,7 +395,7 @@ class TimeSeriesDataProcessor:
         """
         try:
             # Obtener un pedido de muestra
-            pedido = self.db_client.db.raw_pedidos.find_one({"tenant_id": tenant_id})  # Añadir tenant_id
+            pedido = self.db_client.db.raw_pedido.find_one({"tenant_id": tenant_id})  # Añadir tenant_id
             if not pedido:
                 self.logger.warning(f"No se encontraron pedidos para tenant {tenant_id}")
                 return
@@ -403,12 +403,12 @@ class TimeSeriesDataProcessor:
             self.logger.info(f"Pedido ejemplo: _id={pedido.get('_id')}, pedido_id={pedido.get('pedido_id')}")
             
             # Buscar detalles con _id
-            detalles_id = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('_id')}))
+            detalles_id = list(self.db_client.db.raw_pedido_detalle.find({"pedido_id": pedido.get('_id')}))
             self.logger.info(f"Detalles encontrados buscando por _id: {len(detalles_id)}")
             
             # Buscar detalles con pedido_id
             if "pedido_id" in pedido:
-                detalles_pid = list(self.db_client.db.raw_pedido_detalles.find({"pedido_id": pedido.get('pedido_id')}))
+                detalles_pid = list(self.db_client.db.raw_pedido_detalle.find({"pedido_id": pedido.get('pedido_id')}))
                 self.logger.info(f"Detalles encontrados buscando por pedido_id: {len(detalles_pid)}")
                 
                 if detalles_pid:
@@ -418,14 +418,14 @@ class TimeSeriesDataProcessor:
                     # Verificar producto
                     if "producto_id" in detalle:
                         producto_id = detalle.get("producto_id")
-                        producto = self.db_client.db.raw_productos.find_one({"producto_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
+                        producto = self.db_client.db.raw_producto.find_one({"producto_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
                         if producto:
                             self.logger.info(f"Producto encontrado por producto_id: {producto.get('nombre', 'Sin nombre')}")
                         else:
                             self.logger.warning(f"No se encontró producto con producto_id={producto_id} para tenant {tenant_id}")
                             
                             # Intentar buscar por _id
-                            producto = self.db_client.db.raw_productos.find_one({"_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
+                            producto = self.db_client.db.raw_producto.find_one({"_id": producto_id, "tenant_id": tenant_id})  # Añadir tenant_id
                             if producto:
                                 self.logger.info(f"Producto encontrado por _id: {producto.get('nombre', 'Sin nombre')}")
         except Exception as e:
@@ -1052,7 +1052,7 @@ class TimeSeriesDataProcessor:
         # Si no está en memoria, intentar obtener de la base de datos
         try:
             # Primero buscar en colección de categorías si existe
-            category_collections = ["categorias", "raw_categorias", "raw_product_categories"]
+            category_collections = ["categorias", "raw_categoria", "raw_product_categories"]
             
             for collection in category_collections:
                 if collection in self.db_client.db.list_collection_names():
@@ -1108,11 +1108,11 @@ class TimeSeriesDataProcessor:
         product_ids = []
         
         try:
-            # ESTRATEGIA 1: Obtener productos desde raw_pedido_detalles (método principal)
-            logging.info(f"Buscando top productos en raw_pedido_detalles para tenant {tenant_id}...")
+            # ESTRATEGIA 1: Obtener productos desde raw_pedido_detalle (método principal)
+            logging.info(f"Buscando top productos en raw_pedido_detalle para tenant {tenant_id}...")
             
             # Primero obtener pedidos para este tenant
-            pedidos = list(self.db_client.db.raw_pedidos.find(
+            pedidos = list(self.db_client.db.raw_pedido.find(
                 {"tenant_id": tenant_id},
                 {"pedido_id": 1}
             ))
@@ -1139,18 +1139,18 @@ class TimeSeriesDataProcessor:
                         {"$limit": limit}
                     ]
                     
-                    top_products = list(self.db_client.db.raw_pedido_detalles.aggregate(pipeline))
+                    top_products = list(self.db_client.db.raw_pedido_detalle.aggregate(pipeline))
                     
                     if top_products:
                         product_ids = [p["_id"] for p in top_products]
-                        logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalles para tenant {tenant_id}")
+                        logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalle para tenant {tenant_id}")
                         return product_ids
             
-            # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_productos
-            logging.info(f"Buscando en raw_productos para tenant {tenant_id}...")
+            # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_producto
+            logging.info(f"Buscando en raw_producto para tenant {tenant_id}...")
             
             # Obtener los primeros productos de la colección de productos para este tenant
-            productos = list(self.db_client.db.raw_productos.find({"tenant_id": tenant_id}).limit(limit))
+            productos = list(self.db_client.db.raw_producto.find({"tenant_id": tenant_id}).limit(limit))
             
             if productos:
                 # MODIFICADO: Preferir producto_id sobre _id
@@ -1161,7 +1161,7 @@ class TimeSeriesDataProcessor:
                     else:
                         product_ids.append(p["_id"])
                         
-                logging.info(f"Encontrados {len(product_ids)} productos en raw_productos para tenant {tenant_id}")
+                logging.info(f"Encontrados {len(product_ids)} productos en raw_producto para tenant {tenant_id}")
                 return product_ids
                 
         except Exception as e:

@@ -23,16 +23,16 @@ class DataLoader:
         """
         # Mapeo de tablas a colecciones
         collection_map = {
-            "pedido": "raw_pedidos",
-            "pedido_detalle": "raw_pedido_detalles",
-            "producto": "raw_productos",
-            "cliente": "raw_clientes",
-            "categoria": "raw_categorias",
-            "usuario": "raw_usuarios",
-            "mesa": "raw_mesas",
-            "cuenta_mesa": "raw_cuenta_mesas",
-            "reserva": "raw_reservas",
-            "venta": "raw_ventas"
+            "pedido": "raw_pedido",
+            "pedido_detalle": "raw_pedido_detalle",
+            "producto": "raw_producto",
+            "cliente": "raw_cliente",
+            "categoria": "raw_categoria",
+            "usuario": "raw_usuario",
+            "mesa": "raw_mesa",
+            "cuenta_mesa": "raw_cuenta_mesa",
+            "reserva": "raw_reserva",
+            "venta": "raw_venta"
         }
         
         return collection_map.get(table_name, f"raw_{table_name}s")

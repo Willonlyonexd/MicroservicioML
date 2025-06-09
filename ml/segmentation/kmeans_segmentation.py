@@ -25,14 +25,14 @@ def load_data_from_mongo(mongo_client, tenant_id):
     """
     try:
         # Consultar datos de MongoDB específicos del tenant
-        raw_clientes = list(mongo_client.db.raw_clientes.find({"tenant_id": tenant_id}))
-        raw_cuenta_mesas = list(mongo_client.db.raw_cuenta_mesas.find({"tenant_id": tenant_id}))
-        raw_pedidos = list(mongo_client.db.raw_pedidos.find({"tenant_id": tenant_id}))
+        raw_cliente = list(mongo_client.db.raw_cliente.find({"tenant_id": tenant_id}))
+        raw_cuenta_mesa = list(mongo_client.db.raw_cuenta_mesa.find({"tenant_id": tenant_id}))
+        raw_pedido = list(mongo_client.db.raw_pedido.find({"tenant_id": tenant_id}))
         
         # Convertir a DataFrames
-        df_clientes = pd.DataFrame(raw_clientes)
-        df_cuenta_mesas = pd.DataFrame(raw_cuenta_mesas)
-        df_pedidos = pd.DataFrame(raw_pedidos)
+        df_clientes = pd.DataFrame(raw_cliente)
+        df_cuenta_mesas = pd.DataFrame(raw_cuenta_mesa)
+        df_pedidos = pd.DataFrame(raw_pedido)
         
         # NUEVO: Filtrar cliente_id=1 (usado para ventas generales)
         if 'cliente_id' in df_clientes.columns:

@@ -300,7 +300,7 @@ def resolve_product_forecast(obj, info, productId, days=STANDARD_PRODUCT_DAYS):
         
         # Si no hay predicciones incluso después de intentar generarlas, buscar info del producto
         if not predictions:
-            product_info = mongo.db["raw_productos"].find_one({"producto_id": productId, "tenant_id": tenant_id})
+            product_info = mongo.db["raw_producto"].find_one({"producto_id": productId, "tenant_id": tenant_id})
             if not product_info:
                 return None
                 
@@ -331,7 +331,7 @@ def resolve_product_forecast(obj, info, productId, days=STANDARD_PRODUCT_DAYS):
         categoria = "Platos Principales"  # Default
         if "categoria_id" in predictions[0]:
             categoria_id = predictions[0]["categoria_id"]
-            categoria_info = mongo.db["raw_categorias"].find_one({"categoria_id": categoria_id, "tenant_id": tenant_id})
+            categoria_info = mongo.db["raw_categoria"].find_one({"categoria_id": categoria_id, "tenant_id": tenant_id})
             if categoria_info and "nombre" in categoria_info:
                 categoria = categoria_info["nombre"]
         
@@ -453,7 +453,7 @@ def resolve_model_status(obj, info):
                 model_time = datetime.fromtimestamp(os.path.getmtime(model_file))
                 
                 # Buscar información del producto
-                product_info = mongo.db["raw_productos"].find_one({"producto_id": product_id, "tenant_id": tenant_id})
+                product_info = mongo.db["raw_producto"].find_one({"producto_id": product_id, "tenant_id": tenant_id})
                 product_name = product_info.get("nombre", f"Producto {product_id}") if product_info else f"Producto {product_id}"
                 
                 # Añadir información del modelo
@@ -519,7 +519,7 @@ def resolve_available_visualizations(obj, info):
                     plot_time = datetime.fromtimestamp(os.path.getmtime(plot_file))
                     
                     # Buscar información del producto
-                    product_info = mongo.db["raw_productos"].find_one({"producto_id": product_id, "tenant_id": tenant_id})
+                    product_info = mongo.db["raw_producto"].find_one({"producto_id": product_id, "tenant_id": tenant_id})
                     product_name = product_info.get("nombre", f"Producto {product_id}") if product_info else f"Producto {product_id}"
                     
                     result["productos"].append({
@@ -546,7 +546,7 @@ def resolve_available_visualizations(obj, info):
                     plot_time = datetime.fromtimestamp(os.path.getmtime(plot_file))
                     
                     # Buscar nombre de categoría
-                    categoria = mongo.db["raw_categorias"].find_one({"categoria_id": category_id, "tenant_id": tenant_id})
+                    categoria = mongo.db["raw_categoria"].find_one({"categoria_id": category_id, "tenant_id": tenant_id})
                     category_name = categoria.get("nombre", f"Categoría {category_id}") if categoria else f"Categoría {category_id}"
                     
                     result["categorias"].append({
@@ -590,9 +590,9 @@ def resolve_sales_with_forecast(obj, info, history_days=STANDARD_HISTORY_DAYS, f
                     "fecha": {"$gte": start_date, "$lte": current_date}
                 }, {"_id": 0}).sort("fecha", 1))
             
-            # Si no hay datos, intentar obtener de raw_pedidos
+            # Si no hay datos, intentar obtener de raw_pedido
             if not historical_data:
-                historical_data = list(mongo.db["raw_pedidos"].aggregate([
+                historical_data = list(mongo.db["raw_pedido"].aggregate([
                     {"$match": {
                         "tenant_id": tenant_id,
                         "$or": [
@@ -1116,7 +1116,7 @@ def resolve_clientes_con_segmentacion(obj, info):
         pipeline = [
             {"$match": {"tenant_id": tenant_id}},
             {"$lookup": {
-                "from": "raw_clientes",
+                "from": "raw_cliente",
                 "localField": "cliente_id",
                 "foreignField": "cliente_id",
                 "as": "cliente_info"

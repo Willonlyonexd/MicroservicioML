@@ -56,53 +56,28 @@ class TFForecaster:
         
         model.compile(
             optimizer=MODEL_PARAMS['optimizer'],
-            loss=MODEL_PARAMS['loss'],
-            metrics=MODEL_PARAMS['metrics']
+            loss=tf.keras.losses.MeanSquaredError(),
+            metrics=[tf.keras.metrics.MeanSquaredError()]
+
         )
         
         return model
     
     def train(self, data=None, epochs=MODEL_PARAMS['epochs'], batch_size=MODEL_PARAMS['batch_size'], tenant_id=1):
-        """
-        Entrena el modelo con datos históricos.
-        
-        Args:
-            data: DataFrame con datos históricos (opcional, si no se proporciona se extraen de la BD)
-            epochs: Número de épocas para entrenar
-            batch_size: Tamaño del batch
-            tenant_id: ID del tenant para filtrar datos
-            
-        Returns:
-            history: Historial de entrenamiento
-        """
-        # Si no se proporcionan datos, extraerlos filtrando por tenant_id
         if data is None:
             self.logger.info(f"Obteniendo datos históricos para entrenar modelo general (tenant {tenant_id})")
             data = self.data_processor.fetch_historical_data(tenant_id=tenant_id)
-            
-        # Agregar características temporales
         data_with_features = self.data_processor.add_time_features(data)
-        
-        # Crear secuencias
         X_train, y_train, X_val, y_val = self.data_processor.create_sequences(data_with_features)
-        
         if len(X_train) == 0:
             raise ValueError(f"No hay suficientes datos para entrenar el modelo para tenant {tenant_id}. Se requieren al menos 14 días de datos históricos.")
-        
-        # Construir modelo
         self.model = self.build_model(input_shape=(X_train.shape[1], X_train.shape[2]))
-        
-        # Early stopping para evitar overfitting
         early_stopping = EarlyStopping(
             monitor='val_loss',
             patience=MODEL_PARAMS['patience'],
             restore_best_weights=True
         )
-        
-        # Configurar callbacks
         callbacks = [early_stopping]
-        
-        # Entrenar modelo
         if len(X_val) > 0:
             self.logger.info(f"Iniciando entrenamiento con validación para tenant {tenant_id}")
             history = self.model.fit(
@@ -115,7 +90,6 @@ class TFForecaster:
             )
         else:
             self.logger.info(f"Iniciando entrenamiento sin validación para tenant {tenant_id}")
-            # Si no hay datos de validación, entrenar sin ellos
             history = self.model.fit(
                 X_train, y_train,
                 epochs=epochs,
@@ -123,49 +97,26 @@ class TFForecaster:
                 callbacks=callbacks,
                 verbose=1
             )
-        
         self.logger.info(f"Entrenamiento completado para tenant {tenant_id}")
         return history
-    
+
     def train_product_models(self, product_ids=None, top_n=10, epochs=MODEL_PARAMS['epochs'], tenant_id=1):
-        """
-        Entrena modelos específicos para productos seleccionados.
-        
-        Args:
-            product_ids: Lista de IDs de productos a modelar (opcional)
-            top_n: Si no se proporciona product_ids, entrenar para los top N productos
-            epochs: Número de épocas para entrenar
-            tenant_id: ID del tenant para filtrar datos
-            
-        Returns:
-            dict: Resultados del entrenamiento por producto
-        """
-        # Si no se proporcionan IDs específicos, obtener los top N productos para este tenant
+        # CAMBIO: Si no se proporcionan IDs específicos, obtener TODOS los productos para este tenant
         if product_ids is None:
-            self.logger.info(f"Obteniendo top {top_n} productos para tenant {tenant_id}")
-            product_ids = self.data_processor.get_top_products(limit=top_n, tenant_id=tenant_id)
-            
-        # Si aún no hay IDs, no podemos entrenar modelos de productos
+            self.logger.info(f"Obteniendo TODOS los productos para tenant {tenant_id}")
+            productos_cursor = self.db_client.db.raw_producto.find({"tenant_id": tenant_id}, {"producto_id": 1})
+            product_ids = [p["producto_id"] for p in productos_cursor]
+            self.logger.info(f"Se encontraron {len(product_ids)} productos para tenant {tenant_id}")
         if not product_ids:
             self.logger.warning(f"No se pudieron identificar productos para entrenamiento específico (tenant {tenant_id})")
             return {}
-            
-        # Obtener datos históricos por producto para este tenant
         self.logger.info(f"Obteniendo datos históricos por producto para tenant {tenant_id}")
-        product_data = self.data_processor.fetch_product_historical_data(top_n=top_n, tenant_id=tenant_id)
-        
-        # Resultados de entrenamiento
+        product_data = self.data_processor.fetch_product_historical_data(tenant_id=tenant_id)
         training_results = {}
-        
-        # Entrenar un modelo para cada producto
         for product_id in product_ids:
             try:
                 self.logger.info(f"Entrenando modelo para producto {product_id} (tenant {tenant_id})...")
-                
-                # Filtrar datos para este producto y añadir características temporales
                 product_df = product_data[product_data['producto_id'] == product_id].copy()
-                
-                # Verificar si hay suficientes datos
                 if len(product_df) < DATA_PARAMS['sequence_length'] + DATA_PARAMS['horizon'] + 5:
                     self.logger.warning(f"Datos insuficientes para producto {product_id} (tenant {tenant_id}). Omitiendo.")
                     training_results[product_id] = {
@@ -174,15 +125,9 @@ class TFForecaster:
                         'tenant_id': tenant_id
                     }
                     continue
-                
-                # Añadir características temporales
                 product_df_features = self.data_processor.add_time_features(product_df)
-                
-                # Crear secuencias para este producto
                 X_train, y_train, X_val, y_val = self.data_processor.create_product_sequences(
                     product_df_features, product_id)
-                
-                # Si no se pudieron crear secuencias, continuar con el siguiente producto
                 if X_train is None:
                     self.logger.warning(f"No se pudieron crear secuencias para producto {product_id} (tenant {tenant_id}). Omitiendo.")
                     training_results[product_id] = {
@@ -191,29 +136,22 @@ class TFForecaster:
                         'tenant_id': tenant_id
                     }
                     continue
-                
-                # Construir modelo para este producto
                 product_model = self.build_model(input_shape=(X_train.shape[1], X_train.shape[2]))
-                
-                # Early stopping
                 early_stopping = EarlyStopping(
                     monitor='val_loss',
                     patience=MODEL_PARAMS['patience'],
                     restore_best_weights=True
                 )
-                
-                # Entrenar modelo
                 if len(X_val) > 0:
                     history = product_model.fit(
                         X_train, y_train,
                         epochs=epochs,
-                        batch_size=min(32, len(X_train)),  # Ajustar batch_size según datos disponibles
+                        batch_size=min(32, len(X_train)),
                         validation_data=(X_val, y_val),
                         callbacks=[early_stopping],
                         verbose=0
                     )
                 else:
-                    # Entrenar sin validación si no hay datos suficientes
                     history = product_model.fit(
                         X_train, y_train,
                         epochs=epochs,
@@ -221,20 +159,14 @@ class TFForecaster:
                         callbacks=[early_stopping],
                         verbose=0
                     )
-                
-                # Guardar modelo en memoria
                 self.product_models[product_id] = product_model
-                
-                # Guardar resultados
                 training_results[product_id] = {
                     'status': 'success',
                     'val_loss': float(history.history['val_loss'][-1]) if 'val_loss' in history.history else None,
                     'epochs': len(history.history['loss']),
                     'tenant_id': tenant_id
                 }
-                
                 self.logger.info(f"Modelo para producto {product_id} (tenant {tenant_id}) entrenado exitosamente.")
-                
             except Exception as e:
                 self.logger.error(f"Error al entrenar modelo para producto {product_id} (tenant {tenant_id}): {str(e)}")
                 training_results[product_id] = {
@@ -242,7 +174,6 @@ class TFForecaster:
                     'error': str(e),
                     'tenant_id': tenant_id
                 }
-        
         return training_results
     
     def predict_next_days(self, days=DATA_PARAMS['horizon'], tenant_id=1):

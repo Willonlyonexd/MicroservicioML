@@ -43,22 +43,22 @@ class PostgresExtractor:
         
         # Mapeo de nombres de colecciones en MongoDB
         self.collection_names = {
-            "pedido": "raw_pedidos",
-            "pedido_detalle": "raw_pedido_detalles",
-            "producto": "raw_productos",
-            "cliente": "raw_clientes",
+            "pedido": "raw_pedido",
+            "pedido_detalle": "raw_pedido_detalle",
+            "producto": "raw_producto",
+            "cliente": "raw_cliente",
             "mesa": "raw_mesas",
-            "categoria": "raw_categorias",
+            "categoria": "raw_categoria",
             "usuario": "raw_usuarios",
-            "cuenta_mesa": "raw_cuenta_mesas",
-            "reserva": "raw_reservas",
-            "venta": "raw_ventas",
-            "comanda": "raw_comandas",
+            "cuenta_mesa": "raw_cuenta_mesa",
+            "reserva": "raw_reserva",
+            "venta": "raw_venta",
+            "comanda": "raw_comanda",
             "rol": "raw_roles",
             "permiso": "raw_permisos",
-            "unidad_medida": "raw_unidad_medidas",
-            "insumo": "raw_insumos",
-            "almacen": "raw_almacenes"
+            "unidad_medida": "raw_unidad_medida",
+            "insumo": "raw_insumo",
+            "almacen": "raw_almacen"
         }
     
     @timing_decorator

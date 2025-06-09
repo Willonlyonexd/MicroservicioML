@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Configuración de MongoDB
 MONGO_URI = "mongodb://localhost:27017"
-DB_NAME = "microserviceMl"  # Nombre exacto de la base de datos
+DB_NAME = "microservicio_ml"  # Nombre exacto de la base de datos
 
 def crear_segmentacion():
     """Script principal para crear segmentación de clientes en 4 segmentos"""
@@ -27,11 +27,11 @@ def crear_segmentacion():
         logger.info(f"Colecciones disponibles: {collections}")
         
         # 3. EXTRAER DATOS
-        logger.info("Extrayendo datos de raw_clientes, raw_cuenta_mesas y raw_pedidos...")
+        logger.info("Extrayendo datos de raw_cliente, raw_cuenta_mesa y raw_pedido...")
         
-        clientes_raw = list(db.raw_clientes.find())
-        mesas_raw = list(db.raw_cuenta_mesas.find())
-        pedidos_raw = list(db.raw_pedidos.find())
+        clientes_raw = list(db.raw_cliente.find())
+        mesas_raw = list(db.raw_cuenta_mesa.find())
+        pedidos_raw = list(db.raw_pedido.find())
         
         logger.info(f"Datos encontrados: {len(clientes_raw)} clientes, {len(mesas_raw)} mesas, {len(pedidos_raw)} pedidos")
         

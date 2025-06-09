@@ -10,10 +10,10 @@ class DatabaseConfig(BaseModel):
     """Configuración de bases de datos"""
     # MongoDB
     mongo_uri: str = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-    mongo_db: str = os.getenv("MONGO_DB", "microserviceMl")
+    mongo_db: str = os.getenv("MONGO_DB", "microservicio_ml")
     
     # PostgreSQL (ERP)
-    postgres_uri: str = os.getenv("POSTGRES_URI", "postgresql://postgres:will@localhost:5432/microservicio_erp5")
+    postgres_uri: str = os.getenv("POSTGRES_URI", "postgresql://postgres:will@localhost:5432/erp_zamo1")
 
 class ETLConfig(BaseModel):
     """Configuración del proceso ETL"""

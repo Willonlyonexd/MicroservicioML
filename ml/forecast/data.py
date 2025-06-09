@@ -33,22 +33,22 @@ class TimeSeriesDataProcessor:
         start_date = datetime.now() - timedelta(days=30*months)
         print(f"Buscando datos desde: {start_date}")
         
-        # Intentar obtener datos de raw_ventas primero
+        # Intentar obtener datos de raw_venta primero
         try:
-            print("Intentando obtener datos de raw_ventas...")
-            # Consulta directa a raw_ventas
+            print("Intentando obtener datos de raw_venta...")
+            # Consulta directa a raw_venta
             ventas_query = {
                 "tenant_id": 1,  # Asumiendo tenant_id=1
                 "fecha": {"$gte": start_date}
             }
             
-            ventas_data = list(self.db_client.db.raw_ventas.find(ventas_query))
-            print(f"Encontrados {len(ventas_data)} registros en raw_ventas")
+            ventas_data = list(self.db_client.db.raw_venta.find(ventas_query))
+            print(f"Encontrados {len(ventas_data)} registros en raw_venta")
             
             if ventas_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(ventas_data)
-                print(f"Columnas disponibles en raw_ventas: {df.columns.tolist()}")
+                print(f"Columnas disponibles en raw_venta: {df.columns.tolist()}")
                 
                 # Convertir fechas - adaptarse a la estructura real
                 if 'fecha' in df.columns:
@@ -81,15 +81,15 @@ class TimeSeriesDataProcessor:
                     if 'cantidad' not in daily_sales.columns:
                         daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
                     
-                    print(f"Datos procesados exitosamente de raw_ventas: {len(daily_sales)} días")
+                    print(f"Datos procesados exitosamente de raw_venta: {len(daily_sales)} días")
                     return self._ensure_complete_dates(daily_sales)
         except Exception as e:
-            print(f"Error al procesar raw_ventas: {str(e)}")
+            print(f"Error al procesar raw_venta: {str(e)}")
         
-        # Si llegamos aquí, intentamos con raw_pedidos
+        # Si llegamos aquí, intentamos con raw_pedido
         try:
-            print("Intentando obtener datos de raw_pedidos...")
-            # Consulta directa a raw_pedidos
+            print("Intentando obtener datos de raw_pedido...")
+            # Consulta directa a raw_pedido
             pedidos_query = {
                 "tenant_id": 1,
                 "$or": [
@@ -98,13 +98,13 @@ class TimeSeriesDataProcessor:
                 ]
             }
             
-            pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query))
-            print(f"Encontrados {len(pedidos_data)} registros en raw_pedidos")
+            pedidos_data = list(self.db_client.db.raw_pedido.find(pedidos_query))
+            print(f"Encontrados {len(pedidos_data)} registros en raw_pedido")
             
             if pedidos_data:
                 # Convertir a DataFrame
                 df = pd.DataFrame(pedidos_data)
-                print(f"Columnas disponibles en raw_pedidos: {df.columns.tolist()}")
+                print(f"Columnas disponibles en raw_pedido: {df.columns.tolist()}")
                 
                 # Convertir fechas - adaptarse a la estructura real
                 if 'fecha_hora' in df.columns:
@@ -136,10 +136,10 @@ class TimeSeriesDataProcessor:
                     if 'cantidad' not in daily_sales.columns:
                         daily_sales['cantidad'] = daily_sales['total'] / 100  # Estimación
                     
-                    print(f"Datos procesados exitosamente de raw_pedidos: {len(daily_sales)} días")
+                    print(f"Datos procesados exitosamente de raw_pedido: {len(daily_sales)} días")
                     return self._ensure_complete_dates(daily_sales)
         except Exception as e:
-            print(f"Error al procesar raw_pedidos: {str(e)}")
+            print(f"Error al procesar raw_pedido: {str(e)}")
         
         # Si llegamos aquí, generamos datos sintéticos
         print("No se pudieron obtener datos reales. Generando datos sintéticos...")
@@ -161,7 +161,7 @@ class TimeSeriesDataProcessor:
         start_date = datetime.now() - timedelta(days=30*months)
         print(f"Buscando datos de productos desde: {start_date}")
         
-        # Primero intentamos obtener detalles de pedidos (raw_pedido_detalles)
+        # Primero intentamos obtener detalles de pedidos (raw_pedido_detalle)
         try:
             print("Intentando obtener datos de pedidos con detalles...")
             
@@ -175,7 +175,7 @@ class TimeSeriesDataProcessor:
             }
             
             # Obtener todos los pedidos
-            pedidos_data = list(self.db_client.db.raw_pedidos.find(pedidos_query, 
+            pedidos_data = list(self.db_client.db.raw_pedido.find(pedidos_query, 
                                                                   {"_id": 1, "fecha": 1, "fecha_hora": 1}))
             
             if not pedidos_data:
@@ -202,7 +202,7 @@ class TimeSeriesDataProcessor:
                 detalles_query["producto_id"] = product_id
                 
             # Obtener detalles de pedidos
-            detalles_data = list(self.db_client.db.raw_pedido_detalles.find(detalles_query))
+            detalles_data = list(self.db_client.db.raw_pedido_detalle.find(detalles_query))
             
             if not detalles_data:
                 print("No se encontraron detalles de pedidos para el período solicitado")
@@ -255,7 +255,7 @@ class TimeSeriesDataProcessor:
             
             # Obtener información adicional de productos
             try:
-                productos_data = list(self.db_client.db.raw_productos.find(
+                productos_data = list(self.db_client.db.raw_producto.find(
                     {"tenant_id": 1} if not product_id else {"tenant_id": 1, "_id": product_id}
                 ))
                 
@@ -723,8 +723,8 @@ class TimeSeriesDataProcessor:
     product_ids = []
     
     try:
-        # ESTRATEGIA 1: Obtener productos desde raw_pedido_detalles (método principal)
-        logging.info("Buscando top productos en raw_pedido_detalles...")
+        # ESTRATEGIA 1: Obtener productos desde raw_pedido_detalle (método principal)
+        logging.info("Buscando top productos en raw_pedido_detalle...")
         
         # Pipeline de agregación más flexible (sin filtro de fecha para capturar más datos)
         pipeline = [
@@ -737,22 +737,22 @@ class TimeSeriesDataProcessor:
             {"$limit": limit}
         ]
         
-        top_products = list(self.db_client.db.raw_pedido_detalles.aggregate(pipeline))
+        top_products = list(self.db_client.db.raw_pedido_detalle.aggregate(pipeline))
         
         if top_products:
             product_ids = [p["_id"] for p in top_products]
-            logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalles")
+            logging.info(f"Encontrados {len(product_ids)} productos en raw_pedido_detalle")
             return product_ids
             
-        # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_productos
-        logging.info("No se encontraron detalles de pedidos. Buscando en raw_productos...")
+        # ESTRATEGIA 2: Si no hay detalles, buscar directamente en raw_producto
+        logging.info("No se encontraron detalles de pedidos. Buscando en raw_producto...")
         
         # Obtener los primeros productos de la colección de productos
-        productos = list(self.db_client.db.raw_productos.find({}).limit(limit))
+        productos = list(self.db_client.db.raw_producto.find({}).limit(limit))
         
         if productos:
             product_ids = [p["_id"] for p in productos]
-            logging.info(f"Encontrados {len(product_ids)} productos en raw_productos")
+            logging.info(f"Encontrados {len(product_ids)} productos en raw_producto")
             return product_ids
             
         # ESTRATEGIA 3: Buscar en otras colecciones (raw_inventario, ventas_diarias, etc.)

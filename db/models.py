@@ -124,15 +124,15 @@ def create_indexes(mongo_manager=None):
         mongo = mongo_manager if mongo_manager is not None else get_mongo_manager()
         
         # Índices para tablas raw - el formato correcto es list de tuplas
-        mongo.create_index("raw_pedidos", [("tenant_id", 1), ("pedido_id", 1)], unique=True)
-        mongo.create_index("raw_pedidos", [("tenant_id", 1), ("fecha_hora", -1)])
+        mongo.create_index("raw_pedido", [("tenant_id", 1), ("pedido_id", 1)], unique=True)
+        mongo.create_index("raw_pedido", [("tenant_id", 1), ("fecha_hora", -1)])
         
-        mongo.create_index("raw_pedido_detalles", [("tenant_id", 1), ("pedido_detalle_id", 1)], unique=True)
-        mongo.create_index("raw_pedido_detalles", [("tenant_id", 1), ("pedido_id", 1)])
-        mongo.create_index("raw_pedido_detalles", [("tenant_id", 1), ("producto_id", 1)])
+        mongo.create_index("raw_pedido_detalle", [("tenant_id", 1), ("pedido_detalle_id", 1)], unique=True)
+        mongo.create_index("raw_pedido_detalle", [("tenant_id", 1), ("pedido_id", 1)])
+        mongo.create_index("raw_pedido_detalle", [("tenant_id", 1), ("producto_id", 1)])
         
-        mongo.create_index("raw_productos", [("tenant_id", 1), ("producto_id", 1)], unique=True)
-        mongo.create_index("raw_productos", [("tenant_id", 1), ("categoria_id", 1)])
+        mongo.create_index("raw_producto", [("tenant_id", 1), ("producto_id", 1)], unique=True)
+        mongo.create_index("raw_producto", [("tenant_id", 1), ("categoria_id", 1)])
         
         # Índices para tablas analíticas
         mongo.create_index("ventas_diarias", [("tenant_id", 1), ("fecha", 1), ("producto_id", 1)], unique=True)

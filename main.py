@@ -39,7 +39,7 @@ def diagnosticar_datos_disponibles(tenant_id=1):
     logger.info(f"Colecciones disponibles: {collections}")
     
     # Verificar datos en colecciones relevantes
-    for collection_name in ["raw_pedidos", "raw_pedido_detalles", "raw_productos"]:
+    for collection_name in ["raw_pedido", "raw_pedido_detalle", "raw_producto"]:
         if collection_name in collections:
             count = mongo.db[collection_name].count_documents({"tenant_id": tenant_id})
             logger.info(f"Colección {collection_name}: {count} documentos para tenant {tenant_id}")
@@ -50,21 +50,21 @@ def diagnosticar_datos_disponibles(tenant_id=1):
                 logger.info(f"Ejemplo de {collection_name}: {list(sample.keys())}")
     
     # Verificar si hay datos de productos
-    if "raw_productos" in collections:
-        productos = list(mongo.db.raw_productos.find({"tenant_id": tenant_id}).limit(5))
+    if "raw_producto" in collections:
+        productos = list(mongo.db.raw_producto.find({"tenant_id": tenant_id}).limit(5))
         if productos:
             logger.info(f"Ejemplos de productos disponibles para tenant {tenant_id}: {[p.get('_id') for p in productos]}")
         else:
-            logger.warning(f"No hay productos en la colección raw_productos para tenant {tenant_id}")
+            logger.warning(f"No hay productos en la colección raw_producto para tenant {tenant_id}")
             
     # Verificar pedidos y detalles de pedidos
-    if "raw_pedidos" in collections and "raw_pedido_detalles" in collections:
+    if "raw_pedido" in collections and "raw_pedido_detalle" in collections:
         # Obtener un pedido de ejemplo
-        sample_pedido = mongo.db.raw_pedidos.find_one({"tenant_id": tenant_id})
+        sample_pedido = mongo.db.raw_pedido.find_one({"tenant_id": tenant_id})
         if sample_pedido:
             pedido_id = sample_pedido.get('_id')
             # Buscar detalles asociados a este pedido
-            detalles = list(mongo.db.raw_pedido_detalles.find({"pedido_id": pedido_id}))
+            detalles = list(mongo.db.raw_pedido_detalle.find({"pedido_id": pedido_id}))
             logger.info(f"Pedido {pedido_id} tiene {len(detalles)} detalles")
             
             # Mostrar productos en esos detalles
@@ -682,22 +682,22 @@ def run_ml_segmentation(tenant_id=1, n_clusters=4, generate_plots=True):  # MODI
         logger.info(f"Cargando datos para segmentación de clientes del tenant {tenant_id}...")
         
         # Consultar datos de MongoDB específicos del tenant
-        raw_clientes, raw_cuenta_mesas, raw_pedidos = load_data_from_mongo(mongo, tenant_id)
+        raw_cliente, raw_cuenta_mesa, raw_pedido = load_data_from_mongo(mongo, tenant_id)
         
         # Verificar si tenemos suficientes datos
-        if raw_clientes is None or raw_cuenta_mesas is None or raw_pedidos is None:
+        if raw_cliente is None or raw_cuenta_mesa is None or raw_pedido is None:
             logger.error(f"Error al cargar datos para tenant {tenant_id}")
             return False
             
-        if len(raw_clientes) == 0 or len(raw_cuenta_mesas) == 0 or len(raw_pedidos) == 0:
-            logger.warning(f"Datos insuficientes para segmentación. Clientes: {len(raw_clientes)}, Cuenta mesas: {len(raw_cuenta_mesas)}, Pedidos: {len(raw_pedidos)}")
+        if len(raw_cliente) == 0 or len(raw_cuenta_mesa) == 0 or len(raw_pedido) == 0:
+            logger.warning(f"Datos insuficientes para segmentación. Clientes: {len(raw_cliente)}, Cuenta mesas: {len(raw_cuenta_mesa)}, Pedidos: {len(raw_pedido)}")
             return False
         
-        logger.info(f"Datos cargados: {len(raw_clientes)} clientes, {len(raw_cuenta_mesas)} cuenta mesas, {len(raw_pedidos)} pedidos")
+        logger.info(f"Datos cargados: {len(raw_cliente)} clientes, {len(raw_cuenta_mesa)} cuenta mesas, {len(raw_pedido)} pedidos")
         
         # 2. PREPARAR CARACTERÍSTICAS
         logger.info(f"Preparando características para segmentación de clientes del tenant {tenant_id}...")
-        features = prepare_features(raw_clientes, raw_cuenta_mesas, raw_pedidos)
+        features = prepare_features(raw_cliente, raw_cuenta_mesa, raw_pedido)
         
         # 3. EJECUTAR K-MEANS
         logger.info(f"Ejecutando algoritmo K-means con {n_clusters} clusters...")
@@ -1071,10 +1071,10 @@ if __name__ == "__main__":
             # Ejecutar módulo de forecasting para este tenant
             ml_success = run_ml_forecast(
                 tenant_id=tenant_id,          # ID del tenant a procesar
-                train_new_model=True,         # Cambio a True para forzar entrenamiento y solucionar el error
+                train_new_model=False,         # Cambio a True para forzar entrenamiento y solucionar el error
                 save_model=True,              # True para guardar los modelos después de entrenar
                 generate_plots=True,          # True para generar visualizaciones
-                train_product_models=True,    # Cambio a True para entrenar nuevos modelos de productos
+                train_product_models=False,    # Cambio a True para entrenar nuevos modelos de productos
                 top_products=10               # Número de productos top a predecir
             )
             
@@ -1137,6 +1137,7 @@ if __name__ == "__main__":
             mongo.close()
         except:
             pass
+
     
 if __name__ == "__main__":
     main()
