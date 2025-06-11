@@ -5,7 +5,23 @@ import logging
 import random
 from db.mongo_client import get_mongo_manager
 from ml.forecast.model import TFForecaster
+# Importar el nuevo motor de recomendación
+import sys
+from pathlib import Path
+ml_path = str(Path(__file__).parent.parent)
+if ml_path not in sys.path:
+    sys.path.append(ml_path)
+from ml.recommendation.recommendation_engine import RecommendationEngine
 import pandas as pd
+
+# Inicializar el motor de recomendación (inicialización perezosa)
+_recommendation_engine = None
+
+def get_recommendation_engine():
+    global _recommendation_engine
+    if _recommendation_engine is None:
+        _recommendation_engine = RecommendationEngine()
+    return _recommendation_engine
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -100,6 +116,7 @@ def auto_complete_data(data, count, period_type):
         last_item = new_item
     
     return result
+
 
 def resolve_daily_forecasts(obj, info, days=STANDARD_DAILY_DAYS):
     """Resolver para obtener predicciones diarias"""
@@ -1152,6 +1169,63 @@ def resolve_clientes_con_segmentacion(obj, info):
         logger.error(f"Error obteniendo clientes con segmentación: {str(e)}")
         return []
 
+# NUEVOS RESOLVERS PARA RECOMENDACIONES
+
+def resolve_personal_recommendations(obj, info, clientId, tenantId, limit=5, filter=None):
+    """Resolver para recomendaciones personalizadas"""
+    try:
+        logger.info(f"Generando recomendaciones personalizadas para cliente {clientId} (tenant {tenantId})")
+        
+        # Obtener motor de recomendación
+        engine = get_recommendation_engine()
+        
+        # Extraer datos del filtro
+        exclude_products = filter.get('excludeProductIds', []) if filter else []
+        category_ids = filter.get('categoryIds', []) if filter else []
+        context = filter.get('context', {}) if filter else {}
+        
+        # Obtener recomendaciones del motor
+        recommendations = engine.get_personal_recommendations(
+            client_id=clientId,
+            tenant_id=tenantId,
+            limit=limit,
+            context=context,
+            exclude_products=exclude_products,
+            category_ids=category_ids
+        )
+        
+        logger.info(f"Generadas {len(recommendations)} recomendaciones personalizadas para cliente {clientId}")
+        return recommendations
+    except Exception as e:
+        logger.error(f"Error generando recomendaciones personalizadas: {str(e)}", exc_info=True)
+        return []
+
+def resolve_general_recommendations(obj, info, tenantId, limit=10, filter=None):
+    """Resolver para recomendaciones generales"""
+    try:
+        logger.info(f"Generando recomendaciones generales para tenant {tenantId}")
+        
+        # Obtener motor de recomendación
+        engine = get_recommendation_engine()
+        
+        # Extraer datos del filtro
+        category_ids = filter.get('categoryIds', []) if filter else []
+        context = filter.get('context', {}) if filter else {}
+        
+        # Obtener recomendaciones del motor
+        recommendations = engine.get_general_recommendations(
+            tenant_id=tenantId,
+            limit=limit,
+            context=context,
+            category_ids=category_ids
+        )
+        
+        logger.info(f"Generadas {len(recommendations)} recomendaciones generales para tenant {tenantId}")
+        return recommendations
+    except Exception as e:
+        logger.error(f"Error generando recomendaciones generales: {str(e)}", exc_info=True)
+        return []
+
 # Diccionario de resolvers para Ariadne
 resolvers = {
     "Query": {
@@ -1178,6 +1252,10 @@ resolvers = {
         
         # Nuevos resolvers para visualizaciones específicas
         "segmentacionGeneral": resolve_segmentacion_general,
-        "clientesConSegmentacion": resolve_clientes_con_segmentacion
+        "clientesConSegmentacion": resolve_clientes_con_segmentacion,
+
+        # Nuevos resolvers para el sistema de recomendación mejorado
+        "personalRecommendations": resolve_personal_recommendations,
+        "generalRecommendations": resolve_general_recommendations,
     }
 }

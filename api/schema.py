@@ -1,4 +1,4 @@
-  # Schema GraphQL para el sistema de predicción de ventas con contexto multi-tenant
+# Schema GraphQL para el sistema de predicción de ventas con contexto multi-tenant y recomendaciones
 schema_sdl = """
 
   type Query {
@@ -10,6 +10,7 @@ schema_sdl = """
     
     # Predicciones mensuales
     monthlyForecasts(months: Int = 3): [MonthlyPrediction!]!
+
     
     # Predicción para un producto específico
     productForecast(productId: Int!, days: Int = 7): ProductForecast
@@ -58,6 +59,23 @@ schema_sdl = """
     
     # Lista detallada de clientes con su información de segmentación
     clientesConSegmentacion: [ClienteConSegmento!]!
+
+    # CONSULTAS PARA SISTEMA DE RECOMENDACIÓN
+    
+    # Recomendaciones personalizadas para un cliente específico
+    personalRecommendations(
+      clientId: ID!, 
+      tenantId: ID!,
+      limit: Int = 5, 
+      filter: RecommendationFilter
+    ): [Recommendation!]!
+    
+    # Recomendaciones generales (populares, tendencia)
+    generalRecommendations(
+      tenantId: ID!,
+      limit: Int = 10, 
+      filter: RecommendationFilter
+    ): [Recommendation!]!
   }
 
   # Predicción diaria de ventas
@@ -298,5 +316,44 @@ schema_sdl = """
     comensalesPromedio: Float!
     gastoTotal: Float!
     tenantId: Int
+  }
+  
+  # TIPOS PARA SISTEMA DE RECOMENDACIÓN
+  
+  # Producto para recomendación
+  type RecommendationProduct {
+    id: ID!
+    name: String!
+    description: String
+    price: Float
+    category: RecommendationCategory
+    imageUrl: String
+  }
+
+  # Categoría de producto
+  type RecommendationCategory {
+    id: ID!
+    name: String!
+  }
+
+  # Recomendación individual
+  type Recommendation {
+    product: RecommendationProduct!
+    score: Float!
+    reason: String
+  }
+
+  # Input para contexto de recomendación
+  input ContextInput {
+    timeOfDay: String
+    dayOfWeek: Int
+    partySize: Int
+  }
+
+  # Input para filtro de recomendaciones
+  input RecommendationFilter {
+    excludeProductIds: [ID!]
+    categoryIds: [ID!]
+    context: ContextInput
   }
   """
