@@ -153,17 +153,20 @@ class RecommendationDataManager:
         try:
             # Convertir IDs a lista si es necesario
             if not isinstance(product_ids, (list, tuple)):
-                product_ids = [int(pid) for pid in product_ids]
+                product_ids = [product_ids]
             
-            # Usar query con manejo de parámetros más seguro
+            # IMPORTANTE: Convertir de numpy.int64 a int de Python
+            product_ids = [int(pid) for pid in product_ids]
+            
+            # Usar parámetros parametrizados correctamente con SQLAlchemy
             placeholders = ', '.join([f":id{i}" for i in range(len(product_ids))])
             params = {'tenant_id': tenant_id}
             for i, pid in enumerate(product_ids):
                 params[f'id{i}'] = pid
-            
+                
             query = text(f"""
-                SELECT p.producto_id, p.nombre, p.descripcion, p.precio, p.categoria_id,
-                       c.nombre as categoria_nombre
+                SELECT p.producto_id, p.nombre, p.descripcion, p.precio, 
+                       p.categoria_id, c.nombre as categoria_nombre
                 FROM producto p
                 LEFT JOIN categoria c ON p.categoria_id = c.categoria_id
                 WHERE p.producto_id IN ({placeholders})
@@ -171,14 +174,10 @@ class RecommendationDataManager:
             """)
             
             result = pd.read_sql(query, self.db_connection, params=params)
-            
-            if result.empty:
-                self.logger.warning(f"No se encontraron detalles para productos {product_ids}")
-            
             return result
             
         except Exception as e:
-            self.logger.error(f"Error al obtener detalles de productos: {str(e)}", exc_info=True)
+            self.logger.error(f"Error al obtener detalles de productos: {str(e)}")
             return pd.DataFrame()
     
     def get_products_bought_together(self, tenant_id):
