@@ -1,0 +1,34 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+.venv/
+env/
+venv/
+
+# Logs
+*.log
+
+# Datos generados o artefactos
+*.sqlite3
+*.h5
+*.pth
+*.pkl
+*.joblib
+
+# Carpetas de salida (ajustado)
+models/
+modelos/
+plots/
+
+# Archivos sensibles
+.env
+*.env
+
+# IDE y control de versiones
+.vscode/
+.idea/
+.git/
